@@ -313,7 +313,6 @@ function App() {
               }
               displayableRooms.push(returnRoom);
             });
-            console.log(displayableRooms);
 
             const availableBlocksForDisplay = [];
             displayableRooms.forEach(room => {
@@ -332,7 +331,9 @@ function App() {
                 }
               });
             });
-            setAvailableBlocks(availableBlocksForDisplay);
+            const sortedBlocks = availableBlocksForDisplay.sort((a,b) => (a.startDateTime > b.startDateTime) ? 1 : ((b.startDateTime > a.startDateTime) ? -1 : 0))
+
+            setAvailableBlocks(sortedBlocks);
   
             setState((state) => ({
               ...state,
