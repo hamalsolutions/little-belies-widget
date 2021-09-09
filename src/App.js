@@ -380,15 +380,17 @@ function App() {
                         "[)"
                       )
                   );
-                  /*
+                  
                   mutableBlock.appointment =
                   blockAppointment === undefined ? {} : blockAppointment;
                   mutableBlock.available = Boolean(available);
-                  */
+                  
+                  /*
                   console.log(moment(blockDate).toString());
                   console.log(moment(state.startDate).add(2, "hours").toString());
                   console.log(moment(blockDate).isAfter(moment(state.startDate).add(2, "hours")));
-  
+                  */
+
                   if(blockAppointment === undefined && available && moment(blockDate).isAfter(moment(state.startDate).add(2, "hours"))){
                     availableBlocks.push(mutableBlock);
                   }
