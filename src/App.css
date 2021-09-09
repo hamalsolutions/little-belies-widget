@@ -1,38 +1,76 @@
-.App {
-  text-align: center;
+.is-select-invalid > div:nth-child(2){
+  border-color: #dc3545 !important;
+  padding-right: calc(1.5em + 0.75rem);
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12' width='12' height='12' fill='none' stroke='%23dc3545'%3e%3ccircle cx='6' cy='6' r='4.5'/%3e%3cpath stroke-linejoin='round' d='M5.8 3.6h.4L6 6.5z'/%3e%3ccircle cx='6' cy='8.2' r='.6' fill='%23dc3545' stroke='none'/%3e%3c/svg%3e");
+  background-repeat: no-repeat !important;
+  background-position: right calc(0.375em + 0.1875rem) center;
+  background-size: calc(0.75em + 0.375rem) calc(0.75em + 0.375rem);
 }
 
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
+.is-select-invalid > div:nth-child(2):hover, .is-select-invalid > div:nth-child(2):focus{
+  border-color: #dc3545 !important;
+  box-shadow: 0 0 0 0.25rem rgba(220, 53, 69, 0.25) !important;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
+.scroll-head{
+  color: rgb(176, 176, 176) !important;
+  background-color: transparent !important;
+  border: none !important;
+  font-weight: bold !important;
+  text-transform: uppercase !important;
 }
 
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: white;
+.datepicker-button-previous, .datepicker-button-next{
+  background: #AE678C !important;
 }
 
-.App-link {
-  color: #61dafb;
+.date-day-Item-selected{
+  border: 2px solid #AE678C !important;
+  color: #AE678C !important;
 }
 
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+.datepicker-date-day-Item:hover {
+  background-color: #AE678C !important;
+  border: 2px solid transparent !important;
+  color: #fff !important;
 }
+
+.datepicker-month-label {
+  color: #AE678C !important;  
+}
+
+.btn-outline-secondary:hover{
+  border: solid 2px #C56F9C !important;
+  color: #C56F9C !important;
+  background-color: #f5e6ed !important;
+  font-weight: bold !important;
+  box-shadow: 0 0 0 0.25rem rgb(174 103 140 / 25%) !important;
+}
+
+.btn-outline-secondary{
+  border-width: 2px !important;
+}
+
+.btn-cta{
+  font-weight: bold;
+  border: solid 2px #AE678C !important;
+  color: #AE678C !important;
+  background-color: #f5e6ed !important;
+}
+
+.btn-selected-block{
+  border-width: 2px !important;
+  background: #AE678C !important;
+  color: white !important;
+}
+
+.btn-cta:hover{
+  border-width: 2px !important;
+  background: #AE678C !important;
+  color: white !important;
+}
+
+.btn-cta:focus, .btn-outline-secondary:focus, .btn-selected-block:focus{
+  box-shadow: 0 0 0 0.25rem rgb(174 103 140 / 25%) !important;
+}
+
