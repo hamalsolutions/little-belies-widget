@@ -3,8 +3,13 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import ReactHorizontalDatePicker from "react-horizontal-strip-datepicker";
 // import ReactHorizontalDatePicker from "./components/ReactHorizontalDatePicker";
 import "react-horizontal-strip-datepicker/dist/ReactHorizontalDatePicker.css";
-// import "./styles/ReactHorizontalDatePicker.css";
+import "./styles/ReactHorizontalDatePicker.css";
 import moment from "moment";
+import Select from "react-select";
+import { useForm, Controller  } from "react-hook-form";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faSpinner } from "@fortawesome/free-solid-svg-icons";  
+import "./App.css";
 
 const blocks = [
   {
@@ -145,6 +150,8 @@ function App() {
   const [state, setState] = useState({
     step: "registerForm",
     status: "IDLE",
+    availabilityRequestStatus: "IDLE",
+    appointmentRequestStatus: "IDLE",
     message: "",
     siteId: "549974",
     locationId: "1",
@@ -162,58 +169,123 @@ function App() {
     weeks: "",
     sessionTypeId: "",
     sessionTypeName: "",
-    language: ""
+    language: "",
+    clientRequestStatus: "IDLE",
+    createClientRequestStatus: "IDLE",
+    searchResults: [],
+    clientObject: {},
+    clientIsEqual: undefined,
   }); 
   const [availableBlocks, setAvailableBlocks] = useState([]);
-
-  const getAvailability = async () => {
-    setState((state) => ({
-      ...state,
-      status: "loading",
-    }));
-
-    try {
-      const authPayload = {
-        Username: state.userName,
-        Password: state.userPassword,
-      };
-      const authRequest = {
-        method: "PUT",
-        headers: {
-          "Content-type": "application/json; charset=UTF-8",
-          siteid: state.siteId,
+  const [services, setServices] = useState([]);
+ 
+  useEffect(() => {
+    const servicesConsulted = {
+      services: [
+        { sessionTypeId: 5, name: "Early Pregnancy - $59", price: 59 },
+        {
+          sessionTypeId: 6,
+          name: "Meet Your Baby - 15 Min 5D/HD - $99",
+          price: 99,
         },
-        body: JSON.stringify(authPayload),
+        {
+          sessionTypeId: 7,
+          name: "Meet Your Baby - 25 min 5D/HD - $139",
+          price: 139,
+        },
+        {
+          sessionTypeId: 8,
+          name: "Special Promotion 25 min 5D/HD Ultrasound - $219",
+          price: 219,
+        },
+        {
+          sessionTypeId: 18,
+          name: "Meet Your Baby - 25 Min 5D/HD + Baby's Growth $168",
+          price: 168,
+        },
+        {
+          sessionTypeId: 19,
+          name: "Meet Your Baby - 15 Min 5D/HD + Baby's Growth $128",
+          price: 128,
+        },
+        { sessionTypeId: 20, name: "Come back for free", price: 0 },
+        { sessionTypeId: 24, name: "Special Promo Ultrasound (G)", price: 0 },
+        { sessionTypeId: 25, name: "Gender Determination - $79", price: 79 },
+        { sessionTypeId: 32, name: "Membership + Visit  - $198", price: 198 },
+        { sessionTypeId: 33, name: "Membership Ultrasound -$30", price: 30 },
+        {
+          sessionTypeId: 34,
+          name: "Gender Determination  + Baby's Growth - $108  ",
+          price: 108,
+        },
+        { sessionTypeId: 37, name: "CBFF + Baby's Growth", price: 29 },
+        {
+          sessionTypeId: 9,
+          name: "50 Minute Prenatal Massage - $79",
+          price: 79,
+        },
+        {
+          sessionTypeId: 10,
+          name: "80 Minute Prenatal Massage - $109",
+          price: 109,
+        },
+        {
+          sessionTypeId: 13,
+          name: "30 Minute Prenatal Massage - $49",
+          price: 49,
+        },
+        { sessionTypeId: 21, name: "Special Promo 50 min (G)", price: 0 },
+        {
+          sessionTypeId: 23,
+          name: "Special Promotion 50 min Massage - $219",
+          price: 219,
+        },
+      ],
+    };
+    const displayableServices = [];
+    servicesConsulted.services.forEach((item) => {
+      const mutableItem = {
+        value: item.sessionTypeId,
+        label: item.name,
       };
-      const authResponse = await fetch(
-        `${process.env.REACT_APP_API_URL}/api/userToken/`,
-        authRequest
-      );
-      const authData = await authResponse.json();
-      if (authResponse.ok) {
-        setState((state) => ({
-          ...state,
-          authorization: authData.accesssToken,
-        }));
-        const queryStartDate = moment(state.startDate).format("MM/DD/YYYY").toString();
+      displayableServices.push(mutableItem);
+    });
+    setServices(displayableServices);
+  }, []);
 
-        const availabilityRequest = {
-          method: "GET",
+  useEffect(() => {
+    const getAvailability = async () => {
+      setState((state) => ({
+        ...state,
+        availabilityRequestStatus: "loading",
+      }));
+  
+      try {
+        const authPayload = {
+          Username: state.userName,
+          Password: state.userPassword,
+        };
+        const authRequest = {
+          method: "PUT",
           headers: {
             "Content-type": "application/json; charset=UTF-8",
             siteid: state.siteId,
-            authorization: authData.accesssToken,
-            locationid: state.locationId,
           },
+          body: JSON.stringify(authPayload),
         };
-        const availabilityResponse = await fetch(
-          `${process.env.REACT_APP_API_URL}/api/sites/${state.siteId}/locations/${state.locationId}/schedule?startDate=${queryStartDate}&endDate=${queryStartDate}`,
-          availabilityRequest
+        const authResponse = await fetch(
+          `${process.env.REACT_APP_API_URL}/api/userToken/`,
+          authRequest
         );
-        const availabilityData = await availabilityResponse.json();
-        if (availabilityResponse.ok) {
-
-          const appointmentsRequest = {
+        const authData = await authResponse.json();
+        if (authResponse.ok) {
+          setState((state) => ({
+            ...state,
+            authorization: authData.accesssToken,
+          }));
+          const queryStartDate = moment(state.startDate).format("MM/DD/YYYY").toString();
+  
+          const availabilityRequest = {
             method: "GET",
             headers: {
               "Content-type": "application/json; charset=UTF-8",
@@ -222,157 +294,179 @@ function App() {
               locationid: state.locationId,
             },
           };
-          const appointmentsRequestResponse = await fetch(
-            `${process.env.REACT_APP_API_URL}/api/appointments/?appointmentDate=${queryStartDate}`,
-            appointmentsRequest
+          const availabilityResponse = await fetch(
+            `${process.env.REACT_APP_API_URL}/api/sites/${state.siteId}/locations/${state.locationId}/schedule?startDate=${queryStartDate}&endDate=${queryStartDate}`,
+            availabilityRequest
           );
-          const appointmentsRequestData = await appointmentsRequestResponse.json();
-          if (appointmentsRequestResponse.ok) {
-            const rooms = availabilityData.schedule.map((room) => {
-              const appointments = [];
-              appointmentsRequestData.forEach((appointment) => {
-                if (room.id === appointment.staffId) {
-                  const mutableAppointment = appointment;
-                  const segment = new Date(
-                    mutableAppointment.StartDateTime
-                  ).toLocaleTimeString("en-US", {
-                    hour: "2-digit",
-                    minute: "2-digit",
-                  });
-                  mutableAppointment.segment = segment;
-                  appointments.push(mutableAppointment);
-                }
-              });
-
-              const roomReturn = {
-                staffId: room.id,
-                staffName: room.name,
-                unavailabilities: room.unavailabilities,
-                availabilities: room.availabilities,
-                roomBlocks: [],
-                appointments: appointments,
-              };
-              return roomReturn;
-            });
+          const availabilityData = await availabilityResponse.json();
+          if (availabilityResponse.ok) {
   
-            const displayableRooms = [];
-            rooms.forEach(room => {
-              const mutableBlocks = [...blocks];
-              const availableBlocks = [];
-              const roomBlocks = mutableBlocks.map((block) => {
-                const mutableBlock = { ...block };
-                const addTwelve = mutableBlock.segment.includes("PM");
-                const rawHours = parseInt(mutableBlock.segment.split(" ")[0].split(":")[0]);
-                const hours = addTwelve && rawHours !== 12 ? rawHours + 12 : rawHours;
-                const minutes = parseInt( mutableBlock.segment.split(" ")[0].split(":")[1] );
-                const stringDate = moment(state.startDate).format("MM/DD/YYYY").toString();
-                const startDateTime = moment(stringDate).add(hours, "hours").add(minutes, "minutes").format("YYYY-MM-DD[T]HH:mm:ss");
-                const endDateTime = moment(startDateTime).add(30, "minutes").format("YYYY-MM-DD[T]HH:mm:ss");
-                mutableBlock.startDateTime = startDateTime;
-                mutableBlock.endDateTime = endDateTime;
-                const blockDate = moment(stringDate).add(hours, "hours").add(minutes, "minutes").toString();
-                mutableBlock.blockDate = blockDate;
-                let available = false;
-                room.availabilities.forEach(
-                  (availabilityBlock) => {
-                    available = available +moment(blockDate).isBetween(availabilityBlock.startDateTime,availabilityBlock.endDateTime,undefined,"[)");
+            const appointmentsRequest = {
+              method: "GET",
+              headers: {
+                "Content-type": "application/json; charset=UTF-8",
+                siteid: state.siteId,
+                authorization: authData.accesssToken,
+                locationid: state.locationId,
+              },
+            };
+            const appointmentsRequestResponse = await fetch(
+              `${process.env.REACT_APP_API_URL}/api/appointments/?appointmentDate=${queryStartDate}`,
+              appointmentsRequest
+            );
+            const appointmentsRequestData = await appointmentsRequestResponse.json();
+            if (appointmentsRequestResponse.ok) {
+              const rooms = availabilityData.schedule.map((room) => {
+                const appointments = [];
+                appointmentsRequestData.forEach((appointment) => {
+                  if (room.id === appointment.staffId) {
+                    const mutableAppointment = appointment;
+                    const segment = new Date(
+                      mutableAppointment.StartDateTime
+                    ).toLocaleTimeString("en-US", {
+                      hour: "2-digit",
+                      minute: "2-digit",
+                    });
+                    mutableAppointment.segment = segment;
+                    appointments.push(mutableAppointment);
                   }
-                );
-                room.unavailabilities.forEach(
-                  (unavailabilityBlock) => {
-                    available = available *!moment(blockDate).isBetween(unavailabilityBlock.startDateTime,unavailabilityBlock.endDateTime,undefined,"[)");
-                  }
-                );
-                const blockAppointment = room.appointments.find(
-                  (appointment) =>
-                    moment(blockDate).isBetween(
-                      appointment.StartDateTime,
-                      appointment.endDateTime,
-                      undefined,
-                      "[)"
-                    )
-                );
-                mutableBlock.appointment =
-                blockAppointment === undefined ? {} : blockAppointment;
-                mutableBlock.available = Boolean(available);
-
-                if(blockAppointment === undefined && available){
-                  availableBlocks.push(mutableBlock);
-                }
-                
-                return mutableBlock;
+                });
+  
+                const roomReturn = {
+                  staffId: room.id,
+                  staffName: room.name,
+                  unavailabilities: room.unavailabilities,
+                  availabilities: room.availabilities,
+                  roomBlocks: [],
+                  appointments: appointments,
+                };
+                return roomReturn;
               });
-
-              const returnRoom = {
-                staffId: room.staffId,
-                staffName: room.staffName,
-                unavailabilities: room.unavailabilities,
-                availabilities: room.availabilities,
-                roomBlocks: roomBlocks,
-                availableBlocks: availableBlocks,
-              }
-              displayableRooms.push(returnRoom);
-            });
-
-            const availableBlocksForDisplay = [];
-            displayableRooms.forEach(room => {
-              room.availableBlocks.forEach((block) => {
-                const foundedBlock = availableBlocksForDisplay.find(availableBlock => availableBlock.id === block.id);
-                if(foundedBlock !== undefined){
-                  const mutableBlock = foundedBlock;
-                  mutableBlock.staffId.push(room.staffId);
-                  mutableBlock.count++;
-                }
-                else{
+    
+              const displayableRooms = [];
+              rooms.forEach(room => {
+                const mutableBlocks = [...blocks];
+                const availableBlocks = [];
+                const roomBlocks = mutableBlocks.map((block) => {
                   const mutableBlock = { ...block };
-                  mutableBlock.staffId = [room.staffId];
-                  mutableBlock.count = 1;
-                  availableBlocksForDisplay.push(mutableBlock);
-                }
-              });
-            });
-            const sortedBlocks = availableBlocksForDisplay.sort((a,b) => (a.startDateTime > b.startDateTime) ? 1 : ((b.startDateTime > a.startDateTime) ? -1 : 0))
-
-            setAvailableBlocks(sortedBlocks);
+                  const addTwelve = mutableBlock.segment.includes("PM");
+                  const rawHours = parseInt(mutableBlock.segment.split(" ")[0].split(":")[0]);
+                  const hours = addTwelve && rawHours !== 12 ? rawHours + 12 : rawHours;
+                  const minutes = parseInt( mutableBlock.segment.split(" ")[0].split(":")[1] );
+                  const stringDate = moment(state.startDate).format("MM/DD/YYYY").toString();
+                  const startDateTime = moment(stringDate).add(hours, "hours").add(minutes, "minutes").format("YYYY-MM-DD[T]HH:mm:ss");
+                  const endDateTime = moment(startDateTime).add(30, "minutes").format("YYYY-MM-DD[T]HH:mm:ss");
+                  mutableBlock.startDateTime = startDateTime;
+                  mutableBlock.endDateTime = endDateTime;
+                  const blockDate = moment(stringDate).add(hours, "hours").add(minutes, "minutes").toString();
+                  mutableBlock.blockDate = blockDate;
+                  let available = false;
+                  room.availabilities.forEach(
+                    (availabilityBlock) => {
+                      available = available +moment(blockDate).isBetween(availabilityBlock.startDateTime,availabilityBlock.endDateTime,undefined,"[)");
+                    }
+                  );
+                  room.unavailabilities.forEach(
+                    (unavailabilityBlock) => {
+                      available = available *!moment(blockDate).isBetween(unavailabilityBlock.startDateTime,unavailabilityBlock.endDateTime,undefined,"[)");
+                    }
+                  );
+                  const blockAppointment = room.appointments.find(
+                    (appointment) =>
+                      moment(blockDate).isBetween(
+                        appointment.StartDateTime,
+                        appointment.endDateTime,
+                        undefined,
+                        "[)"
+                      )
+                  );
+                  /*
+                  mutableBlock.appointment =
+                  blockAppointment === undefined ? {} : blockAppointment;
+                  mutableBlock.available = Boolean(available);
+                  */
+                  console.log(moment(blockDate).toString());
+                  console.log(moment(state.startDate).add(2, "hours").toString());
+                  console.log(moment(blockDate).isAfter(moment(state.startDate).add(2, "hours")));
   
+                  if(blockAppointment === undefined && available && moment(blockDate).isAfter(moment(state.startDate).add(2, "hours"))){
+                    availableBlocks.push(mutableBlock);
+                  }
+                  
+                  return mutableBlock;
+                });
+  
+                const returnRoom = {
+                  staffId: room.staffId,
+                  staffName: room.staffName,
+                  unavailabilities: room.unavailabilities,
+                  availabilities: room.availabilities,
+                  roomBlocks: roomBlocks,
+                  availableBlocks: availableBlocks,
+                }
+                displayableRooms.push(returnRoom);
+              });
+  
+              const availableBlocksForDisplay = [];
+              displayableRooms.forEach(room => {
+                room.availableBlocks.forEach((block) => {
+                  const foundedBlock = availableBlocksForDisplay.find(availableBlock => availableBlock.id === block.id);
+                  if(foundedBlock !== undefined){
+                    const mutableBlock = foundedBlock;
+                    mutableBlock.staffId.push(room.staffId);
+                    mutableBlock.count++;
+                  }
+                  else{
+                    const mutableBlock = { ...block };
+                    mutableBlock.staffId = [room.staffId];
+                    mutableBlock.count = 1;
+                    availableBlocksForDisplay.push(mutableBlock);
+                  }
+                });
+              });
+              const sortedBlocks = availableBlocksForDisplay.sort((a,b) => (a.startDateTime > b.startDateTime) ? 1 : ((b.startDateTime > a.startDateTime) ? -1 : 0))
+  
+              setAvailableBlocks(sortedBlocks);
+    
+              setState((state) => ({
+                ...state,
+                availabilityRequestStatus: "ready",
+              }));
+            }
+            else {
+              // TODO cargar solo la disponibilidad para este dia y no dar mensaje de no hay citas! OJO!
+              setState((state) => ({
+                ...state,
+                availabilityRequestStatus: "no-data-found",
+                message: JSON.stringify(appointmentsRequestData),
+              }));
+            }          
+          } else {
             setState((state) => ({
               ...state,
-              status: "ready",
+              availabilityRequestStatus: "no-data-found",
+              message: JSON.stringify(availabilityData),
             }));
           }
-          else {
-            setState((state) => ({
-              ...state,
-              status: "no-data-found",
-              message: JSON.stringify(appointmentsRequestData),
-            }));
-          }          
         } else {
           setState((state) => ({
             ...state,
-            status: "no-data-found",
-            message: JSON.stringify(availabilityData),
+            availabilityRequestStatus: "no-data-found",
+            message: JSON.stringify(authData),
           }));
         }
-      } else {
+      } catch (error) {
         setState((state) => ({
           ...state,
-          status: "no-data-found",
-          message: JSON.stringify(authData),
+          status: "error",
+          availabilityRequestStatus: "error",
+          message: "Onload page Error: " + JSON.stringify(error.message),
         }));
       }
-    } catch (error) {
-      setState((state) => ({
-        ...state,
-        status: "error",
-        message: "Onload page Error: " + JSON.stringify(error.message),
-      }));
-    }
-  };
-
-  useEffect(() => {
+    };
+  
     getAvailability();
-  }, [state.startDate]);
+  }, [state.startDate, state.locationId, state.siteId, state.userName, state.userPassword]);
 
   const onSelectedDay = (d) => {
     if(moment(d).format("MM/DD/YYYY").toString() === moment(state.startDate).format("MM/DD/YYYY").toString()){
@@ -392,26 +486,209 @@ function App() {
     }));
   }
 
-  const handleClientFormFilled = () => {
+  const bookAppointment = async () => {
+    if(state.appointmentRequestStatus === "loading"){
+      return
+    }
+    try{
+      setState((state) => ({
+        ...state,
+        appointmentRequestStatus: "loading"
+      }));
+
+      let createAppointment = false;
+      let clientObject = {...clientState.clientObject};
+
+      if(clientState.clientRequestStatus === "CLIENT-NOT-FOUND"){
+        const payload = {
+          firstName: clientState.firstName,
+          lastName: clientState.lastName, 
+          mobilePhone: clientState.phone,
+          email: clientState.email,
+        };
+        const createClientRequest = {
+          method: "POST",
+          headers: {
+            "Content-type": "application/json; charset=UTF-8",
+            authorization: state.authorization,
+            siteid: state.siteId,
+          },
+          body: JSON.stringify(payload),
+        };
+        const createClientResponse = await fetch(
+          `${process.env.REACT_APP_API_URL}/api/clients`,
+          createClientRequest
+        );
+        const createClientData = await createClientResponse.json();
+        if (createClientResponse.ok) {
+          const createdClient = {
+            clientId: createClientData.clientId,
+            name: createClientData.name,
+            phone: createClientData.phone,
+            email: createClientData.email,
+          };
+          setClientState((clientState) => ({
+            ...clientState,
+            createClientRequestStatus: "OK",
+            clientObject: createdClient,
+          }));
+          createAppointment = true;
+          console.log("CREATE APPOINTMENT");
+          clientObject = {...createdClient};
+        } else {
+          setClientState((clientState) => ({
+            ...clientState,
+            createClientRequestStatus: "ERROR",
+            message: "Create request Error: " + JSON.stringify(createClientData),
+          }));
+          console.log("NOT CREATE APPOINTMENT");
+          createAppointment = false;
+        }
+      }
+
+      if(clientState.clientRequestStatus === "CLIENT-FOUND-DIFFERENT"){
+        // TODO edit the client ??? To be defined
+        
+        console.log("CREATE APPOINTMENT");
+        createAppointment = true;
+      }
+
+      if(clientState.clientRequestStatus === "CLIENT-FOUND"){
+        createAppointment = true;
+        
+        console.log("CREATE APPOINTMENT");
+      }
+
+      if(createAppointment){
+        
+        console.log("CREATING APPOINTMENT");
+        const payload = {
+          sessionTypeId: "" + clientState.sessionTypeId,
+          locationId: parseInt(state.locationId),
+          staffId: state.block.staffId[0],
+          clientId: clientObject.clientId,
+          notes: "Weeks: "+clientState.weeks+"\n"+"Language: "+clientState.language+"\n",
+          startDateTime: moment(state.block.blockDate).format("YYYY-MM-DD[T]HH:mm:ss").toString(),
+        };
+  
+        const bookAppointmentRequest = {
+          method: "POST",
+          headers: {
+            "Content-type": "application/json; charset=UTF-8",
+            authorization: state.authorization,
+            siteid: state.siteId,
+          },
+          body: JSON.stringify(payload),
+        };
+        const bookAppointmentResponse = await fetch(
+          `${process.env.REACT_APP_API_URL}/api/appointments`,
+          bookAppointmentRequest
+        );
+        const bookAppointmentData = await bookAppointmentResponse.json();
+        if (bookAppointmentResponse.ok) {
+          setState((state) => ({
+            ...state,
+            appointmentRequestStatus: "BOOK-APPOINTMENT-OK"
+          }));
+        } else {
+          setState((state) => ({
+            ...state,
+            appointmentRequestStatus: "BOOK-APPOINTMENT-FAIL",
+            message: JSON.stringify(bookAppointmentData),
+          }));
+        }
+      }
+
+    } catch (error) {
+      setState((state) => ({
+        ...state,
+        status: "error",
+        message: "Client request Error: " + JSON.stringify(error.message),
+      }));
+    }
+  }
+  
+  const { control, register, formState: { errors }, handleSubmit } = useForm();
+  
+  const onFormSubmit = async (data) => {
+    setClientState((clientState) => ({
+      ...clientState,
+      firstName: data.firstName,
+      lastName: data.lastName,
+      email: data.email,
+      phone: data.phone,
+      weeks: data.weeks,
+      sessionTypeId: data.service.value,
+      sessionTypeName: data.service.label,
+      language: data.language.value,
+    }));
     setState((state) => ({
       ...state,
       step: "availability",
     }));
+    
+    if (clientState.clientRequestStatus === "loading") {
+      return;
+    }
+    try {
+      setClientState((clientState) => ({
+        ...clientState,
+        clientRequestStatus: "loading",
+      }));
+      const searchClientsRequest = {
+        method: "GET",
+        headers: {
+          "Content-type": "application/json; charset=UTF-8",
+          authorization: state.authorization,
+          siteid: state.siteId,
+        },
+      };
+      const searchClientsResponse = await fetch(
+        `${process.env.REACT_APP_API_URL}/api/clients/clients?searchText=${data.email}`,
+        searchClientsRequest
+      );
+      const searchClientsData = await searchClientsResponse.json();
+      if (searchClientsResponse.ok) {
+        if( data.firstName + " " + data.lastName === searchClientsData.clients[0].name &&
+          searchClientsData.clients[0].email === data.email &&
+          searchClientsData.clients[0].phone === data.phone){
+            setClientState((clientState) => ({
+              ...clientState,
+              clientRequestStatus: "CLIENT-FOUND",
+              clientObject: searchClientsData.clients[0],
+              searchResults: searchClientsData.clients,
+            }));
+          }
+          else{
+            setClientState((clientState) => ({
+              ...clientState,
+              clientRequestStatus: "CLIENT-FOUND-DIFFERENT",
+              clientObject: searchClientsData.clients[0],
+              searchResults: searchClientsData.clients,
+            }));
+          }
+        
+        console.log("OK")
+      } else {
+        setClientState((clientState) => ({
+          ...clientState,
+          clientRequestStatus: "CLIENT-NOT-FOUND",
+          searchResults: [],
+        }));
+        console.log("NOTHING")
+      }
+    } catch (error) {
+      setState((state) => ({
+        ...state,
+        status: "error",
+        message: "Client request Error: " + JSON.stringify(error.message),
+      }));
+    }
   }
 
-  const handleClientInfoChange = (event) => {
-    const name = event.target.name;
-    const value = event.target.value;
-    
-    setClientState((clientState) => ({
-      ...clientState,
-      [name]: value,
-    }));
-  }
 
   return (
     <div className="container pt-4">
-
       {state.step === "registerForm" && (
         <div className="mt-3">
           <div className="row gx-5">
@@ -419,31 +696,31 @@ function App() {
               <h1 className="h3">Please enter your information</h1>
             </div>
           </div>
-          <div className="row gx-5">
+          <form className="row gx-5" onSubmit={handleSubmit(onFormSubmit)}>
             <div className="col-md-6">
               <div className="bg-light p-4">
                 <div className="mb-3 row">
                   <label className="col-sm-4 col-form-label">First Name</label>
                   <div className="col-sm-8">
-                    <input type="text" className="form-control" id="firstName" name="firstName" onBlur={handleClientInfoChange}/>
+                    <input type="text" className={"form-control" + (errors.firstName ? " is-invalid" : "")} {...register("firstName", { required: true, pattern: /^[A-Za-z]+$/i })} />
                   </div>
                 </div>
                 <div className="mb-3 row">
                   <label className="col-sm-4 col-form-label" >Last Name</label>
                   <div className="col-sm-8">
-                    <input type="text" className="form-control" id="lastName" name="lastName" onBlur={handleClientInfoChange} />
+                    <input type="text" className={"form-control" + (errors.lastName ? " is-invalid" : "")} {...register("lastName", { required: true, pattern: /^[A-Za-z]+$/i })} />
                   </div>
                 </div>
                 <div className="mb-3 row">
                   <label className="col-sm-4 col-form-label" >Email</label>
                   <div className="col-sm-8">
-                    <input type="text" className="form-control" id="email" name="email" onBlur={handleClientInfoChange}/>
+                    <input type="text" className={"form-control" + (errors.email ? " is-invalid" : "")} {...register("email", { required: true, pattern: /^\S+@\S+\.\S+$/i })} />
                   </div>
                 </div>
                 <div className="mb-3 row">
                   <label className="col-sm-4 col-form-label" >Phone number</label>
                   <div className="col-sm-8">
-                    <input type="text" className="form-control" id="phone" name="phone" onBlur={handleClientInfoChange}/>
+                    <input type="tel" className={"form-control" + (errors.phone ? " is-invalid" : "")} {...register("phone", { required: true, pattern: /^\(?([0-9]{3})\)?[-. ]?([0-9]{3})[-. ]?([0-9]{4})$/i })} />
                   </div>
                 </div>
               </div>
@@ -453,27 +730,52 @@ function App() {
                 <div className="mb-3 row">
                   <label className="col-sm-4 col-form-label" >Weeks</label>
                   <div className="col-sm-8">
-                    <input type="text" className="form-control" id="weeks" name="weeks" onBlur={handleClientInfoChange}/>
-                  </div>
+                    <input type="text" className={"form-control" + (errors.weeks ? " is-invalid" : "")} {...register("weeks", { required: true })} />           </div>
                 </div>
                 <div className="mb-3 row">
                   <label className="col-sm-4 col-form-label" >Language</label>
                   <div className="col-sm-8">
-                    <input type="text" className="form-control" id="language" name="language" onBlur={handleClientInfoChange}/>
+                    <Controller
+                      name="language"
+                      control={control}
+                      rules={{ required: true }}
+                      render={({ field }) => <Select 
+                        {...field} 
+                        options={[
+                          { value: "English", label: "English" },
+                          { value: "Spanish", label: "Spanish" }
+                        ]}
+                        placeholder="Select language"
+                        className={"w-100" + (errors.language ? " is-select-invalid" : "")}
+                      />}
+                    />
                   </div>
                 </div>
                 <div className="mb-3 row">
                   <label className="col-sm-4 col-form-label" >Service</label>
-                  <div className="col-sm-8">
-                    <input type="text" className="form-control" id="sessionTypeName" name="sessionTypeName" onBlur={handleClientInfoChange}/>
+                  <div className="col-sm-8"> 
+                    <Controller
+                      name="service"
+                      control={control}
+                      rules={{ required: true }}
+                      render={({ field }) => 
+                        <Select
+                          {...field} 
+                          options={services}
+                          isSearchable={true}
+                          placeholder="Select a service"
+                          className={"w-100" + (errors.service ? " is-select-invalid" : "")}
+                        />
+                      }
+                    />
                   </div>
                 </div>
                 <div className="mb-3 row">
-                  <button type="submit" class="btn btn-primary" onClick={handleClientFormFilled}>Check availabilities</button>
+                  <button type="submit" className="btn btn-primary">Check availabilities</button>
                 </div>
               </div>
             </div>
-          </div>
+          </form>
         </div>
       )}
 
@@ -483,7 +785,7 @@ function App() {
               <h1 className="h1">Temporary booking online for houston</h1>
               <ReactHorizontalDatePicker selectedDay={onSelectedDay} enableScroll={true} enableDays={50} enableDaysBefore={5}/>
               <br/><br/>
-              {state.status === "ready" && (
+              {state.availabilityRequestStatus === "ready" && (
                 <>           
                 <h1 className="h4">Only available blocks combined</h1>
                 <div className="row my-4">
@@ -502,10 +804,10 @@ function App() {
                 </div>
                 </>
               )}  
-              {state.status === "loading" && (
+              {state.availabilityRequestStatus === "loading" && (
                 <h1 className="h1">Loading...</h1>
               )}
-              {(state.status === "error" || state.status === "no-data-found") && (
+              {(state.availabilityRequestStatus === "error" || state.availabilityRequestStatus === "no-data-found") && (
                 <h1 className="h1">Error: {state.message}</h1>
               )}
             </div>        
@@ -551,18 +853,18 @@ function App() {
                     <input type="text" className="form-control" readOnly value={clientState.weeks}/>
                   </div>
                 </div>
+            </div>
+            <div className="col-md-6 bg-light p-4">
                 <div className="mb-3 row">
                   <label className="col-sm-4 col-form-label">Language</label>
                   <div className="col-sm-8">
                     <input type="text" className="form-control" readOnly value={clientState.language}/>
                   </div>
                 </div>
-            </div>
-            <div className="col-md-6 bg-light p-4">
                 <div className="mb-3 row">
                   <label className="col-sm-4 col-form-label">Appointment date</label>
                   <div className="col-sm-8">
-                    <input type="text" className="form-control" readOnly value={state.block.blockDate}/>
+                    <input type="text" className="form-control" readOnly value={moment(state.block.blockDate).format("YYYY-MM-DD[T]HH:mm:ss").toString()}/>
                   </div>
                 </div>
                 <div className="mb-3 row">
@@ -578,10 +880,32 @@ function App() {
                   </div>
                 </div>
                 <div className="mb-3 row">
-                  <button type="submit" class="btn btn-primary" onClick={handleClientFormFilled}>Book your appointment</button>
+                  <button type="submit" className="btn btn-primary" onClick={bookAppointment}>
+                    {clientState.clientRequestStatus === "loading" && (
+                      <FontAwesomeIcon spin icon={faSpinner} />
+                    )}
+                    {clientState.clientRequestStatus !== "loading" && (
+                      <>Book your appointment</>
+                    )}
+                    </button>
                 </div>
             </div>
           </div>  
+          {clientState.clientRequestStatus === "CLIENT-FOUND" && (
+            <div className="d-block alert alert-success">
+              <span> client was found </span>
+            </div>
+          )}
+          {clientState.clientRequestStatus === "CLIENT-FOUND-DIFFERENT" && (
+            <div className="d-block alert alert-warning">
+              <span> client was found but data is different </span>
+            </div>
+          )}
+          {clientState.clientRequestStatus === "CLIENT-NOT-FOUND" && (
+            <div className="d-block alert alert-danger">
+              <span> client was not found </span>
+            </div>
+          )}
         </div>
       )}
     </div>
