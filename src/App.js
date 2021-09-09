@@ -159,7 +159,9 @@ function App() {
     userPassword: "Manuel123!",
     authorization: "",
     startDate: moment(new Date()).toString(),
-    block: {},
+    block: {
+      id: "",
+    },
   });
   const [clientState, setClientState] = useState({
     firstName: "",
@@ -360,6 +362,7 @@ function App() {
                   mutableBlock.endDateTime = endDateTime;
                   const blockDate = moment(stringDate).add(hours, "hours").add(minutes, "minutes").toString();
                   mutableBlock.blockDate = blockDate;
+                  mutableBlock.selected = false;
                   let available = false;
                   room.availabilities.forEach(
                     (availabilityBlock) => {
@@ -483,7 +486,6 @@ function App() {
   const handleAvailabilityBlockSelect = (block) => {
     setState((state) => ({
       ...state,
-      step: "summary",
       block: block,
     }));
   }
@@ -569,7 +571,7 @@ function App() {
           locationId: parseInt(state.locationId),
           staffId: state.block.staffId[0],
           clientId: clientObject.clientId,
-          notes: "Weeks: "+clientState.weeks+"\n"+"Language: "+clientState.language+"\n",
+          notes: "Weeks: "+clientState.weeks+"\n Language: "+clientState.language+"\n",
           startDateTime: moment(state.block.blockDate).format("YYYY-MM-DD[T]HH:mm:ss").toString(),
         };
   
@@ -688,14 +690,40 @@ function App() {
     }
   }
 
+  const previousStep = (currentStep) => {
+    switch (currentStep){
+      case "availability":
+        setState((state) => ({
+          ...state,
+          step: "registerForm",
+        }));
+      break;
+      case "summary":
+        setState((state) => ({
+          ...state,
+          step: "availability",
+        }));
+      break;
+      default:
+        break;
+    }
+  }
+
+  const blockSelected = () => {
+    setState((state) => ({
+      ...state,
+      step: "summary",
+    }));
+  }
+
 
   return (
     <div className="container pt-4">
       {state.step === "registerForm" && (
-        <div className="mt-3">
-          <div className="row gx-5">
-            <div className="col-md-6">
-              <h1 className="h3">Please enter your information</h1>
+        <div className="">
+          <div className="row gx-5 my-3">
+            <div className="col">
+              <h1 className="h1">Please enter your information</h1>
             </div>
           </div>
           <form className="row gx-5" onSubmit={handleSubmit(onFormSubmit)}>
@@ -782,26 +810,36 @@ function App() {
       )}
 
       {state.step === "availability" && (
-        <div className="row mt-3">
+        <div className="row ">
             <div className="col">
-              <h1 className="h1">Temporary booking online for houston</h1>
+              <div className="row my-3">
+                <div className="col d-flex justify-content-between">
+                  <h1 className="h1">Temporary booking online for houston</h1>
+                  <button className="btn btn-cta rounded-pill btn-sm px-3 m-2" onClick={()=> previousStep("availability")}>BACK</button>
+                </div>
+              </div>
               <ReactHorizontalDatePicker selectedDay={onSelectedDay} enableScroll={true} enableDays={50} enableDaysBefore={5}/>
               <br/><br/>
               {state.availabilityRequestStatus === "ready" && (
                 <>           
-                <h1 className="h4">Only available blocks combined</h1>
+                <h1 className="h4">Available blocks</h1>
                 <div className="row my-4">
                   <div className="col">
                     {availableBlocks.map( (block, index) => {
                       return (
                       <button 
-                        className={block.available ? "btn btn-success btn-sm m-2" : "btn btn-danger btn-sm m-2"}
+                        className={ block.id === state.block.id ? "btn btn-selected-block btn-sm rounded-pill px-3 m-2" : " btn btn-outline-secondary rounded-pill btn-sm px-3 m-2"}
                         key={block.id}
                         onClick={() => handleAvailabilityBlockSelect(block)}
                         > 
-                        {block.segment+", "+block.count} 
+                        {block.segment+" - "+block.endSegment} 
                       </button>)
                     })}
+                  </div>
+                  <div className="row my-4">
+                    <div className="col text-center">
+                      <button className="btn btn-cta rounded-pill px-3 m-2" onClick={blockSelected}>NEXT</button>
+                    </div>
                   </div>
                 </div>
                 </>
@@ -817,12 +855,13 @@ function App() {
       )}
 
       {state.step === "summary" && (
-        <div className="mt-3">
-          <div className="row gx-5">
-              <div className="col-md-6">
-                <h1 className="h3">Your booking information</h1>
-              </div>
+        <div className="">
+          <div className="my-3 row gx-5">
+              <div className="col d-flex justify-content-between">
+                <h1 className="h1">Your booking information</h1>
+                <button className="btn btn-cta rounded-pill btn-sm px-3 m-2" onClick={()=> previousStep("summary")}>BACK</button>
             </div>
+          </div>
           <div className="row gx-5">
             <div className="col-md-6 bg-light p-4">
                 <div className="mb-3 row">

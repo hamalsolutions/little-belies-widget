@@ -11,3 +11,66 @@
   border-color: #dc3545 !important;
   box-shadow: 0 0 0 0.25rem rgba(220, 53, 69, 0.25) !important;
 }
+
+.scroll-head{
+  color: rgb(176, 176, 176) !important;
+  background-color: transparent !important;
+  border: none !important;
+  font-weight: bold !important;
+  text-transform: uppercase !important;
+}
+
+.datepicker-button-previous, .datepicker-button-next{
+  background: #AE678C !important;
+}
+
+.date-day-Item-selected{
+  border: 2px solid #AE678C !important;
+  color: #AE678C !important;
+}
+
+.datepicker-date-day-Item:hover {
+  background-color: #AE678C !important;
+  border: 2px solid transparent !important;
+  color: #fff !important;
+}
+
+.datepicker-month-label {
+  color: #AE678C !important;  
+}
+
+.btn-outline-secondary:hover{
+  border: solid 2px #C56F9C !important;
+  color: #C56F9C !important;
+  background-color: #f5e6ed !important;
+  font-weight: bold !important;
+  box-shadow: 0 0 0 0.25rem rgb(174 103 140 / 25%) !important;
+}
+
+.btn-outline-secondary{
+  border-width: 2px !important;
+}
+
+.btn-cta{
+  font-weight: bold;
+  border: solid 2px #AE678C !important;
+  color: #AE678C !important;
+  background-color: #f5e6ed !important;
+}
+
+.btn-selected-block{
+  border-width: 2px !important;
+  background: #AE678C !important;
+  color: white !important;
+}
+
+.btn-cta:hover{
+  border-width: 2px !important;
+  background: #AE678C !important;
+  color: white !important;
+}
+
+.btn-cta:focus, .btn-outline-secondary:focus, .btn-selected-block:focus{
+  box-shadow: 0 0 0 0.25rem rgb(174 103 140 / 25%) !important;
+}
+
