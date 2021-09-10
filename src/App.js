@@ -297,31 +297,14 @@ function App() {
             },
           };
           const availabilityResponse = await fetch(
-            `${process.env.REACT_APP_API_URL}/api/sites/${state.siteId}/locations/${state.locationId}/schedule?startDate=${queryStartDate}&endDate=${queryStartDate}`,
+            `${process.env.REACT_APP_API_URL}/api/book/sites/${state.siteId}/locations/${state.locationId}/schedule?startDate=${queryStartDate}&endDate=${queryStartDate}`,
             availabilityRequest
           );
           const availabilityData = await availabilityResponse.json();
           if (availabilityResponse.ok) {
-  
-            const appointmentsRequest = {
-              method: "GET",
-              headers: {
-                "Content-type": "application/json; charset=UTF-8",
-                siteid: state.siteId,
-                authorization: authData.accesssToken,
-                locationid: state.locationId,
-              },
-            };
-            const appointmentsRequestResponse = await fetch(
-              `${process.env.REACT_APP_API_URL}/api/appointments/?appointmentDate=${queryStartDate}`,
-              appointmentsRequest
-            );
-            const appointmentsRequestData = await appointmentsRequestResponse.json();
-            if (appointmentsRequestResponse.ok) {
               const rooms = availabilityData.schedule.map((room) => {
                 const appointments = [];
-                appointmentsRequestData.forEach((appointment) => {
-                  if (room.id === appointment.staffId) {
+                room.appointments.forEach((appointment) => {
                     const mutableAppointment = appointment;
                     const segment = new Date(
                       mutableAppointment.StartDateTime
@@ -331,7 +314,6 @@ function App() {
                     });
                     mutableAppointment.segment = segment;
                     appointments.push(mutableAppointment);
-                  }
                 });
   
                 const roomReturn = {
@@ -377,7 +359,7 @@ function App() {
                   const blockAppointment = room.appointments.find(
                     (appointment) =>
                       moment(blockDate).isBetween(
-                        appointment.StartDateTime,
+                        appointment.startDateTime,
                         appointment.endDateTime,
                         undefined,
                         "[)"
@@ -437,15 +419,7 @@ function App() {
                 ...state,
                 availabilityRequestStatus: "ready",
               }));
-            }
-            else {
-              // TODO cargar solo la disponibilidad para este dia y no dar mensaje de no hay citas! OJO!
-              setState((state) => ({
-                ...state,
-                availabilityRequestStatus: "no-data-found",
-                message: JSON.stringify(appointmentsRequestData),
-              }));
-            }          
+                  
           } else {
             setState((state) => ({
               ...state,
@@ -720,93 +694,80 @@ function App() {
   return (
     <div className="container pt-4">
       {state.step === "registerForm" && (
-        <div className="">
-          <div className="row gx-5 my-3">
-            <div className="col">
-              <h1 className="h1">Please enter your information</h1>
-            </div>
-          </div>
-          <form className="row gx-5" onSubmit={handleSubmit(onFormSubmit)}>
-            <div className="col-md-6">
-              <div className="bg-light p-4">
-                <div className="mb-3 row">
-                  <label className="col-sm-4 col-form-label">First Name</label>
-                  <div className="col-sm-8">
-                    <input type="text" className={"form-control" + (errors.firstName ? " is-invalid" : "")} {...register("firstName", { required: true, pattern: /^[A-Za-z]+$/i })} />
-                  </div>
-                </div>
-                <div className="mb-3 row">
-                  <label className="col-sm-4 col-form-label" >Last Name</label>
-                  <div className="col-sm-8">
-                    <input type="text" className={"form-control" + (errors.lastName ? " is-invalid" : "")} {...register("lastName", { required: true, pattern: /^[A-Za-z]+$/i })} />
-                  </div>
-                </div>
-                <div className="mb-3 row">
-                  <label className="col-sm-4 col-form-label" >Email</label>
-                  <div className="col-sm-8">
-                    <input type="text" className={"form-control" + (errors.email ? " is-invalid" : "")} {...register("email", { required: true, pattern: /^\S+@\S+\.\S+$/i })} />
-                  </div>
-                </div>
-                <div className="mb-3 row">
-                  <label className="col-sm-4 col-form-label" >Phone number</label>
-                  <div className="col-sm-8">
-                    <input type="tel" className={"form-control" + (errors.phone ? " is-invalid" : "")} {...register("phone", { required: true, pattern: /^\(?([0-9]{3})\)?[-. ]?([0-9]{3})[-. ]?([0-9]{4})$/i })} />
-                  </div>
-                </div>
+        <>
+          <form className="row w-50 my-3 bg-light-container mx-auto p-4 box-shadow justify-content-center" onSubmit={handleSubmit(onFormSubmit)}>
+            <div className="row mb-3">
+              <div className="col">
+                <h1 className="h4 mt-2 mb-3 ">Please enter your information</h1>
+                <h3 className="h6 fw-normal"> In order to book an appointment please supply the following information</h3>
               </div>
             </div>
-            <div className="col-md-6">
-            <div className="bg-light p-4">
-                <div className="mb-3 row">
-                  <label className="col-sm-4 col-form-label" >Weeks</label>
-                  <div className="col-sm-8">
-                    <input type="text" className={"form-control" + (errors.weeks ? " is-invalid" : "")} {...register("weeks", { required: true })} />           </div>
-                </div>
-                <div className="mb-3 row">
-                  <label className="col-sm-4 col-form-label" >Language</label>
-                  <div className="col-sm-8">
-                    <Controller
-                      name="language"
-                      control={control}
-                      rules={{ required: true }}
-                      render={({ field }) => <Select 
-                        {...field} 
-                        options={[
-                          { value: "English", label: "English" },
-                          { value: "Spanish", label: "Spanish" }
-                        ]}
-                        placeholder="Select language"
-                        className={"w-100" + (errors.language ? " is-select-invalid" : "")}
-                      />}
-                    />
-                  </div>
-                </div>
-                <div className="mb-3 row">
-                  <label className="col-sm-4 col-form-label" >Service</label>
-                  <div className="col-sm-8"> 
-                    <Controller
-                      name="service"
-                      control={control}
-                      rules={{ required: true }}
-                      render={({ field }) => 
-                        <Select
-                          {...field} 
-                          options={services}
-                          isSearchable={true}
-                          placeholder="Select a service"
-                          className={"w-100" + (errors.service ? " is-select-invalid" : "")}
-                        />
-                      }
-                    />
-                  </div>
-                </div>
-                <div className="mb-3 row">
-                  <button type="submit" className="btn btn-primary">Check availabilities</button>
-                </div>
+            <div className="row">
+              <div className="col col-md-6">
+                <input type="text" placeholder="First name" className={"form-control bg-light-input mb-3" + (errors.firstName ? " border-1 is-invalid" : " border-0")} {...register("firstName", { required: true, pattern: /^[A-Za-z]+$/i })} />
+              </div>
+              <div className="col col-md-6">
+                <input type="text" placeholder="Last Name" className={"form-control bg-light-input mb-3" + (errors.lastName ? " border-1 is-invalid" : " border-0")} {...register("lastName", { required: true, pattern: /^[A-Za-z]+$/i })} />
               </div>
             </div>
+            <div className="row">
+              <div className="col">
+                <input type="text" placeholder="Email" className={"form-control bg-light-input mb-3" + (errors.email ? " border-1 is-invalid" : " border-0")} {...register("email", { required: true, pattern: /^\S+@\S+\.\S+$/i })} />
+              </div>
+            </div>
+            <div className="row">
+              <div className="col">
+                <input type="tel" placeholder="Phone number" className={"form-control bg-light-input mb-3" + (errors.phone ? " border-1 is-invalid" : " border-0")} {...register("phone", { required: true, pattern: /^\(?([0-9]{3})\)?[-. ]?([0-9]{3})[-. ]?([0-9]{4})$/i })} />
+              </div>
+            </div>
+            <div className="row">
+              <div className="col">
+                <input type="text" placeholder="Weeks" className={"form-control bg-light-input mb-3" + (errors.weeks ? " border-1 is-invalid" : " border-0")} {...register("weeks", { required: true })} />
+              </div>
+            </div>
+            <div className="row">
+              <div className="col">
+                <Controller
+                  name="language"
+                  control={control}
+                  rules={{ required: true }}
+                  render={({ field }) => <Select 
+                    {...field} 
+                    options={[
+                      { value: "English", label: "English" },
+                      { value: "Spanish", label: "Spanish" }
+                    ]}
+                    placeholder="Select a language"
+                    className={"dropdown w-100 mb-3" + (errors.language ? " is-select-invalid" : "")}
+                  />}
+                />
+              </div>
+            </div>
+            <div className="row">
+              <div className="col">
+                <Controller
+                  name="service"
+                  control={control}
+                  rules={{ required: true }}
+                  render={({ field }) => 
+                    <Select
+                      {...field} 
+                      options={services}
+                      isSearchable={true}
+                      placeholder="Select a service"
+                      className={"dropdown w-100 mb-3" + (errors.service ? " is-select-invalid" : "")}
+                    />
+                  }
+                />
+              </div>
+            </div>
+            <div className="row my-3">
+              <div className="col text-center">
+                <button type="submit" className="btn btn-cta-active rounded-pill px-3 mx-auto">Check availabilities</button>
+              </div>
+            </div>             
           </form>
-        </div>
+        </>
       )}
 
       {state.step === "availability" && (
@@ -820,7 +781,7 @@ function App() {
               </div>
               <ReactHorizontalDatePicker selectedDay={onSelectedDay} enableScroll={true} enableDays={50} enableDaysBefore={5}/>
               <br/><br/>
-              {state.availabilityRequestStatus === "ready" && (
+              {state.availabilityRequestStatus === "ready" && availableBlocks.length > 1 && (
                 <>           
                 <h1 className="h4">Available blocks</h1>
                 <div className="row my-4">
@@ -843,6 +804,11 @@ function App() {
                   </div>
                 </div>
                 </>
+              )}
+              {state.availabilityRequestStatus === "ready" && availableBlocks.length === 0 && (
+                <>           
+                  <h1 className="h4"> Sorry no Available blocks</h1>
+                </>
               )}  
               {state.availabilityRequestStatus === "loading" && (
                 <h1 className="h1">Loading...</h1>
@@ -858,95 +824,67 @@ function App() {
         <div className="">
           <div className="my-3 row gx-5">
               <div className="col d-flex justify-content-between">
-                <h1 className="h1">Your booking information</h1>
+                <h1 className="h3 ">Your booking information</h1>
                 <button className="btn btn-cta rounded-pill btn-sm px-3 m-2" onClick={()=> previousStep("summary")}>BACK</button>
             </div>
           </div>
-          <div className="row gx-5">
-            <div className="col-md-6 bg-light p-4">
-                <div className="mb-3 row">
-                  <label className="col-sm-4 col-form-label">First Name</label>
-                  <div className="col-sm-8">
-                    <input type="text" className="form-control" readOnly value={clientState.firstName}/>
-                  </div>
-                </div>
-                <div className="mb-3 row">
-                  <label className="col-sm-4 col-form-label">Last Name</label>
-                  <div className="col-sm-8">
-                    <input type="text" className="form-control" readOnly value={clientState.lastName}/>
-                  </div>
-                </div>
-                <div className="mb-3 row">
-                  <label className="col-sm-4 col-form-label">Email</label>
-                  <div className="col-sm-8">
-                    <input type="text" className="form-control" readOnly value={clientState.email}/>
-                  </div>
-                </div>
-                <div className="mb-3 row">
-                  <label className="col-sm-4 col-form-label">Phone number</label>
-                  <div className="col-sm-8">
-                    <input type="text" className="form-control" readOnly value={clientState.phone}/>
-                  </div>
-                </div>
-                <div className="mb-3 row">
-                  <label className="col-sm-4 col-form-label">Weeks</label>
-                  <div className="col-sm-8">
-                    <input type="text" className="form-control" readOnly value={clientState.weeks}/>
-                  </div>
-                </div>
+          <div className="row w-50 mb-3 mt-3 bg-light-container mx-auto p-4 box-shadow justify-content-center" onSubmit={handleSubmit(onFormSubmit)}>
+            <div className="row mb-3 mt-2">
+              <div className="col">
+                <h1 className="h4 mt-2 mb-3 ">Your booking information</h1>
+                <h3 className="h6 fw-normal"> In order to book an appointment please supply the following information</h3>
+              </div>
             </div>
-            <div className="col-md-6 bg-light p-4">
-                <div className="mb-3 row">
-                  <label className="col-sm-4 col-form-label">Language</label>
-                  <div className="col-sm-8">
-                    <input type="text" className="form-control" readOnly value={clientState.language}/>
-                  </div>
-                </div>
-                <div className="mb-3 row">
-                  <label className="col-sm-4 col-form-label">Appointment date</label>
-                  <div className="col-sm-8">
-                    <input type="text" className="form-control" readOnly value={moment(state.block.blockDate).format("YYYY-MM-DD[T]HH:mm:ss").toString()}/>
-                  </div>
-                </div>
-                <div className="mb-3 row">
-                  <label className="col-sm-4 col-form-label">StaffId</label>
-                  <div className="col-sm-8">
-                    <input type="text" className="form-control" readOnly value={state.block.staffId[0]}/>
-                  </div>
-                </div>
-                <div className="mb-3 row">
-                  <label className="col-sm-4 col-form-label">Service</label>
-                  <div className="col-sm-8">
-                    <input type="text" className="form-control" readOnly value={clientState.sessionTypeName}/>
-                  </div>
-                </div>
-                <div className="mb-3 row">
-                  <button type="submit" className="btn btn-primary" onClick={bookAppointment}>
-                    {clientState.clientRequestStatus === "loading" && (
-                      <FontAwesomeIcon spin icon={faSpinner} />
-                    )}
-                    {clientState.clientRequestStatus !== "loading" && (
-                      <>Book your appointment</>
-                    )}
-                    </button>
-                </div>
+            <div className="row mb-2 mt-2">
+              <div className="col">
+                <div>Full name: <b>{clientState.firstName + " " + clientState.lastName}</b></div>
+              </div>
             </div>
-          </div>  
-          {clientState.clientRequestStatus === "CLIENT-FOUND" && (
-            <div className="d-block alert alert-success">
-              <span> client was found </span>
+            <div className="row mb-2">
+              <div className="col">
+                <div>Email: <b>{clientState.email}</b></div>
+              </div>
             </div>
-          )}
-          {clientState.clientRequestStatus === "CLIENT-FOUND-DIFFERENT" && (
-            <div className="d-block alert alert-warning">
-              <span> client was found but data is different </span>
+            <div className="row mb-2">
+              <div className="col">
+                <div>Phone: <b>{clientState.phone}</b></div>
+              </div>
             </div>
-          )}
-          {clientState.clientRequestStatus === "CLIENT-NOT-FOUND" && (
-            <div className="d-block alert alert-danger">
-              <span> client was not found </span>
+            <div className="row mb-2">
+              <div className="col">
+                <div>Service: <b>{clientState.sessionTypeName}</b></div>
+              </div>
             </div>
-          )}
+            <div className="row mb-2">
+              <div className="col">
+                <div>Weeks: <b>{clientState.weeks}</b></div>
+              </div>
+            </div>
+            <div className="row mb-2">
+              <div className="col">
+                <div>Date: <b>{moment(state.block.blockDate).format("YYYY-MM-DD[T]HH:mm:ss").toString()}</b></div>
+              </div>
+            </div>
+            <div className="row mb-2">
+              <div className="col">
+                <div>Language: <b>{clientState.language}</b></div>
+              </div>
+            </div>
+            <div className="row mt-4 mb-2">
+              <div className="col text-center">
+                <button type="submit" className="btn btn-cta-active rounded-pill px-3 mx-auto" onClick={bookAppointment}>
+                  {clientState.clientRequestStatus === "loading" && (
+                    <FontAwesomeIcon spin icon={faSpinner} />
+                  )}
+                  {clientState.clientRequestStatus !== "loading" && (
+                    <>Book your appointment</>
+                  )}
+                </button>
+              </div>
+            </div>
+                       
+          </div>
+          
         </div>
       )}
     </div>
