@@ -864,7 +864,7 @@ function App() {
             </div>
             <div className="row mb-2">
               <div className="col">
-                <div>Date: <b>{moment(state.block.blockDate).format("YYYY-MM-DD[T]HH:mm:ss").toString()}</b></div>
+                <div>Date: <b>{moment(state.block.blockDate).format("MM-DD-YYYY[ ]hh:mm A").toString()}</b></div>
               </div>
             </div>
             <div className="row mb-2">
