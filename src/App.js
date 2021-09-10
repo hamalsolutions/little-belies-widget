@@ -507,11 +507,10 @@ function App() {
           };
           setClientState((clientState) => ({
             ...clientState,
-            createClientRequestStatus: "OK",
+            createClientRequestStatus: "CREATED",
             clientObject: createdClient,
           }));
           createAppointment = true;
-          console.log("CREATE APPOINTMENT");
           clientObject = {...createdClient};
         } else {
           setClientState((clientState) => ({
@@ -519,27 +518,22 @@ function App() {
             createClientRequestStatus: "ERROR",
             message: "Create request Error: " + JSON.stringify(createClientData),
           }));
-          console.log("NOT CREATE APPOINTMENT");
           createAppointment = false;
         }
       }
 
       if(clientState.clientRequestStatus === "CLIENT-FOUND-DIFFERENT"){
         // TODO edit the client ??? To be defined
-        
-        console.log("CREATE APPOINTMENT");
         createAppointment = true;
       }
 
       if(clientState.clientRequestStatus === "CLIENT-FOUND"){
         createAppointment = true;
         
-        console.log("CREATE APPOINTMENT");
       }
 
       if(createAppointment){
         
-        console.log("CREATING APPOINTMENT");
         const payload = {
           sessionTypeId: "" + clientState.sessionTypeId,
           locationId: parseInt(state.locationId),
@@ -580,7 +574,7 @@ function App() {
     } catch (error) {
       setState((state) => ({
         ...state,
-        status: "error",
+        status: "BOOK-APPOINTMENT-FAIL",
         message: "Client request Error: " + JSON.stringify(error.message),
       }));
     }
@@ -674,6 +668,7 @@ function App() {
           block: {
             id: "",
           },
+          appointmentRequestStatus: "IDLE",
         }));
       break;
       case "summary":
@@ -684,6 +679,7 @@ function App() {
           block: {
             id: "",
           },
+          appointmentRequestStatus: "IDLE",
         }));
       break;
       default:
@@ -813,12 +809,19 @@ function App() {
                 </>
               )}
               {state.availabilityRequestStatus === "ready" && availableBlocks.length === 0 && (
-                <>           
-                  <h1 className="h4"> Sorry no Available blocks</h1>
-                </>
+                <div className="row">
+                  <div className="col text-center">
+                    <h1 className="h1 mb-3">Sorry, there are no available spaces today</h1>
+                    <h1 className="h3 mb-3">Please select another day on the calendar</h1>
+                  </div>
+                </div>
               )}  
               {state.availabilityRequestStatus === "loading" && (
-                <h1 className="h1">Loading...</h1>
+                <div className="row">
+                  <div className="col text-center">
+                      <h1 className="h1 m-auto"><FontAwesomeIcon spin icon={faSpinner} /> Loading</h1>
+                  </div>
+                </div>
               )}
               {(state.availabilityRequestStatus === "error" || state.availabilityRequestStatus === "no-data-found") && (
                 <h1 className="h1">Error: {state.message}</h1>
@@ -879,17 +882,33 @@ function App() {
             </div>
             <div className="row mt-4 mb-2">
               <div className="col text-center">
-                <button type="submit" className="btn btn-cta-active rounded-pill px-3 mx-auto" onClick={bookAppointment}>
-                  {clientState.clientRequestStatus === "loading" && (
-                    <FontAwesomeIcon spin icon={faSpinner} />
+                  {state.appointmentRequestStatus === "BOOK-APPOINTMENT-FAIL" && (
+                    <div className="d-block alert alert-danger">
+                      <span> {state.message} </span>
+                    </div>
                   )}
-                  {clientState.clientRequestStatus !== "loading" && (
-                    <>Book appointment</>
+                  {state.appointmentRequestStatus === "BOOK-APPOINTMENT-OK" && (
+                    <div className="d-block alert alert-success">
+                      <span> Your appointment has been successfuly booked </span>
+                    </div>
                   )}
-                </button>
+                  {state.appointmentRequestStatus === "CLIENT-ERROR" && (
+                    <div className="d-block alert alert-danger">
+                      <span> {state.message} </span>
+                    </div>
+                  )}
+                  {state.appointmentRequestStatus !== "BOOK-APPOINTMENT-OK" && (
+                    <button type="submit" className="btn btn-cta-active rounded-pill px-3 mx-auto" onClick={bookAppointment}>
+                      {state.appointmentRequestStatus === "loading" && (
+                        <><FontAwesomeIcon spin icon={faSpinner} /> Booking</>
+                      )}
+                      {state.appointmentRequestStatus !== "loading" && (
+                        <>Book appointment</>
+                      )}
+                    </button>
+                  )}
               </div>
-            </div>
-                       
+            </div>                       
           </div>
           
         </div>
