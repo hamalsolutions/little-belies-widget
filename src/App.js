@@ -670,12 +670,14 @@ function App() {
         setState((state) => ({
           ...state,
           step: "registerForm",
+          startDate: moment(new Date()).toString(),
         }));
       break;
       case "summary":
         setState((state) => ({
           ...state,
           step: "availability",
+          startDate: moment(new Date()).toString(),
         }));
       break;
       default:
