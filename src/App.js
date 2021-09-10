@@ -507,11 +507,10 @@ function App() {
           };
           setClientState((clientState) => ({
             ...clientState,
-            createClientRequestStatus: "OK",
+            createClientRequestStatus: "CREATED",
             clientObject: createdClient,
           }));
           createAppointment = true;
-          console.log("CREATE APPOINTMENT");
           clientObject = {...createdClient};
         } else {
           setClientState((clientState) => ({
@@ -519,27 +518,22 @@ function App() {
             createClientRequestStatus: "ERROR",
             message: "Create request Error: " + JSON.stringify(createClientData),
           }));
-          console.log("NOT CREATE APPOINTMENT");
           createAppointment = false;
         }
       }
 
       if(clientState.clientRequestStatus === "CLIENT-FOUND-DIFFERENT"){
         // TODO edit the client ??? To be defined
-        
-        console.log("CREATE APPOINTMENT");
         createAppointment = true;
       }
 
       if(clientState.clientRequestStatus === "CLIENT-FOUND"){
         createAppointment = true;
         
-        console.log("CREATE APPOINTMENT");
       }
 
       if(createAppointment){
         
-        console.log("CREATING APPOINTMENT");
         const payload = {
           sessionTypeId: "" + clientState.sessionTypeId,
           locationId: parseInt(state.locationId),
@@ -580,7 +574,7 @@ function App() {
     } catch (error) {
       setState((state) => ({
         ...state,
-        status: "error",
+        status: "BOOK-APPOINTMENT-FAIL",
         message: "Client request Error: " + JSON.stringify(error.message),
       }));
     }
@@ -671,6 +665,10 @@ function App() {
           ...state,
           step: "registerForm",
           startDate: moment(new Date()).toString(), // <--- added this for reset day
+          block: {
+            id: "",
+          },
+          appointmentRequestStatus: "IDLE",
         }));
       break;
       case "summary":
@@ -678,6 +676,10 @@ function App() {
           ...state,
           step: "availability",
           startDate: moment(new Date()).toString(),  // <--- added this for reset day
+          block: {
+            id: "",
+          },
+          appointmentRequestStatus: "IDLE",
         }));
       break;
       default:
@@ -692,12 +694,11 @@ function App() {
     }));
   }
 
-
   return (
     <div className="container pt-4">
       {state.step === "registerForm" && (
         <>
-          <form className="row w-50 my-3 bg-light-container mx-auto p-4 box-shadow justify-content-center" onSubmit={handleSubmit(onFormSubmit)}>
+          <form className="row my-3 bg-light-container mx-auto p-2 p-md-4 box-shadow justify-content-center" onSubmit={handleSubmit(onFormSubmit)}>
             <div className="row mb-3">
               <div className="col">
                 <h1 className="h4 mt-2 mb-3 ">Please enter your information</h1>
@@ -705,10 +706,10 @@ function App() {
               </div>
             </div>
             <div className="row">
-              <div className="col col-md-6">
+              <div className="col-12 col-md-6">
                 <input type="text" placeholder="First name" className={"form-control bg-light-input mb-3" + (errors.firstName ? " border-1 is-invalid" : " border-0")} {...register("firstName", { required: true, pattern: /^[A-Za-z]+$/i })} />
               </div>
-              <div className="col col-md-6">
+              <div className="col-12 col-md-6">
                 <input type="text" placeholder="Last Name" className={"form-control bg-light-input mb-3" + (errors.lastName ? " border-1 is-invalid" : " border-0")} {...register("lastName", { required: true, pattern: /^[A-Za-z]+$/i })} />
               </div>
             </div>
@@ -776,7 +777,7 @@ function App() {
         <div className="row ">
             <div className="col">
               <div className="row my-3">
-                <div className="col d-flex justify-content-between">
+                <div className="col d-block d-md-flex justify-content-between">
                   <h1 className="h1">Temporary booking online for houston</h1>
                   <button className="btn btn-cta rounded-pill btn-sm px-3 m-2" onClick={()=> previousStep("availability")}>BACK</button>
                 </div>
@@ -786,34 +787,41 @@ function App() {
               {state.availabilityRequestStatus === "ready" && availableBlocks.length > 1 && (
                 <>           
                 <h1 className="h4">Available blocks</h1>
-                <div className="row my-4">
-                  <div className="col">
+                <div className="row my-4 gx-0 mx-auto justify-content-center justify-content-lg-start">
                     {availableBlocks.map( (block, index) => {
                       return (
-                      <button 
-                        className={ block.id === state.block.id ? "btn btn-selected-block btn-sm rounded-pill px-3 m-2" : " btn btn-outline-secondary rounded-pill btn-sm px-3 m-2"}
-                        key={block.id}
-                        onClick={() => handleAvailabilityBlockSelect(block)}
-                        > 
-                        {block.segment+" - "+block.endSegment} 
-                      </button>)
-                    })}
-                  </div>
-                  <div className="row my-4">
+                        <div className="col-auto mx-0 d-flex d-sm-block">
+                        <button 
+                          className={ block.id === state.block.id ? " flex-fill btn btn-selected-block btn-sm rounded-pill px-3 m-2" : " flex-fill btn btn-outline-secondary rounded-pill btn-sm px-3 m-2"}
+                          key={block.id}
+                          onClick={() => handleAvailabilityBlockSelect(block)}
+                          > 
+                          {block.segment+" - "+block.endSegment} 
+                        </button>
+                        </div>
+                    )})}
+                </div>
+                <div className="row my-4">
                     <div className="col text-center">
-                      <button className="btn btn-cta rounded-pill px-3 m-2" onClick={blockSelected}>NEXT</button>
+                      <button className="btn btn-cta rounded-pill px-3 m-2" disabled={state.block.id === ""} onClick={blockSelected}>NEXT</button>
                     </div>
                   </div>
-                </div>
                 </>
               )}
               {state.availabilityRequestStatus === "ready" && availableBlocks.length === 0 && (
-                <>           
-                  <h1 className="h4"> Sorry no Available blocks</h1>
-                </>
+                <div className="row">
+                  <div className="col text-center">
+                    <h1 className="h1 mb-3">Sorry, there are no available spaces today</h1>
+                    <h1 className="h3 mb-3">Please select another day on the calendar</h1>
+                  </div>
+                </div>
               )}  
               {state.availabilityRequestStatus === "loading" && (
-                <h1 className="h1">Loading...</h1>
+                <div className="row">
+                  <div className="col text-center">
+                      <h1 className="h1 m-auto"><FontAwesomeIcon spin icon={faSpinner} /> Loading</h1>
+                  </div>
+                </div>
               )}
               {(state.availabilityRequestStatus === "error" || state.availabilityRequestStatus === "no-data-found") && (
                 <h1 className="h1">Error: {state.message}</h1>
@@ -830,7 +838,7 @@ function App() {
                 <button className="btn btn-cta rounded-pill btn-sm px-3 m-2" onClick={()=> previousStep("summary")}>BACK</button>
             </div>
           </div>
-          <div className="row w-50 mb-3 mt-3 bg-light-container mx-auto p-4 box-shadow justify-content-center" onSubmit={handleSubmit(onFormSubmit)}>
+          <div className="row w-50 mb-3 mt-3 bg-light-container mx-auto p-2 p-md-4 box-shadow justify-content-center" onSubmit={handleSubmit(onFormSubmit)}>
             <div className="row mb-3 mt-2">
               <div className="col">
                 <h1 className="h4 mt-2 mb-3 ">Your booking information</h1>
@@ -874,17 +882,33 @@ function App() {
             </div>
             <div className="row mt-4 mb-2">
               <div className="col text-center">
-                <button type="submit" className="btn btn-cta-active rounded-pill px-3 mx-auto" onClick={bookAppointment}>
-                  {clientState.clientRequestStatus === "loading" && (
-                    <FontAwesomeIcon spin icon={faSpinner} />
+                  {state.appointmentRequestStatus === "BOOK-APPOINTMENT-FAIL" && (
+                    <div className="d-block alert alert-danger">
+                      <span> {state.message} </span>
+                    </div>
                   )}
-                  {clientState.clientRequestStatus !== "loading" && (
-                    <>Book your appointment</>
+                  {state.appointmentRequestStatus === "BOOK-APPOINTMENT-OK" && (
+                    <div className="d-block alert alert-success">
+                      <span> Your appointment has been successfuly booked </span>
+                    </div>
                   )}
-                </button>
+                  {state.appointmentRequestStatus === "CLIENT-ERROR" && (
+                    <div className="d-block alert alert-danger">
+                      <span> {state.message} </span>
+                    </div>
+                  )}
+                  {state.appointmentRequestStatus !== "BOOK-APPOINTMENT-OK" && (
+                    <button type="submit" className="btn btn-cta-active rounded-pill px-3 mx-auto" onClick={bookAppointment}>
+                      {state.appointmentRequestStatus === "loading" && (
+                        <><FontAwesomeIcon spin icon={faSpinner} /> Booking</>
+                      )}
+                      {state.appointmentRequestStatus !== "loading" && (
+                        <>Book appointment</>
+                      )}
+                    </button>
+                  )}
               </div>
-            </div>
-                       
+            </div>                       
           </div>
           
         </div>
