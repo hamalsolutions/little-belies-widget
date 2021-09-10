@@ -796,7 +796,7 @@ function App() {
                           key={block.id}
                           onClick={() => handleAvailabilityBlockSelect(block)}
                           > 
-                          {block.segment+" - "+block.endSegment} 
+                          {block.segment} 
                         </button>
                         </div>
                     )})}
