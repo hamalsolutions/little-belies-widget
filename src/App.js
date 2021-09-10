@@ -670,12 +670,20 @@ function App() {
         setState((state) => ({
           ...state,
           step: "registerForm",
+          startDate: moment(new Date()).toString(), // <--- added this for reset day
+          block: {
+            id: "",
+          },
         }));
       break;
       case "summary":
         setState((state) => ({
           ...state,
           step: "availability",
+          startDate: moment(new Date()).toString(),  // <--- added this for reset day
+          block: {
+            id: "",
+          },
         }));
       break;
       default:
@@ -690,12 +698,11 @@ function App() {
     }));
   }
 
-
   return (
     <div className="container pt-4">
       {state.step === "registerForm" && (
         <>
-          <form className="row w-50 my-3 bg-light-container mx-auto p-4 box-shadow justify-content-center" onSubmit={handleSubmit(onFormSubmit)}>
+          <form className="row my-3 bg-light-container mx-auto p-2 p-md-4 box-shadow justify-content-center" onSubmit={handleSubmit(onFormSubmit)}>
             <div className="row mb-3">
               <div className="col">
                 <h1 className="h4 mt-2 mb-3 ">Please enter your information</h1>
@@ -703,10 +710,10 @@ function App() {
               </div>
             </div>
             <div className="row">
-              <div className="col col-md-6">
+              <div className="col-12 col-md-6">
                 <input type="text" placeholder="First name" className={"form-control bg-light-input mb-3" + (errors.firstName ? " border-1 is-invalid" : " border-0")} {...register("firstName", { required: true, pattern: /^[A-Za-z]+$/i })} />
               </div>
-              <div className="col col-md-6">
+              <div className="col-12 col-md-6">
                 <input type="text" placeholder="Last Name" className={"form-control bg-light-input mb-3" + (errors.lastName ? " border-1 is-invalid" : " border-0")} {...register("lastName", { required: true, pattern: /^[A-Za-z]+$/i })} />
               </div>
             </div>
@@ -774,7 +781,7 @@ function App() {
         <div className="row ">
             <div className="col">
               <div className="row my-3">
-                <div className="col d-flex justify-content-between">
+                <div className="col d-block d-md-flex justify-content-between">
                   <h1 className="h1">Temporary booking online for houston</h1>
                   <button className="btn btn-cta rounded-pill btn-sm px-3 m-2" onClick={()=> previousStep("availability")}>BACK</button>
                 </div>
@@ -784,25 +791,25 @@ function App() {
               {state.availabilityRequestStatus === "ready" && availableBlocks.length > 1 && (
                 <>           
                 <h1 className="h4">Available blocks</h1>
-                <div className="row my-4">
-                  <div className="col">
+                <div className="row my-4 gx-0 mx-auto justify-content-center justify-content-lg-start">
                     {availableBlocks.map( (block, index) => {
                       return (
-                      <button 
-                        className={ block.id === state.block.id ? "btn btn-selected-block btn-sm rounded-pill px-3 m-2" : " btn btn-outline-secondary rounded-pill btn-sm px-3 m-2"}
-                        key={block.id}
-                        onClick={() => handleAvailabilityBlockSelect(block)}
-                        > 
-                        {block.segment+" - "+block.endSegment} 
-                      </button>)
-                    })}
-                  </div>
-                  <div className="row my-4">
+                        <div className="col-auto mx-0 d-flex d-sm-block">
+                        <button 
+                          className={ block.id === state.block.id ? " flex-fill btn btn-selected-block btn-sm rounded-pill px-3 m-2" : " flex-fill btn btn-outline-secondary rounded-pill btn-sm px-3 m-2"}
+                          key={block.id}
+                          onClick={() => handleAvailabilityBlockSelect(block)}
+                          > 
+                          {block.segment+" - "+block.endSegment} 
+                        </button>
+                        </div>
+                    )})}
+                </div>
+                <div className="row my-4">
                     <div className="col text-center">
-                      <button className="btn btn-cta rounded-pill px-3 m-2" onClick={blockSelected}>NEXT</button>
+                      <button className="btn btn-cta rounded-pill px-3 m-2" disabled={state.block.id === ""} onClick={blockSelected}>NEXT</button>
                     </div>
                   </div>
-                </div>
                 </>
               )}
               {state.availabilityRequestStatus === "ready" && availableBlocks.length === 0 && (
@@ -828,7 +835,7 @@ function App() {
                 <button className="btn btn-cta rounded-pill btn-sm px-3 m-2" onClick={()=> previousStep("summary")}>BACK</button>
             </div>
           </div>
-          <div className="row w-50 mb-3 mt-3 bg-light-container mx-auto p-4 box-shadow justify-content-center" onSubmit={handleSubmit(onFormSubmit)}>
+          <div className="row w-50 mb-3 mt-3 bg-light-container mx-auto p-2 p-md-4 box-shadow justify-content-center" onSubmit={handleSubmit(onFormSubmit)}>
             <div className="row mb-3 mt-2">
               <div className="col">
                 <h1 className="h4 mt-2 mb-3 ">Your booking information</h1>
@@ -877,7 +884,7 @@ function App() {
                     <FontAwesomeIcon spin icon={faSpinner} />
                   )}
                   {clientState.clientRequestStatus !== "loading" && (
-                    <>Book your appointment</>
+                    <>Book appointment</>
                   )}
                 </button>
               </div>

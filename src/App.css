@@ -16,6 +16,42 @@
   background-color: rgb(239, 239, 239) !important;
 }
 
+@media (max-width: 576px) { 
+  .bg-light-container{
+    width: 90% !important;
+  }
+ }
+
+@media (min-width: 576px) { 
+  .bg-light-container{
+    width: 90% !important;
+  }
+ }
+
+@media (min-width: 768px) { 
+  .bg-light-container{
+    width: 70% !important;
+  }
+ }
+
+@media (min-width: 992px) { 
+  .bg-light-container{
+    width: 50% !important;
+  }
+ }
+
+@media (min-width: 1200px) { 
+  .bg-light-container{
+    width: 50% !important;
+  }
+ }
+
+@media (min-width: 1400px) { 
+  .bg-light-container{
+    width: 50% !important;
+  }
+ }
+
 .bg-light-input{
   background-color: rgb(248, 249, 250) !important;
 }
