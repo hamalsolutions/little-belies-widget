@@ -300,6 +300,8 @@ function App() {
             `${process.env.REACT_APP_API_URL}/api/book/sites/${state.siteId}/locations/${state.locationId}/schedule?startDate=${queryStartDate}&endDate=${queryStartDate}`,
             availabilityRequest
           );
+
+          
           const availabilityData = await availabilityResponse.json();
           if (availabilityResponse.ok) {
               const rooms = availabilityData.schedule.map((room) => {
