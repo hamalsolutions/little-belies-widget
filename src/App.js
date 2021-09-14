@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
 import ReactHorizontalDatePicker from "react-horizontal-strip-datepicker";
-// import ReactHorizontalDatePicker from "./components/ReactHorizontalDatePicker";
+import ClientCaptcha from "react-client-captcha";
 import "react-horizontal-strip-datepicker/dist/ReactHorizontalDatePicker.css";
 import "./styles/ReactHorizontalDatePicker.css";
 import moment from "moment";
@@ -160,13 +160,12 @@ function App() {
     siteId: params.get('id') || "549974",
     language: params.get('lang') || 'en',
     locationId: "1",
-    userName: "Manuelcastro",
-    userPassword: "Manuel123!",
     authorization: "",
     startDate: moment(new Date()).toString(),
     block: {
       id: "",
     },
+    captchaCode: "",
   });
   const [clientState, setClientState] = useState({
     firstName: "",
@@ -269,8 +268,9 @@ function App() {
   
       try {
         const authPayload = {
-          Username: state.userName,
-          Password: state.userPassword,
+          Username: `${process.env.REACT_APP_USER_NAME}`,
+          Password: `${process.env.REACT_APP_PASSWORD}`,
+          
         };
         const authRequest = {
           method: "PUT",
@@ -305,6 +305,7 @@ function App() {
             `${process.env.REACT_APP_API_URL}/api/book/sites/${state.siteId}/locations/${state.locationId}/schedule?startDate=${queryStartDate}&endDate=${queryStartDate}`,
             availabilityRequest
           );
+
           const availabilityData = await availabilityResponse.json();
           if (availabilityResponse.ok) {
               const rooms = availabilityData.schedule.map((room) => {
@@ -374,12 +375,6 @@ function App() {
                   mutableBlock.appointment =
                   blockAppointment === undefined ? {} : blockAppointment;
                   mutableBlock.available = Boolean(available);
-                  
-                  /*
-                  console.log(moment(blockDate).toString());
-                  console.log(moment(state.startDate).add(2, "hours").toString());
-                  console.log(moment(blockDate).isAfter(moment(state.startDate).add(2, "hours")));
-                  */
 
                   if(blockAppointment === undefined && available && moment(blockDate).isAfter(moment(state.startDate).add(2, "hours"))){
                     availableBlocks.push(mutableBlock);
@@ -478,10 +473,10 @@ function App() {
         ...state,
         appointmentRequestStatus: "loading"
       }));
-
+    
       let createAppointment = false;
       let clientObject = {...clientState.clientObject};
-
+    
       if(clientState.clientRequestStatus === "CLIENT-NOT-FOUND"){
         const payload = {
           firstName: clientState.firstName,
@@ -526,17 +521,17 @@ function App() {
           createAppointment = false;
         }
       }
-
+    
       if(clientState.clientRequestStatus === "CLIENT-FOUND-DIFFERENT"){
         // TODO edit the client ??? To be defined
         createAppointment = true;
       }
-
+    
       if(clientState.clientRequestStatus === "CLIENT-FOUND"){
         createAppointment = true;
         
       }
-
+    
       if(createAppointment){
         
         const payload = {
@@ -547,7 +542,7 @@ function App() {
           notes: "Weeks: "+clientState.weeks+"\n Language: "+clientState.language+"\n",
           startDateTime: moment(state.block.blockDate).format("YYYY-MM-DD[T]HH:mm:ss").toString(),
         };
-  
+    
         const bookAppointmentRequest = {
           method: "POST",
           headers: {
@@ -692,6 +687,13 @@ function App() {
     }
   }
 
+  const setCode = (captchaCode) => {
+    setState((state) => ({
+      ...state,
+      captchaCode: captchaCode,
+    }));
+  }
+
   const blockSelected = () => {
     setState((state) => ({
       ...state,
@@ -801,7 +803,7 @@ function App() {
                           key={block.id}
                           onClick={() => handleAvailabilityBlockSelect(block)}
                           > 
-                          {block.segment+" - "+block.endSegment} 
+                          {block.segment} 
                         </button>
                         </div>
                     )})}
@@ -843,7 +845,7 @@ function App() {
                 <button className="btn btn-cta rounded-pill btn-sm px-3 m-2" onClick={()=> previousStep("summary")}>BACK</button>
             </div>
           </div>
-          <div className="row w-50 mb-3 mt-3 bg-light-container mx-auto p-2 p-md-4 box-shadow justify-content-center" onSubmit={handleSubmit(onFormSubmit)}>
+          <div className="row w-50 mb-3 mt-3 bg-light-container mx-auto p-2 p-md-4 box-shadow justify-content-center">
             <div className="row mb-3 mt-2">
               <div className="col">
                 <h1 className="h4 mt-2 mb-3 ">Your booking information</h1>
@@ -885,8 +887,10 @@ function App() {
                 <div>Language: <b>{clientState.language}</b></div>
               </div>
             </div>
-            <div className="row mt-4 mb-2">
-              <div className="col text-center">
+
+            {state.appointmentRequestStatus !== "IDLE" && (
+              <div className="row mt-4 mb-2">
+                <div className="col text-center">
                   {state.appointmentRequestStatus === "BOOK-APPOINTMENT-FAIL" && (
                     <div className="d-block alert alert-danger">
                       <span> {state.message} </span>
@@ -902,18 +906,47 @@ function App() {
                       <span> {state.message} </span>
                     </div>
                   )}
-                  {state.appointmentRequestStatus !== "BOOK-APPOINTMENT-OK" && (
-                    <button type="submit" className="btn btn-cta-active rounded-pill px-3 mx-auto" onClick={bookAppointment}>
-                      {state.appointmentRequestStatus === "loading" && (
-                        <><FontAwesomeIcon spin icon={faSpinner} /> Booking</>
-                      )}
-                      {state.appointmentRequestStatus !== "loading" && (
-                        <>Book appointment</>
-                      )}
-                    </button>
-                  )}
+                </div>
               </div>
-            </div>                       
+            )}
+
+            {state.appointmentRequestStatus !== "BOOK-APPOINTMENT-OK" && (
+            <div className="row my-2">
+              <div className="col text-center">
+                <div className="row">
+                  <div className="col mx-auto my-auto">
+                    <ClientCaptcha charsCount={5} fontColor="#AE678C" backgroundColor="white" containerClassName="d-flex justify-content-center align-items-middle" captchaCode={setCode}/>
+                  </div>
+                </div>
+                <div className="row">
+                  <div className="col">
+                    <form onSubmit={handleSubmit(bookAppointment)}>
+                     <div className="row my-3">
+                        <div className="col col-md-6 mx-auto">
+                          <input type="text" placeholder="Enter the captcha code" className={"form-control bg-light-input mb-3" + (errors.captcha ? " border-1 is-invalid" : " border-0")} {...register("captcha", { required: true, validate: value => value === state.captchaCode})} />
+                        </div>
+                      </div>
+
+                      <div className="row my-3">
+                        <div className="col">
+                          <button type="submit" className="btn btn-cta-active rounded-pill px-3 mx-auto">
+                            {state.appointmentRequestStatus === "loading" && (
+                              <><FontAwesomeIcon spin icon={faSpinner} /> Booking</>
+                            )}
+                            {state.appointmentRequestStatus !== "loading" && (
+                              <>Book appointment</>
+                            )}
+                          </button>
+                        </div>
+                      </div>
+                    </form>
+                  </div>
+                </div>
+                
+                
+              </div>
+            </div>
+            )}
           </div>
           
         </div>
