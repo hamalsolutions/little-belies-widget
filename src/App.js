@@ -147,13 +147,18 @@ const blocks = [
 ];
 
 function App() {
+
+  const params = new URLSearchParams(window.location.search);
+  
+
   const [state, setState] = useState({
     step: "registerForm",
     status: "IDLE",
     availabilityRequestStatus: "IDLE",
     appointmentRequestStatus: "IDLE",
     message: "",
-    siteId: "549974",
+    siteId: params.get('id') || "549974",
+    language: params.get('lang') || 'en',
     locationId: "1",
     userName: "Manuelcastro",
     userPassword: "Manuel123!",
