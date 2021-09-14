@@ -265,6 +265,7 @@ function App() {
         const authPayload = {
           Username: `${process.env.REACT_APP_USER_NAME}`,
           Password: `${process.env.REACT_APP_PASSWORD}`,
+          
         };
         const authRequest = {
           method: "PUT",
