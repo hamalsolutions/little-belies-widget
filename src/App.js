@@ -811,7 +811,7 @@ function App() {
             <div className="col">
               <div className="row my-3">
                 <div className="col d-block d-md-flex justify-content-between">
-                  <h1 className="h1">Temporary booking online for houston</h1>
+                  <h1 className="h1"></h1>
                   <button className="btn btn-cta rounded-pill btn-sm px-3 m-2" onClick={()=> previousStep("availability")}>BACK</button>
                 </div>
               </div>
