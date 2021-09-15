@@ -5219,6 +5219,11 @@
     "loader-utils" "^2.0.0"
     "schema-utils" "^3.0.0"
 
+"file-uri-to-path@1.0.0":
+  "integrity" "sha512-0Zt+s3L7Vf1biwWZ29aARiVYLx7iMGnEUl9x33fbB/j3jR81u/O2LbqK+Bm1CDSNDKVtJ/YjwY7TUd5SkeLQLw=="
+  "resolved" "https://registry.npmjs.org/file-uri-to-path/-/file-uri-to-path-1.0.0.tgz"
+  "version" "1.0.0"
+
 "filesize@6.1.0":
   "integrity" "sha512-LpCHtPQ3sFx67z+uh2HnSyWSLLu5Jxo21795uRDuar/EOuYWXib5EmPaGIBuSnRqH2IODiKA2k5re/K9OnN/Yg=="
   "resolved" "https://registry.npmjs.org/filesize/-/filesize-6.1.0.tgz"
@@ -9306,6 +9311,11 @@
     "regenerator-runtime" "^0.13.7"
     "whatwg-fetch" "^3.4.1"
 
+"react-client-captcha@^1.0.3":
+  "integrity" "sha512-uPnU6W/lYg3oEAwK+wo0MYUWWr24gv6QiILGprrDlk6Y/NjJiMOGItBtrDloysGLl0Mz+d1mbc99IWCsVQYWkg=="
+  "resolved" "https://registry.npmjs.org/react-client-captcha/-/react-client-captcha-1.0.3.tgz"
+  "version" "1.0.3"
+
 "react-dev-utils@^11.0.3":
   "integrity" "sha512-dx0LvIGHcOPtKbeiSUM4jqpBl3TcY7CDjZdfOIcKeznE7BWr9dg0iPG90G5yfVQ+p/rGNMXdbfStvzQZEVEi4A=="
   "resolved" "https://registry.npmjs.org/react-dev-utils/-/react-dev-utils-11.0.4.tgz"
@@ -9336,7 +9346,7 @@
     "strip-ansi" "6.0.0"
     "text-table" "0.2.0"
 
-"react-dom@*", "react-dom@^16.8.0 || ^17.0.0", "react-dom@^17.0.2", "react-dom@>=16.6.0":
+"react-dom@*", "react-dom@^16.8.0 || ^17.0.0", "react-dom@^16.9.0", "react-dom@^17.0.2", "react-dom@>=16.6.0":
   "integrity" "sha512-s4h96KtLDUQlsENhMn1ar8t2bEa+q/YAtj8pPPdIjPDGBDIVNsrD9aXNWqspUe6AzKCIG0C1HZZLqLV7qpOBGA=="
   "resolved" "https://registry.npmjs.org/react-dom/-/react-dom-17.0.2.tgz"
   "version" "17.0.2"
@@ -9355,12 +9365,14 @@
   "resolved" "https://registry.npmjs.org/react-hook-form/-/react-hook-form-7.15.2.tgz"
   "version" "7.15.2"
 
-"react-horizontal-strip-datepicker@^3.0.2":
-  "integrity" "sha512-5Zql7pLPUM5E/2YIDEg0T3ZYZuBAAVwm9hnma3WleC1gokkHcTv7Bf+2DexZnXF9C3gVT5pCCRpf1tt6n/s8jQ=="
-  "resolved" "https://registry.npmjs.org/react-horizontal-strip-datepicker/-/react-horizontal-strip-datepicker-3.0.2.tgz"
-  "version" "3.0.2"
+"react-horizontal-strip-datepicker@github:hamalsolutions/react-horizontal-strip-datepicker#dependabot/npm_and_yarn/acorn-5.7.4":
+  "resolved" "git+ssh://git@github.com/hamalsolutions/react-horizontal-strip-datepicker.git#bd96dd566553ed640e46b68763946251a22775e2"
+  "version" "0.1.12"
   dependencies:
     "date-fns" "^2.8.1"
+    "react" "^17.0.2"
+    "react-dom" "^17.0.2"
+    "react-scripts" "4.0.3"
     "react-waypoint" "^9.0.2"
 
 "react-input-autosize@^3.0.0":
@@ -9493,7 +9505,7 @@
     "prop-types" "^15.0.0"
     "react-is" "^16.6.3"
 
-"react@*", "react@^15.3.0 || ^16.0.0", "react@^16.0.0", "react@^16.3.0 || ^17.0.0", "react@^16.8.0 || ^17", "react@^16.8.0 || ^17.0.0", "react@^17.0.2", "react@>= 16", "react@>=16.6.0", "react@>=16.8.0", "react@>=16.x", "react@17.0.2":
+"react@*", "react@^15.3.0 || ^16.0.0", "react@^16.3.0 || ^17.0.0", "react@^16.8.0 || ^17", "react@^16.8.0 || ^17.0.0", "react@^16.9.0", "react@^17.0.2", "react@>= 16", "react@>=16.6.0", "react@>=16.8.0", "react@>=16.x", "react@17.0.2":
   "integrity" "sha512-gnhPt75i/dq/z3/6q/0asP78D0u592D5L1pd7M8P+dck6Fu/jJeL6iVVK23fptSUZj8Vjf++7wXA8UNclGQcbA=="
   "resolved" "https://registry.npmjs.org/react/-/react-17.0.2.tgz"
   "version" "17.0.2"
