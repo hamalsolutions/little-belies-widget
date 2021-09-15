@@ -184,6 +184,7 @@ function App() {
   }); 
   const [availableBlocks, setAvailableBlocks] = useState([]);
   const [services, setServices] = useState([]);
+  const [weeks, seetWeeks] = useState([]);
  
   useEffect(() => {
     const servicesConsulted = {
@@ -257,6 +258,19 @@ function App() {
       displayableServices.push(mutableItem);
     });
     setServices(displayableServices);
+    const arrayOfWeeks = [];
+    arrayOfWeeks.push({
+      value: "i don't know",
+      label: "i don't know"
+    });
+    for (let index = 4; index < 34; index++) {
+      const element = {
+        value: "" + index,
+        label: "" + index
+      };
+      arrayOfWeeks.push(element);
+    }
+    seetWeeks(arrayOfWeeks);
   }, []);
 
   useEffect(() => {
@@ -359,7 +373,7 @@ function App() {
                   );
                   room.unavailabilities.forEach(
                     (unavailabilityBlock) => {
-                      available = available *!moment(blockDate).isBetween(unavailabilityBlock.startDateTime,unavailabilityBlock.endDateTime,undefined,"[)");
+                      available = available *!moment(blockDate).isBetween(unavailabilityBlock.StartDateTime,unavailabilityBlock.EndDateTime,undefined,"[)");
                     }
                   );
                   const blockAppointment = room.appointments.find(
@@ -445,7 +459,7 @@ function App() {
     };
   
     getAvailability();
-  }, [state.startDate, state.locationId, state.siteId, state.userName, state.userPassword]);
+  }, [state.startDate, state.locationId, state.siteId]);
 
   const onSelectedDay = (d) => {
     if(moment(d).format("MM/DD/YYYY").toString() === moment(state.startDate).format("MM/DD/YYYY").toString()){
@@ -539,7 +553,7 @@ function App() {
           locationId: parseInt(state.locationId),
           staffId: state.block.staffId[0],
           clientId: clientObject.clientId,
-          notes: "Weeks: "+clientState.weeks+"\n Language: "+clientState.language+"\n",
+          notes: "Weeks: "+clientState.weeks+"\n Language: "+clientState.language+"\n", // Very important, use the wordpress language
           startDateTime: moment(state.block.blockDate).format("YYYY-MM-DD[T]HH:mm:ss").toString(),
         };
     
@@ -589,10 +603,10 @@ function App() {
       lastName: data.lastName,
       email: data.email,
       phone: data.phone,
-      weeks: data.weeks,
+      weeks: data.weeks.label,
       sessionTypeId: data.service.value,
       sessionTypeName: data.service.label,
-      language: data.language.value,
+      // language: data.language.value, // should be extracted from wordpress url
     }));
     setState((state) => ({
       ...state,
@@ -714,10 +728,10 @@ function App() {
             </div>
             <div className="row">
               <div className="col-12 col-md-6">
-                <input type="text" placeholder="First name" className={"form-control bg-light-input mb-3" + (errors.firstName ? " border-1 is-invalid" : " border-0")} {...register("firstName", { required: true, pattern: /^[A-Za-z]+$/i })} />
+                <input type="text" placeholder="First name" className={"form-control bg-light-input mb-3" + (errors.firstName ? " border-1 is-invalid" : " border-0")} {...register("firstName", { required: true, pattern: /^([^0-9]*)$/i })} />
               </div>
               <div className="col-12 col-md-6">
-                <input type="text" placeholder="Last Name" className={"form-control bg-light-input mb-3" + (errors.lastName ? " border-1 is-invalid" : " border-0")} {...register("lastName", { required: true, pattern: /^[A-Za-z]+$/i })} />
+                <input type="text" placeholder="Last Name" className={"form-control bg-light-input mb-3" + (errors.lastName ? " border-1 is-invalid" : " border-0")} {...register("lastName", { required: true, pattern: /^([^0-9]*)$/i })} />
               </div>
             </div>
             <div className="row">
@@ -732,9 +746,20 @@ function App() {
             </div>
             <div className="row">
               <div className="col">
-                <input type="text" placeholder="Weeks" className={"form-control bg-light-input mb-3" + (errors.weeks ? " border-1 is-invalid" : " border-0")} {...register("weeks", { required: true })} />
+                <Controller
+                  name="weeks"
+                  control={control}
+                  rules={{ required: true }}
+                  render={({ field }) => <Select 
+                    {...field} 
+                    options={weeks}
+                    placeholder="Select Pregnancy Weeks"
+                    className={"dropdown w-100 mb-3" + (errors.weeks ? " is-select-invalid" : "")}
+                  />}
+                />
               </div>
             </div>
+            {/*
             <div className="row">
               <div className="col">
                 <Controller
@@ -753,6 +778,7 @@ function App() {
                 />
               </div>
             </div>
+            */}
             <div className="row">
               <div className="col">
                 <Controller
