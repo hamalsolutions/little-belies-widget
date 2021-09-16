@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
 import ReactHorizontalDatePicker from "react-horizontal-strip-datepicker";
-import ClientCaptcha from "react-client-captcha";
 import "react-horizontal-strip-datepicker/dist/ReactHorizontalDatePicker.css";
 import "./styles/ReactHorizontalDatePicker.css";
 import moment from "moment";
@@ -9,6 +8,7 @@ import Select from "react-select";
 import { useForm, Controller  } from "react-hook-form";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faSpinner } from "@fortawesome/free-solid-svg-icons";  
+import ReCAPTCHA from "react-google-recaptcha";
 import "./App.css";
 
 const blocks = [
@@ -727,11 +727,8 @@ function App() {
     }
   }
 
-  const setCode = (captchaCode) => {
-    setState((state) => ({
-      ...state,
-      captchaCode: captchaCode,
-    }));
+  function onChange(value) {
+    console.log("Captcha value:", value);
   }
 
   const blockSelected = () => {
@@ -785,26 +782,6 @@ function App() {
                 />
               </div>
             </div>
-            {/*
-            <div className="row">
-              <div className="col">
-                <Controller
-                  name="language"
-                  control={control}
-                  rules={{ required: true }}
-                  render={({ field }) => <Select 
-                    {...field} 
-                    options={[
-                      { value: "English", label: "English" },
-                      { value: "Spanish", label: "Spanish" }
-                    ]}
-                    placeholder="Select a language"
-                    className={"dropdown w-100 mb-3" + (errors.language ? " is-select-invalid" : "")}
-                  />}
-                />
-              </div>
-            </div>
-            */}
             <div className="row">
               <div className="col">
                 <Controller
@@ -967,7 +944,10 @@ function App() {
               <div className="col text-center">
                 <div className="row">
                   <div className="col mx-auto my-auto">
-                    <ClientCaptcha charsCount={5} fontColor="#AE678C" backgroundColor="white" containerClassName="d-flex justify-content-center align-items-middle" captchaCode={setCode}/>
+                  <ReCAPTCHA
+                    sitekey="6LdsCnAcAAAAAHG8I-ADbn4GG6ztVOzEO0C93Yuh"
+                    onChange={onChange}
+                  />
                   </div>
                 </div>
                 <div className="row">
