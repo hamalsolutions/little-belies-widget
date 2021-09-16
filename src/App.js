@@ -947,7 +947,7 @@ function App() {
             <div className="row my-2">
               <div className="col text-center">
                 <div className="row">
-                  <div className="col mx-auto my-auto">
+                  <div className="col captcha-container d-flex">
                   <ReCAPTCHA
                     sitekey="6LdsCnAcAAAAAHG8I-ADbn4GG6ztVOzEO0C93Yuh"
                     onChange={onChange}
