@@ -149,6 +149,7 @@ const blocks = [
 function App() {
 
   const params = new URLSearchParams(window.location.search);
+  const languageList = {'en':'English', 'es':'Spanish'}
   
 
   const [state, setState] = useState({
@@ -158,7 +159,7 @@ function App() {
     appointmentRequestStatus: "IDLE",
     message: "",
     siteId: params.get('id') || "549974",
-    language: params.get('lang') || 'en',
+    language: languageList[params.get('lang')] || 'en',
     locationId: "1",
     authorization: "",
     startDate: moment(new Date()).toString(),
@@ -606,6 +607,7 @@ function App() {
       weeks: data.weeks.label,
       sessionTypeId: data.service.value,
       sessionTypeName: data.service.label,
+      language: state.language
       // language: data.language.value, // should be extracted from wordpress url
     }));
     setState((state) => ({
