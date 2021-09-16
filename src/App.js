@@ -181,7 +181,7 @@ function App() {
     block: {
       id: "",
     },
-    captchaCode: "",
+    captchaReady: false,
   });
   const [clientState, setClientState] = useState({
     firstName: "",
@@ -729,6 +729,10 @@ function App() {
 
   function onChange(value) {
     console.log("Captcha value:", value);
+    setState((state) => ({
+      ...state,
+      captchaReady: true,
+    }));
   }
 
   const blockSelected = () => {
@@ -950,28 +954,16 @@ function App() {
                   />
                   </div>
                 </div>
-                <div className="row">
-                  <div className="col">
-                    <form onSubmit={handleSubmit(bookAppointment)}>
-                     <div className="row my-3">
-                        <div className="col col-md-6 mx-auto">
-                          <input type="text" placeholder="Enter the captcha code" className={"form-control bg-light-input mb-3" + (errors.captcha ? " border-1 is-invalid" : " border-0")} {...register("captcha", { required: true, validate: value => value === state.captchaCode})} />
-                        </div>
-                      </div>
-
-                      <div className="row my-3">
-                        <div className="col">
-                          <button type="submit" className="btn btn-cta-active rounded-pill px-3 mx-auto">
-                            {state.appointmentRequestStatus === "loading" && (
-                              <><FontAwesomeIcon spin icon={faSpinner} /> Booking</>
-                            )}
-                            {state.appointmentRequestStatus !== "loading" && (
-                              <>Book appointment</>
-                            )}
-                          </button>
-                        </div>
-                      </div>
-                    </form>
+                <div className="row mt-3">
+                  <div className="col text-center">
+                    <button type="button" disabled={!state.captchaReady} className="btn btn-cta-active rounded-pill px-3 mx-auto" onClick={bookAppointment}>
+                      {state.appointmentRequestStatus === "loading" && (
+                        <><FontAwesomeIcon spin icon={faSpinner} /> Booking</>
+                      )}
+                      {state.appointmentRequestStatus !== "loading" && (
+                        <>Book appointment</>
+                      )}
+                    </button>
                   </div>
                 </div>
                 
