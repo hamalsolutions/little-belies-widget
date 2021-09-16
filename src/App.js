@@ -146,12 +146,27 @@ const blocks = [
   },
 ];
 
+const translations = {
+  'en':{
+    'Please enter your information':'Please enter your information',
+  },
+  'es':{
+    //'Please enter your information':'Por Favor indroduzca la siguiente informacion',
+    'Please enter your information':'Please enter your information',
+  }
+
+}
+
 function App() {
 
   const params = new URLSearchParams(window.location.search);
   const languageList = {'en':'English', 'es':'Spanish'}
   
-
+  const translate = (text) => {
+   
+    const trans = translations[params.get('lang') || 'en'];
+    return trans[text] || text;
+  }
   const [state, setState] = useState({
     step: "registerForm",
     status: "IDLE",
@@ -159,7 +174,7 @@ function App() {
     appointmentRequestStatus: "IDLE",
     message: "",
     siteId: params.get('id') || "549974",
-    language: languageList[params.get('lang')] || 'en',
+    language: languageList[params.get('lang')] || 'English',
     locationId: "1",
     authorization: "",
     startDate: moment(new Date()).toString(),
@@ -390,8 +405,17 @@ function App() {
                   mutableBlock.appointment =
                   blockAppointment === undefined ? {} : blockAppointment;
                   mutableBlock.available = Boolean(available);
-
-                  if(blockAppointment === undefined && available && moment(blockDate).isAfter(moment(state.startDate).add(2, "hours"))){
+                  // add time to date
+                  var timestamp = state.startDate;
+                  var now = moment();
+                  var startMomentWithNowTime = moment(timestamp).set({
+                    'hour': now.hour(),
+                    'minute': now.minute(),
+                    'second': now.second()
+                  });
+                 
+                  console.log(startMomentWithNowTime);
+                  if(blockAppointment === undefined && available && moment(blockDate).isAfter(startMomentWithNowTime.add(2, "hours"))){
                     availableBlocks.push(mutableBlock);
                   }
                   
@@ -724,7 +748,7 @@ function App() {
           <form className="row my-3 bg-light-container mx-auto p-2 p-md-4 box-shadow justify-content-center" onSubmit={handleSubmit(onFormSubmit)}>
             <div className="row mb-3">
               <div className="col">
-                <h1 className="h4 mt-2 mb-3 ">Please enter your information</h1>
+                <h1 className="h4 mt-2 mb-3 ">{translate('Please enter your information',state.language)}</h1>
                 <h3 className="h6 fw-normal"> In order to book an appointment please supply the following information</h3>
               </div>
             </div>
@@ -876,7 +900,7 @@ function App() {
           <div className="row w-50 mb-3 mt-3 bg-light-container mx-auto p-2 p-md-4 box-shadow justify-content-center">
             <div className="row mb-3 mt-2">
               <div className="col">
-                <h1 className="h4 mt-2 mb-3 ">Your booking information</h1>
+               
                 <h3 className="h6 fw-normal"> In order to book an appointment please supply the following information</h3>
               </div>
             </div>
