@@ -405,6 +405,7 @@ function App() {
                   mutableBlock.appointment =
                   blockAppointment === undefined ? {} : blockAppointment;
                   mutableBlock.available = Boolean(available);
+                  
                   // add time to date
                   var timestamp = state.startDate;
                   var now = moment();
