@@ -231,11 +231,11 @@ function App() {
           name: "Meet Your Baby - 15 Min 5D/HD + Baby's Growth $128",
           price: 128,
         },
-        { sessionTypeId: 20, name: "Come back for free", price: 0 },
+      //  { sessionTypeId: 20, name: "Come back for free", price: 0 },
         { sessionTypeId: 24, name: "Special Promo Ultrasound (G)", price: 0 },
         { sessionTypeId: 25, name: "Gender Determination - $79", price: 79 },
-        { sessionTypeId: 32, name: "Membership + Visit  - $198", price: 198 },
-        { sessionTypeId: 33, name: "Membership Ultrasound -$30", price: 30 },
+      //  { sessionTypeId: 32, name: "Membership + Visit  - $198", price: 198 },
+       // { sessionTypeId: 33, name: "Membership Ultrasound -$30", price: 30 },
         {
           sessionTypeId: 34,
           name: "Gender Determination  + Baby's Growth - $108  ",
@@ -276,8 +276,8 @@ function App() {
     setServices(displayableServices);
     const arrayOfWeeks = [];
     arrayOfWeeks.push({
-      value: "i don't know",
-      label: "i don't know"
+      value: "I don't know",
+      label: "I don't know"
     });
     for (let index = 4; index < 34; index++) {
       const element = {
@@ -407,15 +407,16 @@ function App() {
                   mutableBlock.available = Boolean(available);
                   
                   // add time to date
-                  var timestamp = state.startDate;
-                  var now = moment();
-                  var startMomentWithNowTime = moment(timestamp).set({
-                    'hour': now.hour(),
-                    'minute': now.minute(),
-                    'second': now.second()
+                  var startMomentWithNowTime = moment(state.startDate)
+                  var now = moment().format("MM/DD/YYYY");
+                  if (now === startMomentWithNowTime.format("MM/DD/YYYY")) {
+                  var nowWithTime = moment();
+                  startMomentWithNowTime = startMomentWithNowTime.set({
+                    'hour': nowWithTime.hour(),
+                    'minute': nowWithTime.minute(),
+                    'second': nowWithTime.second()
                   });
-                 
-                  console.log(startMomentWithNowTime);
+                }
                   if(blockAppointment === undefined && available && moment(blockDate).isAfter(startMomentWithNowTime.add(2, "hours"))){
                     availableBlocks.push(mutableBlock);
                   }
