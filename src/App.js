@@ -276,8 +276,8 @@ function App() {
     setServices(displayableServices);
     const arrayOfWeeks = [];
     arrayOfWeeks.push({
-      value: "i don't know",
-      label: "i don't know"
+      value: "I don't know",
+      label: "I don't know"
     });
     for (let index = 4; index < 34; index++) {
       const element = {
@@ -406,15 +406,16 @@ function App() {
                   blockAppointment === undefined ? {} : blockAppointment;
                   mutableBlock.available = Boolean(available);
                   // add time to date
-                  var timestamp = state.startDate;
-                  var now = moment();
-                  var startMomentWithNowTime = moment(timestamp).set({
-                    'hour': now.hour(),
-                    'minute': now.minute(),
-                    'second': now.second()
+                  var startMomentWithNowTime = moment(state.startDate)
+                  var now = moment().format("MM/DD/YYYY");
+                  if (now === startMomentWithNowTime.format("MM/DD/YYYY")) {
+                  var nowWithTime = moment();
+                  startMomentWithNowTime = startMomentWithNowTime.set({
+                    'hour': nowWithTime.hour(),
+                    'minute': nowWithTime.minute(),
+                    'second': nowWithTime.second()
                   });
-                 
-                  console.log(startMomentWithNowTime);
+                }
                   if(blockAppointment === undefined && available && moment(blockDate).isAfter(startMomentWithNowTime.add(2, "hours"))){
                     availableBlocks.push(mutableBlock);
                   }
