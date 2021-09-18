@@ -192,7 +192,6 @@ function App() {
     weeks: "",
     sessionTypeId: "",
     sessionTypeName: "",
-    language: "",
     clientRequestStatus: "IDLE",
     createClientRequestStatus: "IDLE",
     searchResults: [],
@@ -295,7 +294,7 @@ function App() {
         options: massages,
       },
     ];
-    console.log(displayableServices);
+    
     setServices(displayableServices);
     const arrayOfWeeks = [];
     arrayOfWeeks.push({
@@ -656,7 +655,6 @@ function App() {
       sessionTypeId: data.service.value,
       sessionTypeName: data.service.label,
       language: state.language
-      // language: data.language.value, // should be extracted from wordpress url
     }));
     setState((state) => ({
       ...state,
@@ -703,15 +701,12 @@ function App() {
               searchResults: searchClientsData.clients,
             }));
           }
-        
-        console.log("OK")
       } else {
         setClientState((clientState) => ({
           ...clientState,
           clientRequestStatus: "CLIENT-NOT-FOUND",
           searchResults: [],
         }));
-        console.log("NOTHING")
       }
     } catch (error) {
       setState((state) => ({
@@ -752,7 +747,7 @@ function App() {
   }
 
   function onChange(value) {
-    console.log("Captcha value:", value);
+    
     setState((state) => ({
       ...state,
       captchaReady: true,
@@ -774,7 +769,7 @@ function App() {
             <div className="row mb-3">
               <div className="col">
                 <h1 className="h4 mt-2 mb-3 ">{translate('Please enter your information',state.language)}</h1>
-                <h3 className="h6 fw-normal"> In order to book an appointment please supply the following information</h3>
+                <h3 className="h6 fw-normal"> In order to book an appointment please provide the following information</h3>
               </div>
             </div>
             <div className="row">
@@ -903,12 +898,7 @@ function App() {
             </div>
           </div>
           <div className="row w-50 mb-3 mt-3 bg-light-container mx-auto p-2 p-md-4 box-shadow justify-content-center">
-            <div className="row mb-3 mt-2">
-              <div className="col">
-               
-                <h3 className="h6 fw-normal"> In order to book an appointment please supply the following information</h3>
-              </div>
-            </div>
+            
             <div className="row mb-2 mt-2">
               <div className="col">
                 <div>Full name: <b>{clientState.firstName + " " + clientState.lastName}</b></div>
@@ -939,12 +929,13 @@ function App() {
                 <div>Date: <b>{moment(state.block.blockDate).format("MM-DD-YYYY[ ]hh:mm A").toString()}</b></div>
               </div>
             </div>
-            <div className="row mb-2">
-              <div className="col">
-                <div>Language: <b>{clientState.language}</b></div>
+            { state.language !== 'English' && (
+              <div className="row mb-2">
+                <div className="col">
+                  <div>Language: <b>{state.language}</b></div>
+                </div>
               </div>
-            </div>
-
+            )}
             {state.appointmentRequestStatus !== "IDLE" && (
               <div className="row mt-4 mb-2">
                 <div className="col text-center">
