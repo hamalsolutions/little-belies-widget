@@ -519,6 +519,17 @@ function App() {
     }));
   };
 
+  // reload until found available space
+  useEffect(()=>{
+    const nextDay = new Date(moment(state.startDate).add(1, "days").format("MM/DD/YYYY").toString());
+    if(availableBlocks.length===0){
+      setTimeout(() => {
+        onSelectedDay(nextDay);
+      }, 500);
+    }
+  },[availableBlocks])
+  // but doesnt change date on calendar
+
   const handleAvailabilityBlockSelect = (block) => {
     setState((state) => ({
       ...state,
