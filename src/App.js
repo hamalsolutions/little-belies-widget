@@ -5,7 +5,6 @@ import "react-horizontal-strip-datepicker/dist/ReactHorizontalDatePicker.css";
 import "./styles/ReactHorizontalDatePicker.css";
 import moment from "moment";
 import Select from "react-select";
-import Creatable from "react-select/creatable";
 import { useForm, Controller  } from "react-hook-form";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faSpinner } from "@fortawesome/free-solid-svg-icons";  
@@ -183,6 +182,10 @@ function App() {
       id: "",
     },
     captchaReady: false,
+    showAddons: false,
+    showbabyGrowth: false,
+    addBabysGrowth: false,
+    addHeartbeatBuddies: false,
   });
   const [clientState, setClientState] = useState({
     firstName: "",
@@ -200,9 +203,18 @@ function App() {
   }); 
   const [availableBlocks, setAvailableBlocks] = useState([]);
   const [services, setServices] = useState([]);
-  const [weeks, seetWeeks] = useState([]);
+  const [weeks, setWeeks] = useState([]);
+  const [selectedService, setSelectedService] = useState([]);
+  const { control, watch, register, formState: { errors }, handleSubmit } = useForm();
+  const watchFields = watch(["service"]); // you can also target specific fields by their names
  
   useEffect(() => {
+    
+      /*
+      JUMP HERE
+      show babys growth: 6 (18), 7 (19), 25(34)
+      sessionTypeId === 7 && babysGrowthAddOn => sessionTypeId: 18; name: Meet Your Baby - 25 Min 5D/HD + Baby's Growth $168
+      */
     const ultrasoundServices = {
       services: [
         { sessionTypeId: 5, name: "Early Pregnancy - $59", price: 59 },
@@ -231,17 +243,17 @@ function App() {
           name: "Meet Your Baby - 15 Min 5D/HD + Baby's Growth $128",
           price: 128,
         },
-      //  { sessionTypeId: 20, name: "Come back for free", price: 0 },
+        // { sessionTypeId: 20, name: "Come back for free", price: 0 },
         { sessionTypeId: 24, name: "Special Promo Ultrasound (G)", price: 0 },
         { sessionTypeId: 25, name: "Gender Determination - $79", price: 79 },
-      //  { sessionTypeId: 32, name: "Membership + Visit  - $198", price: 198 },
-       // { sessionTypeId: 33, name: "Membership Ultrasound -$30", price: 30 },
+        // { sessionTypeId: 32, name: "Membership + Visit  - $198", price: 198 },
+        // { sessionTypeId: 33, name: "Membership Ultrasound -$30", price: 30 },
         {
           sessionTypeId: 34,
           name: "Gender Determination  + Baby's Growth - $108  ",
           price: 108,
         },
-        { sessionTypeId: 37, name: "CBFF + Baby's Growth", price: 29 },
+        // { sessionTypeId: 37, name: "CBFF + Baby's Growth", price: 29 },
       ]}
       const massageServices = {
         services: [ 
@@ -308,7 +320,7 @@ function App() {
       };
       arrayOfWeeks.push(element);
     }
-    seetWeeks(arrayOfWeeks);
+    setWeeks(arrayOfWeeks);
   }, []);
 
   useEffect(() => {
@@ -612,7 +624,7 @@ function App() {
           locationId: parseInt(state.locationId),
           staffId: state.block.staffId[0],
           clientId: clientObject.clientId,
-          notes: "Weeks: "+clientState.weeks+"\n Language: "+state.language+"\n", // Very important, use the wordpress language
+          notes: "Weeks: "+clientState.weeks+"\n Language: "+state.language+"\n"+state.addHeartbeatBuddies ? "Add HeartBeat Buddies" : "", // Very important, use the wordpress language
           startDateTime: moment(state.block.blockDate).format("YYYY-MM-DD[T]HH:mm:ss").toString(),
         };
     
@@ -653,9 +665,22 @@ function App() {
     }
   }
   
-  const { control, register, formState: { errors }, handleSubmit } = useForm();
   
   const onFormSubmit = async (data) => {
+    
+    let sessionTypeId = "";
+    let sessionTypeName = ""
+    // JUMP HERE
+    if(data.service.value === 6 && state.addBabysGrowth){
+      sessionTypeId = 18; sessionTypeName = "Meet Your Baby - 25 Min 5D/HD + Baby's Growth $168";
+    }
+    if(data.service.value === 7 && state.addBabysGrowth){
+      sessionTypeId = 19; sessionTypeName = "Meet Your Baby - 15 Min 5D/HD + Baby's Growth $128";
+    }
+    if(data.service.value === 25 && state.addBabysGrowth){
+      sessionTypeId = 34; sessionTypeName = "Gender Determination  + Baby's Growth - $108";
+    } 
+
     setClientState((clientState) => ({
       ...clientState,
       firstName: data.firstName,
@@ -663,8 +688,8 @@ function App() {
       email: data.email,
       phone: data.phone,
       weeks: data.weeks.label,
-      sessionTypeId: data.service.value,
-      sessionTypeName: data.service.label,
+      sessionTypeId: sessionTypeId,
+      sessionTypeName: sessionTypeName,
       language: state.language
     }));
     setState((state) => ({
@@ -758,10 +783,22 @@ function App() {
   }
 
   function onChange(value) {
-    
     setState((state) => ({
       ...state,
       captchaReady: true,
+    }));
+  }
+
+  const handleAddBabysGrowth = () =>{
+    setState((state) => ({
+      ...state,
+      addBabysGrowth: !state.addBabysGrowth,
+    }));
+  }
+  const handleAddHeartbeatBuddies = () =>{
+    setState((state) => ({
+      ...state,
+      addHeartbeatBuddies: !state.addHeartbeatBuddies,
     }));
   }
 
@@ -823,10 +860,9 @@ function App() {
                   control={control}
                   rules={{ required: true }}
                   render={({ field }) => 
-                    <Creatable
+                    <Select
                       {...field} 
                       options={services}
-                      isSearchable={true}
                       placeholder="Select a service"
                       className={"dropdown w-100 mb-3" + (errors.service ? " is-select-invalid" : "")}
                     />
@@ -834,6 +870,26 @@ function App() {
                 />
               </div>
             </div>
+            {watchFields[0] !== undefined && (
+              <div className="row my-3 justify-content-center">
+                {(watchFields[0].value === 6 || watchFields[0].value === 7 || watchFields[0].value === 25)  && (
+                  <div className="col-6 text-center">
+                    <div 
+                      className="btn btn-cta-active rounded-pill px-3 mx-auto" 
+                      onClick={handleAddBabysGrowth}>
+                        {state.addBabysGrowth ? "Added" : "+ baby's growth"}
+                      </div>
+                  </div>
+                )}
+                <div className="col-6 text-center">
+                  <div
+                    className="btn btn-cta-active rounded-pill px-3 mx-auto" 
+                    onClick={handleAddHeartbeatBuddies}>
+                      {state.addHeartbeatBuddies ? "Added" : "+ Heartbeat Buddies"}
+                    </div>
+                </div>
+              </div>    
+            )}
             <div className="row my-3">
               <div className="col text-center">
                 <button type="submit" className="btn btn-cta-active rounded-pill px-3 mx-auto">Check availabilities</button>
