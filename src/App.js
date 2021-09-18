@@ -7,7 +7,7 @@ import moment from "moment";
 import Select from "react-select";
 import { useForm, Controller  } from "react-hook-form";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faSpinner } from "@fortawesome/free-solid-svg-icons";  
+import { faSpinner, faBaby, faHeartbeat, faCartPlus, faTrash } from "@fortawesome/free-solid-svg-icons";  
 import ReCAPTCHA from "react-google-recaptcha";
 import "./App.css";
 
@@ -873,19 +873,77 @@ function App() {
             {watchFields[0] !== undefined && (
               <div className="row my-3 justify-content-center">
                 {(watchFields[0].value === 6 || watchFields[0].value === 7 || watchFields[0].value === 25)  && (
+                  
                   <div className="col-6 text-center">
-                    <div 
-                      className="btn btn-cta-active rounded-pill px-3 mx-auto" 
+                    <div
+                      className={"btn rounded-3 px-3 mx-auto smaller-text w-100 " + (state.addBabysGrowth ? "btn-outline-addOn" : "btn-outline-secondary")}
                       onClick={handleAddBabysGrowth}>
-                        {state.addBabysGrowth ? "Added" : "+ baby's growth"}
+                        <div className="row">
+                          <div className="col addOnIcon">
+                            <FontAwesomeIcon icon={faBaby} />
+                          </div>
+                        </div>
+                        <div className="row">
+                          <div className="col">
+                            <h3 className="h5">Baby's Growth</h3>
+                          </div>
+                        </div>
+                        <div className="row justify-content-center">
+                          <div className="col-auto h6">
+                            <span className="h5">$29</span>
+                          </div>
+                          <div className="col-auto h5"> 
+                            {state.addBabysGrowth && (
+                            <>
+                              <FontAwesomeIcon icon={faTrash} /> 
+                              <span> Remove</span>
+                            </>
+                          )}
+                          {!state.addBabysGrowth && (
+                            <>
+                              <FontAwesomeIcon icon={faCartPlus} />
+                              <span> Add</span>
+                            </>
+                          )}
+                          </div>
+                        </div>
                       </div>
                   </div>
+                
                 )}
                 <div className="col-6 text-center">
                   <div
-                    className="btn btn-cta-active rounded-pill px-3 mx-auto" 
+                    className={"btn rounded-3 px-3 mx-auto smaller-text w-100 " + (state.addHeartbeatBuddies ? "btn-outline-addOn" : "btn-outline-secondary")}
                     onClick={handleAddHeartbeatBuddies}>
-                      {state.addHeartbeatBuddies ? "Added" : "+ Heartbeat Buddies"}
+                      <div className="row">
+                        <div className="col addOnIcon">
+                          <FontAwesomeIcon icon={faHeartbeat} />
+                        </div>
+                      </div>
+                      <div className="row">
+                        <div className="col">
+                          <h3 className="h5">Heartbeat Buddies</h3>
+                        </div>
+                      </div>
+                      <div className="row justify-content-center">
+                        <div className="col-auto h5">
+                          <span className="h5">$35</span>
+                        </div>
+                        <div className="col-auto h5">
+                          {state.addHeartbeatBuddies && (
+                            <>
+                              <FontAwesomeIcon icon={faTrash} /> 
+                              <span> Remove</span>
+                            </>
+                          )}
+                          {!state.addHeartbeatBuddies && (
+                            <>
+                              <FontAwesomeIcon icon={faCartPlus} />
+                              <span> Add</span>
+                            </>
+                          )}
+                        </div>
+                      </div>
                     </div>
                 </div>
               </div>    
