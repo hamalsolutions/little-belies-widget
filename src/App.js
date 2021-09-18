@@ -434,6 +434,7 @@ function App() {
                   var startMomentWithNowTime = moment(state.startDate)
                   var now = moment().format("MM/DD/YYYY");
                   if (now === startMomentWithNowTime.format("MM/DD/YYYY")) {
+                    console.log("IS TODAY")
                   var nowWithTime = moment();
                   startMomentWithNowTime = startMomentWithNowTime.set({
                     'hour': nowWithTime.hour(),
@@ -523,14 +524,14 @@ function App() {
   };
 
   // reload until found available space
-  useEffect(()=>{
-    const nextDay = new Date(moment(state.startDate).add(1, "days").format("MM/DD/YYYY").toString());
-    if(availableBlocks.length===0){
-      setTimeout(() => {
-        onSelectedDay(nextDay);
-      }, 500);
-    }
-  },[availableBlocks])
+  // useEffect(()=>{
+  //   const nextDay = new Date(moment(state.startDate).add(1, "days").format("MM/DD/YYYY").toString());
+  //   if(availableBlocks.length===0){
+  //     setTimeout(() => {
+  //       onSelectedDay(nextDay);
+  //     }, 500);
+  //   }
+  // },[availableBlocks])
   // but doesnt change date on calendar
 
   const handleAvailabilityBlockSelect = (block) => {
@@ -659,8 +660,9 @@ function App() {
   
   const onFormSubmit = async (data) => {
     
-    let sessionTypeId = "";
-    let sessionTypeName = ""
+
+    let sessionTypeId = data.service.value;
+    let sessionTypeName = data.service.label;    
     if(data.service.value === 6 && state.addBabysGrowth){
       sessionTypeId = 18; sessionTypeName = "Meet Your Baby - 25 Min 5D/HD + Baby's Growth $168";
     }
@@ -798,7 +800,8 @@ function App() {
       step: "summary",
     }));
   }
-
+  console.log("availableBlocks");
+  console.log(availableBlocks);
   return (
     <div className="container pt-4">
       {state.step === "registerForm" && (
@@ -958,7 +961,7 @@ function App() {
               </div>
               <ReactHorizontalDatePicker selectedDay={onSelectedDay} enableScroll={true} enableDays={50} enableDaysBefore={5}/>
               <br/><br/>
-              {state.availabilityRequestStatus === "ready" && availableBlocks.length > 1 && (
+              {state.availabilityRequestStatus === "ready" && availableBlocks.length >= 1 && (
                 <>           
                 <h1 className="h4">Available blocks</h1>
                 <div className="row my-4 gx-0 mx-auto justify-content-center justify-content-lg-start">
