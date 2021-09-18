@@ -5,6 +5,7 @@ import "react-horizontal-strip-datepicker/dist/ReactHorizontalDatePicker.css";
 import "./styles/ReactHorizontalDatePicker.css";
 import moment from "moment";
 import Select from "react-select";
+import Creatable from "react-select/creatable";
 import { useForm, Controller  } from "react-hook-form";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faSpinner } from "@fortawesome/free-solid-svg-icons";  
@@ -203,7 +204,7 @@ function App() {
   const [weeks, seetWeeks] = useState([]);
  
   useEffect(() => {
-    const servicesConsulted = {
+    const ultrasoundServices = {
       services: [
         { sessionTypeId: 5, name: "Early Pregnancy - $59", price: 59 },
         {
@@ -242,6 +243,9 @@ function App() {
           price: 108,
         },
         { sessionTypeId: 37, name: "CBFF + Baby's Growth", price: 29 },
+      ]}
+      const massageServices = {
+        services: [ 
         {
           sessionTypeId: 9,
           name: "50 Minute Prenatal Massage - $79",
@@ -265,14 +269,33 @@ function App() {
         },
       ],
     };
-    const displayableServices = [];
-    servicesConsulted.services.forEach((item) => {
+    const ultrasounds = [];
+    const massages = [];
+    ultrasoundServices.services.forEach((item) => {
       const mutableItem = {
         value: item.sessionTypeId,
         label: item.name,
       };
-      displayableServices.push(mutableItem);
+      ultrasounds.push(mutableItem);
     });
+    massageServices.services.forEach((item) => {
+      const mutableItem = {
+        value: item.sessionTypeId,
+        label: item.name,
+      };
+      massages.push(mutableItem);
+    });
+    const displayableServices = [
+      {
+        label: 'Ultrasounds',
+        options: ultrasounds,
+      },
+      {
+        label: 'Massages',
+        options: massages,
+      },
+    ];
+    console.log(displayableServices);
     setServices(displayableServices);
     const arrayOfWeeks = [];
     arrayOfWeeks.push({
@@ -794,7 +817,7 @@ function App() {
                   control={control}
                   rules={{ required: true }}
                   render={({ field }) => 
-                    <Select
+                    <Creatable
                       {...field} 
                       options={services}
                       isSearchable={true}
