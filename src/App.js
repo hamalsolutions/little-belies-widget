@@ -233,26 +233,14 @@ function App() {
           name: "Special Promotion 25 min 5D/HD Ultrasound - $219",
           price: 219,
         },
-        {
-          sessionTypeId: 18,
-          name: "Meet Your Baby - 25 Min 5D/HD + Baby's Growth $168",
-          price: 168,
-        },
-        {
-          sessionTypeId: 19,
-          name: "Meet Your Baby - 15 Min 5D/HD + Baby's Growth $128",
-          price: 128,
-        },
+        // {sessionTypeId: 18,name: "Meet Your Baby - 25 Min 5D/HD + Baby's Growth $168",price: 168,},
+        // {sessionTypeId: 19,name: "Meet Your Baby - 15 Min 5D/HD + Baby's Growth $128",price: 128,},
         // { sessionTypeId: 20, name: "Come back for free", price: 0 },
         { sessionTypeId: 24, name: "Special Promo Ultrasound (G)", price: 0 },
         { sessionTypeId: 25, name: "Gender Determination - $79", price: 79 },
         // { sessionTypeId: 32, name: "Membership + Visit  - $198", price: 198 },
         // { sessionTypeId: 33, name: "Membership Ultrasound -$30", price: 30 },
-        {
-          sessionTypeId: 34,
-          name: "Gender Determination  + Baby's Growth - $108  ",
-          price: 108,
-        },
+        // {sessionTypeId: 34,name: "Gender Determination  + Baby's Growth - $108  ",price: 108,},
         // { sessionTypeId: 37, name: "CBFF + Baby's Growth", price: 29 },
       ]}
       const massageServices = {
@@ -670,7 +658,6 @@ function App() {
     
     let sessionTypeId = "";
     let sessionTypeName = ""
-    // JUMP HERE
     if(data.service.value === 6 && state.addBabysGrowth){
       sessionTypeId = 18; sessionTypeName = "Meet Your Baby - 25 Min 5D/HD + Baby's Growth $168";
     }
