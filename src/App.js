@@ -177,11 +177,14 @@ function App() {
     language: languageList[params.get('lang')] || 'English',
     locationId: "1",
     authorization: "",
+    address: params.get('address') || "N/A",
+    phone: params.get('phone') || "N/A",
     startDate: moment(new Date()).toString(),
     block: {
       id: "",
     },
-    captchaReady: false,
+    //captchaReady: false,
+    captchaReady: true, // bypass captcha
     showAddons: false,
     showbabyGrowth: false,
     addBabysGrowth: false,
@@ -1039,6 +1042,16 @@ function App() {
             <div className="row mb-2">
               <div className="col">
                 <div>Date: <b>{moment(state.block.blockDate).format("MM-DD-YYYY[ ]hh:mm A").toString()}</b></div>
+              </div>
+            </div>
+            <div className="row mb-2">
+              <div className="col">
+                <div>Location Address: <b>{state.address}</b></div>
+              </div>
+            </div>
+            <div className="row mb-2">
+              <div className="col">
+                <div>Location Phone: <b>{state.phone}</b></div>
               </div>
             </div>
             { state.language !== 'English' && (
