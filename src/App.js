@@ -612,7 +612,7 @@ function App() {
           locationId: parseInt(state.locationId),
           staffId: state.block.staffId[0],
           clientId: clientObject.clientId,
-          notes: "Weeks: "+clientState.weeks+"\n Language: "+state.language+"\n"+state.addHeartbeatBuddies ? "Add HeartBeat Buddies" : "", // Very important, use the wordpress language
+          notes: "Weeks: "+clientState.weeks+"\n Language: "+state.language+"\n"+(state.addHeartbeatBuddies ? "Add HeartBeat Buddies" : ""), // Very important, use the wordpress language
           startDateTime: moment(state.block.blockDate).format("YYYY-MM-DD[T]HH:mm:ss").toString(),
         };
     
