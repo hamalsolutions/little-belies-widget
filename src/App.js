@@ -871,7 +871,7 @@ function App() {
               </div>
             </div>
             {watchFields[0] !== undefined && (
-              <div className="row my-3 justify-content-center">
+              <div className="row gx-1 gx-md-5 gx-lg-4 my-3 justify-content-center">
                 {(watchFields[0].value === 6 || watchFields[0].value === 7 || watchFields[0].value === 25)  && (
                   
                   <div className="col-6 text-center">
@@ -884,7 +884,7 @@ function App() {
                           </div>
                         </div>
                         <div className="row">
-                          <div className="col">
+                          <div className="col text-center">
                             <h3 className="h5">Baby's Growth</h3>
                           </div>
                         </div>
@@ -921,7 +921,7 @@ function App() {
                         </div>
                       </div>
                       <div className="row">
-                        <div className="col">
+                        <div className="col text-center">
                           <h3 className="h5">Heartbeat Buddies</h3>
                         </div>
                       </div>
