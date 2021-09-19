@@ -179,6 +179,7 @@ function App() {
     authorization: "",
     address: params.get('address') || "N/A",
     phone: params.get('phone') || "N/A",
+    howtoarrive: params.get('howtoarrive') || "N/A",
     startDate: moment(new Date()).toString(),
     block: {
       id: "",
@@ -207,7 +208,7 @@ function App() {
   const [availableBlocks, setAvailableBlocks] = useState([]);
   const [services, setServices] = useState([]);
   const [weeks, setWeeks] = useState([]);
-  const [selectedService, setSelectedService] = useState([]);
+  // const [selectedService, setSelectedService] = useState([]);
   const { control, watch, register, formState: { errors }, handleSubmit } = useForm();
   const watchFields = watch(["service"]); // you can also target specific fields by their names
  
@@ -546,6 +547,14 @@ function App() {
       return
     }
     try{
+      /// BYPASS BOOKING
+      setState((state) => ({
+        ...state,
+        appointmentRequestStatus: "BOOK-APPOINTMENT-OK"
+      }));
+      return;
+
+      /// END BYPASS
       setState((state) => ({
         ...state,
         appointmentRequestStatus: "loading"
@@ -963,7 +972,7 @@ function App() {
               <br/><br/>
               {state.availabilityRequestStatus === "ready" && availableBlocks.length >= 1 && (
                 <>           
-                <h1 className="h4">Available blocks</h1>
+                <h1 className="h4">Select time for you appointment:</h1>
                 <div className="row my-4 gx-0 mx-auto justify-content-center justify-content-lg-start">
                     {availableBlocks.map( (block, index) => {
                       return (
@@ -1010,60 +1019,13 @@ function App() {
       {state.step === "summary" && (
         <div className="">
           <div className="my-3 row gx-5">
+          {state.appointmentRequestStatus !== "BOOK-APPOINTMENT-OK" && (
               <div className="col d-flex justify-content-between">
                 <h1 className="h3 ">Your booking information</h1>
                 <button className="btn btn-cta rounded-pill btn-sm px-3 m-2" onClick={()=> previousStep("summary")}>BACK</button>
             </div>
-          </div>
-          <div className="row w-50 mb-3 mt-3 bg-light-container mx-auto p-2 p-md-4 box-shadow justify-content-center">
-            
-            <div className="row mb-2 mt-2">
-              <div className="col">
-                <div>Full name: <b>{clientState.firstName + " " + clientState.lastName}</b></div>
-              </div>
-            </div>
-            <div className="row mb-2">
-              <div className="col">
-                <div>Email: <b>{clientState.email}</b></div>
-              </div>
-            </div>
-            <div className="row mb-2">
-              <div className="col">
-                <div>Phone: <b>{clientState.phone}</b></div>
-              </div>
-            </div>
-            <div className="row mb-2">
-              <div className="col">
-                <div>Service: <b>{clientState.sessionTypeName}</b></div>
-              </div>
-            </div>
-            <div className="row mb-2">
-              <div className="col">
-                <div>Weeks: <b>{clientState.weeks}</b></div>
-              </div>
-            </div>
-            <div className="row mb-2">
-              <div className="col">
-                <div>Date: <b>{moment(state.block.blockDate).format("MM-DD-YYYY[ ]hh:mm A").toString()}</b></div>
-              </div>
-            </div>
-            <div className="row mb-2">
-              <div className="col">
-                <div>Location Address: <b>{state.address}</b></div>
-              </div>
-            </div>
-            <div className="row mb-2">
-              <div className="col">
-                <div>Location Phone: <b>{state.phone}</b></div>
-              </div>
-            </div>
-            { state.language !== 'English' && (
-              <div className="row mb-2">
-                <div className="col">
-                  <div>Language: <b>{state.language}</b></div>
-                </div>
-              </div>
-            )}
+          )}
+
             {state.appointmentRequestStatus !== "IDLE" && (
               <div className="row mt-4 mb-2">
                 <div className="col text-center">
@@ -1084,6 +1046,71 @@ function App() {
                   )}
                 </div>
               </div>
+            )}            
+          </div>
+          <div className="row w-50 mb-3 mt-3 bg-light-container mx-auto p-2 p-md-4 box-shadow justify-content-center">
+           <div>
+            <div className="row mb-2 mt-2">
+              <div className="col">
+                <div>Full name: <b>{clientState.firstName + " " + clientState.lastName}</b></div>
+              </div>
+            </div>
+            {/* <div className="row mb-2">
+              <div className="col">
+                <div>Email: <b>{clientState.email}</b></div>
+              </div>
+            </div>
+            <div className="row mb-2">
+              <div className="col">
+                <div>Phone: <b>{clientState.phone}</b></div>
+              </div>
+            </div> */}
+            <div className="row mb-2">
+              <div className="col">
+                <div>Service: <b>{clientState.sessionTypeName}</b></div>
+              </div>
+            </div>
+            <div className="row mb-2">
+              <div className="col">
+                <div>Weeks: <b>{clientState.weeks}</b></div>
+              </div>
+            </div>
+            <div className="row mb-2">
+              <div className="col">
+                <div>Date: <b>{moment(state.block.blockDate).format("MM-DD-YYYY").toString()}</b></div>
+              </div>
+              <div className="col">
+                <div>Time: <b>{moment(state.block.blockDate).format("hh:mm A").toString()}</b></div>
+              </div>
+            </div>
+            <div className="row mb-2">
+              <div className="col">
+                <div>Location Address: <b>{state.address}</b></div>
+              </div>
+            </div>
+            <div className="row mb-2">
+              <div className="col">
+                <div>How to Arrive: <b>{state.howtoarrive}</b></div>
+              </div>
+            </div>            
+            <div className="row mb-2">
+              <div className="col">
+                <div>Location Phone: <b>{state.phone}</b></div>
+              </div>
+            </div>
+            {/* { state.language !== 'English' && (
+              <div className="row mb-2">
+                <div className="col">
+                  <div>Language: <b>{state.language}</b></div>
+                </div>
+              </div>
+            )} */}
+            {state.appointmentRequestStatus === "BOOK-APPOINTMENT-OK" && (
+            <div className="row mb-2">
+              <div className="col">
+                <div>Please, remember to fill out the form before your appointment <a target="_blank" href="https://www.google.com">AQUI</a></div>
+              </div>
+            </div>
             )}
 
             {state.appointmentRequestStatus !== "BOOK-APPOINTMENT-OK" && (
@@ -1112,6 +1139,20 @@ function App() {
                 
                 
               </div>
+            </div>
+            )}
+            </div>
+            {state.appointmentRequestStatus === "BOOK-APPOINTMENT-OK" && (
+            <div className="video-responsive">
+              <iframe
+                width="853"
+                height="480"
+                src={"https://www.youtube.com/embed/uspIXX4uU9c"}
+                frameBorder="0"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowFullScreen
+                title="Embedded youtube"
+              />
             </div>
             )}
           </div>
