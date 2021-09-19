@@ -184,8 +184,8 @@ function App() {
     block: {
       id: "",
     },
-    //captchaReady: false,
-    captchaReady: true, // bypass captcha
+    captchaReady: false,
+    // captchaReady: true, // bypass captcha
     showAddons: false,
     showbabyGrowth: false,
     addBabysGrowth: false,
@@ -548,11 +548,11 @@ function App() {
     }
     try{
       /// BYPASS BOOKING
-      setState((state) => ({
-        ...state,
-        appointmentRequestStatus: "BOOK-APPOINTMENT-OK"
-      }));
-      return;
+      // setState((state) => ({
+      //   ...state,
+      //   appointmentRequestStatus: "BOOK-APPOINTMENT-OK"
+      // }));
+      // return;
 
       /// END BYPASS
       setState((state) => ({
@@ -812,7 +812,7 @@ function App() {
   console.log("availableBlocks");
   console.log(availableBlocks);
   return (
-    <div className="container pt-4">
+    <div className="container">
       {state.step === "registerForm" && (
         <>
           <form className="row my-3 bg-light-container mx-auto p-2 p-md-4 box-shadow justify-content-center" onSubmit={handleSubmit(onFormSubmit)}>
@@ -1018,7 +1018,7 @@ function App() {
 
       {state.step === "summary" && (
         <div className="">
-          <div className="my-3 row gx-5">
+          <div className="row gx-5">
           {state.appointmentRequestStatus !== "BOOK-APPOINTMENT-OK" && (
               <div className="col d-flex justify-content-between">
                 <h1 className="h3 ">Your booking information</h1>
@@ -1048,7 +1048,7 @@ function App() {
               </div>
             )}            
           </div>
-          <div className="row w-50 mb-3 mt-3 bg-light-container mx-auto p-2 p-md-4 box-shadow justify-content-center">
+          <div className="row w-50 mb-3 bg-light-container mx-auto p-2 box-shadow justify-content-center">
            <div>
             <div className="row mb-2 mt-2">
               <div className="col">
