@@ -93,7 +93,7 @@
   color: #AE678C !important;  
 }
 
-.btn-outline-secondary:hover{
+.btn-outline-secondary:hover, .btn-outline-addOn:hover{
   border: solid 2px #C56F9C !important;
   color: #C56F9C !important;
   background-color: #f5e6ed !important;
@@ -103,6 +103,13 @@
 
 .btn-outline-secondary{
   border-width: 2px !important;
+}
+
+.btn-outline-addOn{
+  font-weight: bold;
+  border: solid 2px #AE678C !important;
+  color: #AE678C !important;
+  background-color: #f5e6ed !important;
 }
 
 .btn-cta{
@@ -138,4 +145,12 @@
 .captcha-container div{
   margin-right: auto !important;
   margin-left: auto !important;
+}
+
+.smaller-text {
+  font-size: 0.9rem !important;
+}
+
+.addOnIcon {
+  font-size: 2rem !important;
 }

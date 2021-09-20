@@ -7,7 +7,7 @@ import moment from "moment";
 import Select from "react-select";
 import { useForm, Controller  } from "react-hook-form";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faSpinner } from "@fortawesome/free-solid-svg-icons";  
+import { faSpinner, faBaby, faHeartbeat, faCartPlus, faTrash } from "@fortawesome/free-solid-svg-icons";  
 import ReCAPTCHA from "react-google-recaptcha";
 import "./App.css";
 
@@ -161,7 +161,7 @@ function App() {
 
   const params = new URLSearchParams(window.location.search);
   const languageList = {'en':'English', 'es':'Spanish'}
-  
+  const bypass = false;
   const translate = (text) => {
    
     const trans = translations[params.get('lang') || 'en'];
@@ -177,11 +177,18 @@ function App() {
     language: languageList[params.get('lang')] || 'English',
     locationId: "1",
     authorization: "",
+    address: params.get('address') || "N/A",
+    phone: params.get('phone') || "N/A",
+    howtoarrive: params.get('howtoarrive') || "N/A",
     startDate: moment(new Date()).toString(),
     block: {
       id: "",
     },
-    captchaReady: false,
+    captchaReady: bypass,
+    showAddons: false,
+    showbabyGrowth: false,
+    addBabysGrowth: false,
+    addHeartbeatBuddies: false,
   });
   const [clientState, setClientState] = useState({
     firstName: "",
@@ -191,7 +198,6 @@ function App() {
     weeks: "",
     sessionTypeId: "",
     sessionTypeName: "",
-    language: "",
     clientRequestStatus: "IDLE",
     createClientRequestStatus: "IDLE",
     searchResults: [],
@@ -200,10 +206,19 @@ function App() {
   }); 
   const [availableBlocks, setAvailableBlocks] = useState([]);
   const [services, setServices] = useState([]);
-  const [weeks, seetWeeks] = useState([]);
- 
+  const [weeks, setWeeks] = useState([]);
+  // const [selectedService, setSelectedService] = useState([]);
+  const { control, watch, register, formState: { errors }, handleSubmit } = useForm();
+  const watchFields = watch(["service"]); // you can also target specific fields by their names
+  const formUrl = `https://dashboard.panzitas.net/appointments/${params.get('id')}`;
   useEffect(() => {
-    const servicesConsulted = {
+    
+      /*
+      JUMP HERE
+      show babys growth: 6 (18), 7 (19), 25(34)
+      sessionTypeId === 7 && babysGrowthAddOn => sessionTypeId: 18; name: Meet Your Baby - 25 Min 5D/HD + Baby's Growth $168
+      */
+    const ultrasoundServices = {
       services: [
         { sessionTypeId: 5, name: "Early Pregnancy - $59", price: 59 },
         {
@@ -221,27 +236,18 @@ function App() {
           name: "Special Promotion 25 min 5D/HD Ultrasound - $219",
           price: 219,
         },
-        {
-          sessionTypeId: 18,
-          name: "Meet Your Baby - 25 Min 5D/HD + Baby's Growth $168",
-          price: 168,
-        },
-        {
-          sessionTypeId: 19,
-          name: "Meet Your Baby - 15 Min 5D/HD + Baby's Growth $128",
-          price: 128,
-        },
-      //  { sessionTypeId: 20, name: "Come back for free", price: 0 },
+        // {sessionTypeId: 18,name: "Meet Your Baby - 25 Min 5D/HD + Baby's Growth $168",price: 168,},
+        // {sessionTypeId: 19,name: "Meet Your Baby - 15 Min 5D/HD + Baby's Growth $128",price: 128,},
+        // { sessionTypeId: 20, name: "Come back for free", price: 0 },
         { sessionTypeId: 24, name: "Special Promo Ultrasound (G)", price: 0 },
         { sessionTypeId: 25, name: "Gender Determination - $79", price: 79 },
-      //  { sessionTypeId: 32, name: "Membership + Visit  - $198", price: 198 },
-       // { sessionTypeId: 33, name: "Membership Ultrasound -$30", price: 30 },
-        {
-          sessionTypeId: 34,
-          name: "Gender Determination  + Baby's Growth - $108  ",
-          price: 108,
-        },
-        { sessionTypeId: 37, name: "CBFF + Baby's Growth", price: 29 },
+        // { sessionTypeId: 32, name: "Membership + Visit  - $198", price: 198 },
+        // { sessionTypeId: 33, name: "Membership Ultrasound -$30", price: 30 },
+        // {sessionTypeId: 34,name: "Gender Determination  + Baby's Growth - $108  ",price: 108,},
+        // { sessionTypeId: 37, name: "CBFF + Baby's Growth", price: 29 },
+      ]}
+      const massageServices = {
+        services: [ 
         {
           sessionTypeId: 9,
           name: "50 Minute Prenatal Massage - $79",
@@ -265,14 +271,33 @@ function App() {
         },
       ],
     };
-    const displayableServices = [];
-    servicesConsulted.services.forEach((item) => {
+    const ultrasounds = [];
+    const massages = [];
+    ultrasoundServices.services.forEach((item) => {
       const mutableItem = {
         value: item.sessionTypeId,
         label: item.name,
       };
-      displayableServices.push(mutableItem);
+      ultrasounds.push(mutableItem);
     });
+    massageServices.services.forEach((item) => {
+      const mutableItem = {
+        value: item.sessionTypeId,
+        label: item.name,
+      };
+      massages.push(mutableItem);
+    });
+    const displayableServices = [
+      {
+        label: 'Ultrasounds',
+        options: ultrasounds,
+      },
+      {
+        label: 'Massages',
+        options: massages,
+      },
+    ];
+    
     setServices(displayableServices);
     const arrayOfWeeks = [];
     arrayOfWeeks.push({
@@ -286,7 +311,7 @@ function App() {
       };
       arrayOfWeeks.push(element);
     }
-    seetWeeks(arrayOfWeeks);
+    setWeeks(arrayOfWeeks);
   }, []);
 
   useEffect(() => {
@@ -410,6 +435,7 @@ function App() {
                   var startMomentWithNowTime = moment(state.startDate)
                   var now = moment().format("MM/DD/YYYY");
                   if (now === startMomentWithNowTime.format("MM/DD/YYYY")) {
+                    console.log("IS TODAY")
                   var nowWithTime = moment();
                   startMomentWithNowTime = startMomentWithNowTime.set({
                     'hour': nowWithTime.hour(),
@@ -498,6 +524,17 @@ function App() {
     }));
   };
 
+  // reload until found available space
+  // useEffect(()=>{
+  //   const nextDay = new Date(moment(state.startDate).add(1, "days").format("MM/DD/YYYY").toString());
+  //   if(availableBlocks.length===0){
+  //     setTimeout(() => {
+  //       onSelectedDay(nextDay);
+  //     }, 500);
+  //   }
+  // },[availableBlocks])
+  // but doesnt change date on calendar
+
   const handleAvailabilityBlockSelect = (block) => {
     setState((state) => ({
       ...state,
@@ -510,6 +547,16 @@ function App() {
       return
     }
     try{
+      /// BYPASS BOOKING
+      if (bypass){
+        setState((state) => ({
+          ...state,
+          appointmentRequestStatus: "BOOK-APPOINTMENT-OK"
+        }));
+        return;
+      }
+
+      /// END BYPASS
       setState((state) => ({
         ...state,
         appointmentRequestStatus: "loading"
@@ -580,7 +627,7 @@ function App() {
           locationId: parseInt(state.locationId),
           staffId: state.block.staffId[0],
           clientId: clientObject.clientId,
-          notes: "Weeks: "+clientState.weeks+"\n Language: "+state.language+"\n", // Very important, use the wordpress language
+          notes: "Weeks: "+clientState.weeks+"\n Language: "+state.language+"\n"+(state.addHeartbeatBuddies ? "Add HeartBeat Buddies" : ""), // Very important, use the wordpress language
           startDateTime: moment(state.block.blockDate).format("YYYY-MM-DD[T]HH:mm:ss").toString(),
         };
     
@@ -621,9 +668,22 @@ function App() {
     }
   }
   
-  const { control, register, formState: { errors }, handleSubmit } = useForm();
   
   const onFormSubmit = async (data) => {
+    
+
+    let sessionTypeId = data.service.value;
+    let sessionTypeName = data.service.label;    
+    if(data.service.value === 6 && state.addBabysGrowth){
+      sessionTypeId = 18; sessionTypeName = "Meet Your Baby - 25 Min 5D/HD + Baby's Growth $168";
+    }
+    if(data.service.value === 7 && state.addBabysGrowth){
+      sessionTypeId = 19; sessionTypeName = "Meet Your Baby - 15 Min 5D/HD + Baby's Growth $128";
+    }
+    if(data.service.value === 25 && state.addBabysGrowth){
+      sessionTypeId = 34; sessionTypeName = "Gender Determination  + Baby's Growth - $108";
+    } 
+
     setClientState((clientState) => ({
       ...clientState,
       firstName: data.firstName,
@@ -631,10 +691,9 @@ function App() {
       email: data.email,
       phone: data.phone,
       weeks: data.weeks.label,
-      sessionTypeId: data.service.value,
-      sessionTypeName: data.service.label,
+      sessionTypeId: sessionTypeId,
+      sessionTypeName: sessionTypeName,
       language: state.language
-      // language: data.language.value, // should be extracted from wordpress url
     }));
     setState((state) => ({
       ...state,
@@ -681,15 +740,12 @@ function App() {
               searchResults: searchClientsData.clients,
             }));
           }
-        
-        console.log("OK")
       } else {
         setClientState((clientState) => ({
           ...clientState,
           clientRequestStatus: "CLIENT-NOT-FOUND",
           searchResults: [],
         }));
-        console.log("NOTHING")
       }
     } catch (error) {
       setState((state) => ({
@@ -730,10 +786,22 @@ function App() {
   }
 
   function onChange(value) {
-    console.log("Captcha value:", value);
     setState((state) => ({
       ...state,
       captchaReady: true,
+    }));
+  }
+
+  const handleAddBabysGrowth = () =>{
+    setState((state) => ({
+      ...state,
+      addBabysGrowth: !state.addBabysGrowth,
+    }));
+  }
+  const handleAddHeartbeatBuddies = () =>{
+    setState((state) => ({
+      ...state,
+      addHeartbeatBuddies: !state.addHeartbeatBuddies,
     }));
   }
 
@@ -743,16 +811,17 @@ function App() {
       step: "summary",
     }));
   }
-
+  console.log("availableBlocks");
+  console.log(availableBlocks);
   return (
-    <div className="container pt-4">
+    <div className="container">
       {state.step === "registerForm" && (
         <>
           <form className="row my-3 bg-light-container mx-auto p-2 p-md-4 box-shadow justify-content-center" onSubmit={handleSubmit(onFormSubmit)}>
             <div className="row mb-3">
               <div className="col">
                 <h1 className="h4 mt-2 mb-3 ">{translate('Please enter your information',state.language)}</h1>
-                <h3 className="h6 fw-normal"> In order to book an appointment please supply the following information</h3>
+                <h3 className="h6 fw-normal"> In order to book an appointment please provide the following information</h3>
               </div>
             </div>
             <div className="row">
@@ -798,7 +867,6 @@ function App() {
                     <Select
                       {...field} 
                       options={services}
-                      isSearchable={true}
                       placeholder="Select a service"
                       className={"dropdown w-100 mb-3" + (errors.service ? " is-select-invalid" : "")}
                     />
@@ -806,6 +874,84 @@ function App() {
                 />
               </div>
             </div>
+            {watchFields[0] !== undefined && (
+              <div className="row gx-1 gx-md-5 gx-lg-4 my-3 justify-content-center">
+                {(watchFields[0].value === 6 || watchFields[0].value === 7 || watchFields[0].value === 25)  && (
+                  
+                  <div className="col-6 text-center">
+                    <div
+                      className={"btn rounded-3 px-3 mx-auto smaller-text w-100 " + (state.addBabysGrowth ? "btn-outline-addOn" : "btn-outline-secondary")}
+                      onClick={handleAddBabysGrowth}>
+                        <div className="row">
+                          <div className="col addOnIcon">
+                            <FontAwesomeIcon icon={faBaby} />
+                          </div>
+                        </div>
+                        <div className="row">
+                          <div className="col text-center">
+                            <h3 className="h5">Baby's Growth</h3>
+                          </div>
+                        </div>
+                        <div className="row justify-content-center">
+                          <div className="col-auto h6">
+                            <span className="h5">$29</span>
+                          </div>
+                          <div className="col-auto h5"> 
+                            {state.addBabysGrowth && (
+                            <>
+                              <FontAwesomeIcon icon={faTrash} /> 
+                              <span> Remove</span>
+                            </>
+                          )}
+                          {!state.addBabysGrowth && (
+                            <>
+                              <FontAwesomeIcon icon={faCartPlus} />
+                              <span> Add</span>
+                            </>
+                          )}
+                          </div>
+                        </div>
+                      </div>
+                  </div>
+                
+                )}
+                <div className="col-6 text-center">
+                  <div
+                    className={"btn rounded-3 px-3 mx-auto smaller-text w-100 " + (state.addHeartbeatBuddies ? "btn-outline-addOn" : "btn-outline-secondary")}
+                    onClick={handleAddHeartbeatBuddies}>
+                      <div className="row">
+                        <div className="col addOnIcon">
+                          <FontAwesomeIcon icon={faHeartbeat} />
+                        </div>
+                      </div>
+                      <div className="row">
+                        <div className="col text-center">
+                          <h3 className="h5">Heartbeat Buddies</h3>
+                        </div>
+                      </div>
+                      <div className="row justify-content-center">
+                        <div className="col-auto h5">
+                          <span className="h5">$35</span>
+                        </div>
+                        <div className="col-auto h5">
+                          {state.addHeartbeatBuddies && (
+                            <>
+                              <FontAwesomeIcon icon={faTrash} /> 
+                              <span> Remove</span>
+                            </>
+                          )}
+                          {!state.addHeartbeatBuddies && (
+                            <>
+                              <FontAwesomeIcon icon={faCartPlus} />
+                              <span> Add</span>
+                            </>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                </div>
+              </div>    
+            )}
             <div className="row my-3">
               <div className="col text-center">
                 <button type="submit" className="btn btn-cta-active rounded-pill px-3 mx-auto">Check availabilities</button>
@@ -826,9 +972,9 @@ function App() {
               </div>
               <ReactHorizontalDatePicker selectedDay={onSelectedDay} enableScroll={true} enableDays={50} enableDaysBefore={5}/>
               <br/><br/>
-              {state.availabilityRequestStatus === "ready" && availableBlocks.length > 1 && (
+              {state.availabilityRequestStatus === "ready" && availableBlocks.length >= 1 && (
                 <>           
-                <h1 className="h4">Available blocks</h1>
+                <h1 className="h4">Select time for you appointment:</h1>
                 <div className="row my-4 gx-0 mx-auto justify-content-center justify-content-lg-start">
                     {availableBlocks.map( (block, index) => {
                       return (
@@ -874,54 +1020,13 @@ function App() {
 
       {state.step === "summary" && (
         <div className="">
-          <div className="my-3 row gx-5">
+          <div className="row gx-5">
+          {state.appointmentRequestStatus !== "BOOK-APPOINTMENT-OK" && (
               <div className="col d-flex justify-content-between">
                 <h1 className="h3 ">Your booking information</h1>
                 <button className="btn btn-cta rounded-pill btn-sm px-3 m-2" onClick={()=> previousStep("summary")}>BACK</button>
             </div>
-          </div>
-          <div className="row w-50 mb-3 mt-3 bg-light-container mx-auto p-2 p-md-4 box-shadow justify-content-center">
-            <div className="row mb-3 mt-2">
-              <div className="col">
-               
-                <h3 className="h6 fw-normal"> In order to book an appointment please supply the following information</h3>
-              </div>
-            </div>
-            <div className="row mb-2 mt-2">
-              <div className="col">
-                <div>Full name: <b>{clientState.firstName + " " + clientState.lastName}</b></div>
-              </div>
-            </div>
-            <div className="row mb-2">
-              <div className="col">
-                <div>Email: <b>{clientState.email}</b></div>
-              </div>
-            </div>
-            <div className="row mb-2">
-              <div className="col">
-                <div>Phone: <b>{clientState.phone}</b></div>
-              </div>
-            </div>
-            <div className="row mb-2">
-              <div className="col">
-                <div>Service: <b>{clientState.sessionTypeName}</b></div>
-              </div>
-            </div>
-            <div className="row mb-2">
-              <div className="col">
-                <div>Weeks: <b>{clientState.weeks}</b></div>
-              </div>
-            </div>
-            <div className="row mb-2">
-              <div className="col">
-                <div>Date: <b>{moment(state.block.blockDate).format("MM-DD-YYYY[ ]hh:mm A").toString()}</b></div>
-              </div>
-            </div>
-            <div className="row mb-2">
-              <div className="col">
-                <div>Language: <b>{clientState.language}</b></div>
-              </div>
-            </div>
+          )}
 
             {state.appointmentRequestStatus !== "IDLE" && (
               <div className="row mt-4 mb-2">
@@ -943,6 +1048,71 @@ function App() {
                   )}
                 </div>
               </div>
+            )}            
+          </div>
+          <div className="row w-50 mb-3 bg-light-container mx-auto p-2 box-shadow justify-content-center">
+           <div>
+            <div className="row mb-2 mt-2">
+              <div className="col">
+                <div>Full name: <b>{clientState.firstName + " " + clientState.lastName}</b></div>
+              </div>
+            </div>
+            {/* <div className="row mb-2">
+              <div className="col">
+                <div>Email: <b>{clientState.email}</b></div>
+              </div>
+            </div>
+            <div className="row mb-2">
+              <div className="col">
+                <div>Phone: <b>{clientState.phone}</b></div>
+              </div>
+            </div> */}
+            <div className="row mb-2">
+              <div className="col">
+                <div>Service: <b>{clientState.sessionTypeName}</b></div>
+              </div>
+            </div>
+            <div className="row mb-2">
+              <div className="col">
+                <div>Weeks: <b>{clientState.weeks}</b></div>
+              </div>
+            </div>
+            <div className="row mb-2">
+              <div className="col">
+                <div>Date: <b>{moment(state.block.blockDate).format("MM-DD-YYYY").toString()}</b></div>
+              </div>
+              <div className="col">
+                <div>Time: <b>{moment(state.block.blockDate).format("hh:mm A").toString()}</b></div>
+              </div>
+            </div>
+            <div className="row mb-2">
+              <div className="col">
+                <div>Location Address: <b>{state.address}</b></div>
+              </div>
+            </div>
+            <div className="row mb-2">
+              <div className="col">
+                <div>How to Arrive: <b>{state.howtoarrive}</b></div>
+              </div>
+            </div>            
+            <div className="row mb-2">
+              <div className="col">
+                <div>Location Phone: <b>{state.phone}</b></div>
+              </div>
+            </div>
+            {/* { state.language !== 'English' && (
+              <div className="row mb-2">
+                <div className="col">
+                  <div>Language: <b>{state.language}</b></div>
+                </div>
+              </div>
+            )} */}
+            {state.appointmentRequestStatus === "BOOK-APPOINTMENT-OK" && (
+            <div className="row mb-2">
+              <div className="col">
+                <div>Please, remember to fill out the form before your appointment <a target="_blank" href={formUrl}>AQUI</a></div>
+              </div>
+            </div>
             )}
 
             {state.appointmentRequestStatus !== "BOOK-APPOINTMENT-OK" && (
@@ -971,6 +1141,20 @@ function App() {
                 
                 
               </div>
+            </div>
+            )}
+            </div>
+            {state.appointmentRequestStatus === "BOOK-APPOINTMENT-OK" && (
+            <div className="video-responsive">
+              <iframe
+                width="853"
+                height="480"
+                src={"https://www.youtube.com/embed/uspIXX4uU9c"}
+                frameBorder="0"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowFullScreen
+                title="Embedded youtube"
+              />
             </div>
             )}
           </div>
