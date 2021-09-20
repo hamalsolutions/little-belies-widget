@@ -161,7 +161,7 @@ function App() {
 
   const params = new URLSearchParams(window.location.search);
   const languageList = {'en':'English', 'es':'Spanish'}
-  
+  const bypass = false;
   const translate = (text) => {
    
     const trans = translations[params.get('lang') || 'en'];
@@ -184,8 +184,7 @@ function App() {
     block: {
       id: "",
     },
-    captchaReady: false,
-    // captchaReady: true, // bypass captcha
+    captchaReady: bypass,
     showAddons: false,
     showbabyGrowth: false,
     addBabysGrowth: false,
@@ -211,7 +210,7 @@ function App() {
   // const [selectedService, setSelectedService] = useState([]);
   const { control, watch, register, formState: { errors }, handleSubmit } = useForm();
   const watchFields = watch(["service"]); // you can also target specific fields by their names
- 
+  const formUrl = `https://dashboard.panzitas.net/appointments/${params.get('id')}`;
   useEffect(() => {
     
       /*
@@ -548,11 +547,13 @@ function App() {
     }
     try{
       /// BYPASS BOOKING
-      // setState((state) => ({
-      //   ...state,
-      //   appointmentRequestStatus: "BOOK-APPOINTMENT-OK"
-      // }));
-      // return;
+      if (bypass){
+        setState((state) => ({
+          ...state,
+          appointmentRequestStatus: "BOOK-APPOINTMENT-OK"
+        }));
+        return;
+      }
 
       /// END BYPASS
       setState((state) => ({
@@ -1108,7 +1109,7 @@ function App() {
             {state.appointmentRequestStatus === "BOOK-APPOINTMENT-OK" && (
             <div className="row mb-2">
               <div className="col">
-                <div>Please, remember to fill out the form before your appointment <a target="_blank" href="https://www.google.com">AQUI</a></div>
+                <div>Please, remember to fill out the form before your appointment <a target="_blank" href={formUrl}>AQUI</a></div>
               </div>
             </div>
             )}
