@@ -234,6 +234,7 @@ function App() {
     const ultrasoundServices = {
       services: [
         { sessionTypeId: 5, name: "Early Pregnancy - $59", price: 59 },
+        { sessionTypeId: 25, name: "Gender Determination - $79", price: 79 },
         {
           sessionTypeId: 6,
           name: "Meet Your Baby - 15 Min 5D/HD - $99",
@@ -252,8 +253,8 @@ function App() {
         // {sessionTypeId: 18,name: "Meet Your Baby - 25 Min 5D/HD + Baby's Growth $168",price: 168,},
         // {sessionTypeId: 19,name: "Meet Your Baby - 15 Min 5D/HD + Baby's Growth $128",price: 128,},
         // { sessionTypeId: 20, name: "Come back for free", price: 0 },
-        { sessionTypeId: 24, name: "Special Promo Ultrasound (G)", price: 0 },
-        { sessionTypeId: 25, name: "Gender Determination - $79", price: 79 },
+        // { sessionTypeId: 24, name: "Special Promo Ultrasound (G)", price: 0 }, // no va 
+        
         // { sessionTypeId: 32, name: "Membership + Visit  - $198", price: 198 },
         // { sessionTypeId: 33, name: "Membership Ultrasound -$30", price: 30 },
         // {sessionTypeId: 34,name: "Gender Determination  + Baby's Growth - $108  ",price: 108,},
@@ -261,6 +262,11 @@ function App() {
       ]}
       const massageServices = {
         services: [ 
+        {
+          sessionTypeId: 13,
+          name: "30 Minute Prenatal Massage - $49",
+          price: 49,
+        },
         {
           sessionTypeId: 9,
           name: "50 Minute Prenatal Massage - $79",
@@ -271,12 +277,8 @@ function App() {
           name: "80 Minute Prenatal Massage - $109",
           price: 109,
         },
-        {
-          sessionTypeId: 13,
-          name: "30 Minute Prenatal Massage - $49",
-          price: 49,
-        },
-        { sessionTypeId: 21, name: "Special Promo 50 min (G)", price: 0 },
+
+        // { sessionTypeId: 21, name: "Special Promo 50 min (G)", price: 0 }, //no va
         {
           sessionTypeId: 23,
           name: "Special Promotion 50 min Massage - $219",
