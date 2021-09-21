@@ -211,6 +211,19 @@ function App() {
   const { control, watch, register, formState: { errors }, handleSubmit } = useForm();
   const watchFields = watch(["service"]); // you can also target specific fields by their names
   const formUrl = `https://dashboard.panzitas.net/appointments/${params.get('id')}`;
+  const [width, setWindowWidth] = useState(0)
+   useEffect(() => { 
+
+     updateDimensions();
+
+     window.addEventListener("resize", updateDimensions);
+     return () => 
+       window.removeEventListener("resize",updateDimensions);
+    }, [])
+    const updateDimensions = () => {
+      const width = window.innerWidth
+      setWindowWidth(width)
+    }  
   useEffect(() => {
     
       /*
@@ -810,8 +823,34 @@ function App() {
       step: "summary",
     }));
   }
-  console.log("availableBlocks");
-  console.log(availableBlocks);
+
+  const groupStyles = {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  };
+
+  const selectStyles = {
+    option: (styles,  { data, isDisabled, isFocused, isSelected }) => {
+      return {
+        ...styles,
+        fontSize: (width > 1023)?16:14,
+
+      }
+    }
+  }
+  const groupTextStyles = {
+    color: '#AE678C',
+    fontSize: (width > 1023)?18:16,
+  }
+  const formatGroupLabel = data => (
+    <div style={groupStyles}>
+      <span style={groupTextStyles}>{data.label}</span>
+    </div>
+  );
+
+  // console.log("availableBlocks");
+  // console.log(availableBlocks);
   return (
     <div className="container">
       {state.step === "registerForm" && (
@@ -868,6 +907,8 @@ function App() {
                       options={services}
                       placeholder="Select a service"
                       className={"dropdown w-100 mb-3" + (errors.service ? " is-select-invalid" : "")}
+                      formatGroupLabel={formatGroupLabel}
+                      styles={selectStyles}
                     />
                   }
                 />
