@@ -855,7 +855,7 @@ function App() {
     <div className="container">
       {state.step === "registerForm" && (
         <>
-          <form className="row my-3 bg-light-container mx-auto p-2 p-md-4 box-shadow justify-content-center" onSubmit={handleSubmit(onFormSubmit)}>
+          <form className="row my-3 bg-light-container mx-auto p-md-4 box-shadow justify-content-center" onSubmit={handleSubmit(onFormSubmit)}>
             <div className="row mb-3">
               <div className="col">
                 <h1 className="h4 mt-2 mb-3 ">{translate('Please enter your information',state.language)}</h1>

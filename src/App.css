@@ -19,13 +19,13 @@
 
 @media (max-width: 576px) { 
   .bg-light-container{
-    width: 90% !important;
+    width: 100% !important;
   }
  }
 
 @media (min-width: 576px) { 
   .bg-light-container{
-    width: 90% !important;
+    width: 100% !important;
   }
  }
 
