@@ -172,10 +172,11 @@ function App() {
     status: "IDLE",
     availabilityRequestStatus: "IDLE",
     appointmentRequestStatus: "IDLE",
+    city: params.get('city'),
     message: "",
     siteId: params.get('id') || "549974",
     language: languageList[params.get('lang')] || 'English',
-    locationId: "1",
+    locationId: params.get('city') !== 'coral-springs'?"1":"2",
     authorization: "",
     address: params.get('address') || "N/A",
     phone: params.get('phone') || "N/A",
@@ -853,6 +854,7 @@ function App() {
 
   // console.log("availableBlocks");
   // console.log(availableBlocks);
+  // console.log(state.locationId);
   return (
     <div className="container">
       {state.step === "registerForm" && (
