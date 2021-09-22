@@ -93,16 +93,22 @@
   color: #AE678C !important;  
 }
 
-.btn-outline-secondary:hover, .btn-outline-addOn:hover{
+@media (hover: hover) {
+.btn-outline-secondary-addOn:hover, .btn-outline-addOn:hover{
   border: solid 2px #C56F9C !important;
   color: #C56F9C !important;
   background-color: #f5e6ed !important;
   font-weight: bold !important;
   box-shadow: 0 0 0 0.25rem rgb(174 103 140 / 25%) !important;
+ 
+}
 }
 
-.btn-outline-secondary{
+.btn-outline-secondary-addOn{
   border-width: 2px !important;
+  cursor: pointer;
+  color: #6c757d;
+  border-color: #6c757d;
 }
 
 .btn-outline-addOn{
@@ -134,9 +140,10 @@
   color: white !important;
 }
 
-.btn-cta:focus, .btn-outline-secondary:focus, .btn-selected-block:focus, .btn-cta-active:focus{
+.btn-cta:focus, .btn-outline-secondary-addOn:focus, .btn-selected-block:focus, .btn-cta-active:focus{
   box-shadow: 0 0 0 0.25rem rgb(174 103 140 / 25%) !important;
 }
+
 
 .box-shadow{
   box-shadow: rgba(0, 0, 0, 0.15) 1.95px 1.95px 2.6px;  
