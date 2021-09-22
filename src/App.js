@@ -876,6 +876,7 @@ function App() {
   const groupTextStyles = {
     color: '#AE678C',
     fontSize: (width > 1023)?18:16,
+    textTransform: 'capitalize'
   }
   const formatGroupLabel = data => (
     <div style={groupStyles}>
