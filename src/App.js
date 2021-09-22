@@ -949,6 +949,7 @@ function App() {
                       onChange={(service) => {
                         //console.log({service})
                         onChangeServices(service);
+                        field.onChange(service); 
                       }}
                     />
                   }
