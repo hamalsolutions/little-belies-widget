@@ -5,7 +5,7 @@ import "react-horizontal-strip-datepicker/dist/ReactHorizontalDatePicker.css";
 import "./styles/ReactHorizontalDatePicker.css";
 import moment from "moment";
 import Select from "react-select";
-import { useForm, Controller  } from "react-hook-form";
+import { useForm, Controller, useFormState  } from "react-hook-form";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faSpinner, faBaby, faHeartbeat, faCartPlus, faTrash } from "@fortawesome/free-solid-svg-icons";  
 import ReCAPTCHA from "react-google-recaptcha";
@@ -167,6 +167,10 @@ function App() {
     const trans = translations[params.get('lang') || 'en'];
     return trans[text] || text;
   }
+  const [showBG, setShowBG] = useState(false);
+  const [showHB, setShowHB] = useState(false);
+  const [addHeartbeatBuddies, setAddHeartbeatBuddies] = useState(false);
+  const [addBabysGrowth, setAddBabysGrowth] = useState(false);  
   const [state, setState] = useState({
     step: "registerForm",
     status: "IDLE",
@@ -187,9 +191,9 @@ function App() {
     },
     captchaReady: bypass,
     showAddons: false,
-    showbabyGrowth: false,
-    addBabysGrowth: false,
-    addHeartbeatBuddies: false,
+    //showbabyGrowth: false,
+    //addBabysGrowth: false,
+   //addHeartbeatBuddies: false,
   });
   const [clientState, setClientState] = useState({
     firstName: "",
@@ -210,21 +214,46 @@ function App() {
   const [weeks, setWeeks] = useState([]);
   // const [selectedService, setSelectedService] = useState([]);
   const { control, watch, register, formState: { errors }, handleSubmit } = useForm();
-  const watchFields = watch(["service"]); // you can also target specific fields by their names
+  //const watchFields = watch(["service"]); // you can also target specific fields by their names
+  const watchFields = [undefined]
   const formUrl = `https://dashboard.panzitas.net/appointments/${params.get('id')}`;
-  const [width, setWindowWidth] = useState(0)
-   useEffect(() => { 
+  const [width, setWindowWidth] = useState(0);
+  
+  const onChangeServices = (service) =>{
+    // console.log({service});
+    // setState({
+    //   ...state,
+    //   showbabyGrowth: false,
+    //   addBabysGrowth: false,      
+    // })
+    setAddBabysGrowth(false);
+    setAddHeartbeatBuddies(false);
+    if (service !== undefined){
+      setShowHB(true);
+    } else {
+      setShowHB(false);
+    }
+    if (service && (service.value === 6 || service.value === 7 || service.value === 25)) {
+      setShowBG(true);
+    } else {
+      setShowBG(false);
+    }
+  };
 
-     updateDimensions();
+  useEffect(() => { 
 
-     window.addEventListener("resize", updateDimensions);
-     return () => 
-       window.removeEventListener("resize",updateDimensions);
-    }, [])
-    const updateDimensions = () => {
-      const width = window.innerWidth
-      setWindowWidth(width)
-    }  
+    updateDimensions();
+
+    window.addEventListener("resize", updateDimensions);
+    return () => 
+      window.removeEventListener("resize",updateDimensions);
+  }, []);
+
+  const updateDimensions = () => {
+    const width = window.innerWidth
+    setWindowWidth(width)
+  }  
+
   useEffect(() => {
     
       /*
@@ -450,7 +479,7 @@ function App() {
                   var startMomentWithNowTime = moment(state.startDate)
                   var now = moment().format("MM/DD/YYYY");
                   if (now === startMomentWithNowTime.format("MM/DD/YYYY")) {
-                    console.log("IS TODAY")
+                    // console.log("IS TODAY")
                   var nowWithTime = moment();
                   startMomentWithNowTime = startMomentWithNowTime.set({
                     'hour': nowWithTime.hour(),
@@ -642,7 +671,7 @@ function App() {
           locationId: parseInt(state.locationId),
           staffId: state.block.staffId[0],
           clientId: clientObject.clientId,
-          notes: "Weeks: "+clientState.weeks+"\n Language: "+state.language+"\n"+(state.addHeartbeatBuddies ? "Add HeartBeat Buddies" : ""), // Very important, use the wordpress language
+          notes: "Weeks: "+clientState.weeks+"\n Language: "+state.language+"\n"+(addHeartbeatBuddies ? "Add HeartBeat Buddies" : ""), // Very important, use the wordpress language
           startDateTime: moment(state.block.blockDate).format("YYYY-MM-DD[T]HH:mm:ss").toString(),
         };
     
@@ -689,13 +718,13 @@ function App() {
 
     let sessionTypeId = data.service.value;
     let sessionTypeName = data.service.label;    
-    if(data.service.value === 6 && state.addBabysGrowth){
+    if(data.service.value === 6 && addBabysGrowth){
       sessionTypeId = 18; sessionTypeName = "Meet Your Baby - 25 Min 5D/HD + Baby's Growth $168";
     }
-    if(data.service.value === 7 && state.addBabysGrowth){
+    if(data.service.value === 7 && addBabysGrowth){
       sessionTypeId = 19; sessionTypeName = "Meet Your Baby - 15 Min 5D/HD + Baby's Growth $128";
     }
-    if(data.service.value === 25 && state.addBabysGrowth){
+    if(data.service.value === 25 && addBabysGrowth){
       sessionTypeId = 34; sessionTypeName = "Gender Determination  + Baby's Growth - $108";
     } 
 
@@ -808,16 +837,18 @@ function App() {
   }
 
   const handleAddBabysGrowth = () =>{
-    setState((state) => ({
-      ...state,
-      addBabysGrowth: !state.addBabysGrowth,
-    }));
+    setAddBabysGrowth(!addBabysGrowth);
+    // setState((state) => ({
+    //   ...state,
+    //   addBabysGrowth: !state.addBabysGrowth,
+    // }));
   }
   const handleAddHeartbeatBuddies = () =>{
-    setState((state) => ({
-      ...state,
-      addHeartbeatBuddies: !state.addHeartbeatBuddies,
-    }));
+    setAddHeartbeatBuddies(!addHeartbeatBuddies);
+    // setState((state) => ({
+    //   ...state,
+    //   addHeartbeatBuddies: !state.addHeartbeatBuddies,
+    // }));
   }
 
   const blockSelected = () => {
@@ -905,6 +936,7 @@ function App() {
                   name="service"
                   control={control}
                   rules={{ required: true }}
+
                   render={({ field }) => 
                     <Select
                       {...field} 
@@ -913,18 +945,22 @@ function App() {
                       className={"dropdown w-100 mb-3" + (errors.service ? " is-select-invalid" : "")}
                       formatGroupLabel={formatGroupLabel}
                       styles={selectStyles}
+                      onChange={(service) => {
+                        //console.log({service})
+                        onChangeServices(service);
+                      }}
                     />
                   }
                 />
               </div>
             </div>
-            {watchFields[0] !== undefined && (
+            {showHB && (
               <div className="row gx-1 gx-md-5 gx-lg-4 my-3 justify-content-center">
-                {(watchFields[0].value === 6 || watchFields[0].value === 7 || watchFields[0].value === 25)  && (
+                {showBG  && (
                   
                   <div className="col-6 text-center">
                     <div
-                      className={"btn rounded-3 px-3 mx-auto smaller-text w-100 " + (state.addBabysGrowth ? "btn-outline-addOn" : "btn-outline-secondary")}
+                      className={"btn rounded-3 px-3 mx-auto smaller-text w-100 " + (addBabysGrowth ? "btn-outline-addOn" : "btn-outline-secondary")}
                       onClick={handleAddBabysGrowth}>
                         <div className="row">
                           <div className="col addOnIcon">
@@ -933,7 +969,7 @@ function App() {
                         </div>
                         <div className="row">
                           <div className="col text-center">
-                            <h3 className="h5">Baby's Growth</h3>
+                            <h3 className="h5" style={{marginLeft:5,marginRight:5}}>Baby's Growth</h3>
                           </div>
                         </div>
                         <div className="row justify-content-center">
@@ -941,13 +977,13 @@ function App() {
                             <span className="h5">$29</span>
                           </div>
                           <div className="col-auto h5"> 
-                            {state.addBabysGrowth && (
+                            {addBabysGrowth && (
                             <>
                               <FontAwesomeIcon icon={faTrash} /> 
                               <span> Remove</span>
                             </>
                           )}
-                          {!state.addBabysGrowth && (
+                          {!addBabysGrowth && (
                             <>
                               <FontAwesomeIcon icon={faCartPlus} />
                               <span> Add</span>
@@ -961,7 +997,7 @@ function App() {
                 )}
                 <div className="col-6 text-center">
                   <div
-                    className={"btn rounded-3 px-3 mx-auto smaller-text w-100 " + (state.addHeartbeatBuddies ? "btn-outline-addOn" : "btn-outline-secondary")}
+                    className={"btn rounded-3 px-3 mx-auto smaller-text w-100 " + (addHeartbeatBuddies ? "btn-outline-addOn" : "btn-outline-secondary")}
                     onClick={handleAddHeartbeatBuddies}>
                       <div className="row">
                         <div className="col addOnIcon">
@@ -978,13 +1014,13 @@ function App() {
                           <span className="h5">$35</span>
                         </div>
                         <div className="col-auto h5">
-                          {state.addHeartbeatBuddies && (
+                          {addHeartbeatBuddies && (
                             <>
                               <FontAwesomeIcon icon={faTrash} /> 
                               <span> Remove</span>
                             </>
                           )}
-                          {!state.addHeartbeatBuddies && (
+                          {!addHeartbeatBuddies && (
                             <>
                               <FontAwesomeIcon icon={faCartPlus} />
                               <span> Add</span>
