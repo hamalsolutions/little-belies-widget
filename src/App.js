@@ -172,10 +172,11 @@ function App() {
     status: "IDLE",
     availabilityRequestStatus: "IDLE",
     appointmentRequestStatus: "IDLE",
+    city: params.get('city'),
     message: "",
     siteId: params.get('id') || "549974",
     language: languageList[params.get('lang')] || 'English',
-    locationId: "1",
+    locationId: params.get('city') !== 'coral-springs'?"1":"2",
     authorization: "",
     address: params.get('address') || "N/A",
     phone: params.get('phone') || "N/A",
@@ -211,6 +212,19 @@ function App() {
   const { control, watch, register, formState: { errors }, handleSubmit } = useForm();
   const watchFields = watch(["service"]); // you can also target specific fields by their names
   const formUrl = `https://dashboard.panzitas.net/appointments/${params.get('id')}`;
+  const [width, setWindowWidth] = useState(0)
+   useEffect(() => { 
+
+     updateDimensions();
+
+     window.addEventListener("resize", updateDimensions);
+     return () => 
+       window.removeEventListener("resize",updateDimensions);
+    }, [])
+    const updateDimensions = () => {
+      const width = window.innerWidth
+      setWindowWidth(width)
+    }  
   useEffect(() => {
     
       /*
@@ -221,6 +235,7 @@ function App() {
     const ultrasoundServices = {
       services: [
         { sessionTypeId: 5, name: "Early Pregnancy - $59", price: 59 },
+        { sessionTypeId: 25, name: "Gender Determination - $79", price: 79 },
         {
           sessionTypeId: 6,
           name: "Meet Your Baby - 15 Min 5D/HD - $99",
@@ -239,8 +254,8 @@ function App() {
         // {sessionTypeId: 18,name: "Meet Your Baby - 25 Min 5D/HD + Baby's Growth $168",price: 168,},
         // {sessionTypeId: 19,name: "Meet Your Baby - 15 Min 5D/HD + Baby's Growth $128",price: 128,},
         // { sessionTypeId: 20, name: "Come back for free", price: 0 },
-        { sessionTypeId: 24, name: "Special Promo Ultrasound (G)", price: 0 },
-        { sessionTypeId: 25, name: "Gender Determination - $79", price: 79 },
+        // { sessionTypeId: 24, name: "Special Promo Ultrasound (G)", price: 0 }, // no va 
+        
         // { sessionTypeId: 32, name: "Membership + Visit  - $198", price: 198 },
         // { sessionTypeId: 33, name: "Membership Ultrasound -$30", price: 30 },
         // {sessionTypeId: 34,name: "Gender Determination  + Baby's Growth - $108  ",price: 108,},
@@ -248,6 +263,11 @@ function App() {
       ]}
       const massageServices = {
         services: [ 
+        {
+          sessionTypeId: 13,
+          name: "30 Minute Prenatal Massage - $49",
+          price: 49,
+        },
         {
           sessionTypeId: 9,
           name: "50 Minute Prenatal Massage - $79",
@@ -258,12 +278,8 @@ function App() {
           name: "80 Minute Prenatal Massage - $109",
           price: 109,
         },
-        {
-          sessionTypeId: 13,
-          name: "30 Minute Prenatal Massage - $49",
-          price: 49,
-        },
-        { sessionTypeId: 21, name: "Special Promo 50 min (G)", price: 0 },
+
+        // { sessionTypeId: 21, name: "Special Promo 50 min (G)", price: 0 }, //no va
         {
           sessionTypeId: 23,
           name: "Special Promotion 50 min Massage - $219",
@@ -811,13 +827,40 @@ function App() {
       step: "summary",
     }));
   }
-  console.log("availableBlocks");
-  console.log(availableBlocks);
+
+  const groupStyles = {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  };
+
+  const selectStyles = {
+    option: (styles,  { data, isDisabled, isFocused, isSelected }) => {
+      return {
+        ...styles,
+        fontSize: (width > 1023)?16:14,
+
+      }
+    }
+  }
+  const groupTextStyles = {
+    color: '#AE678C',
+    fontSize: (width > 1023)?18:16,
+  }
+  const formatGroupLabel = data => (
+    <div style={groupStyles}>
+      <span style={groupTextStyles}>{data.label}</span>
+    </div>
+  );
+
+  // console.log("availableBlocks");
+  // console.log(availableBlocks);
+  // console.log(state.locationId);
   return (
     <div className="container">
       {state.step === "registerForm" && (
         <>
-          <form className="row my-3 bg-light-container mx-auto p-2 p-md-4 box-shadow justify-content-center" onSubmit={handleSubmit(onFormSubmit)}>
+          <form className="row my-3 bg-light-container mx-auto p-md-4 box-shadow justify-content-center" onSubmit={handleSubmit(onFormSubmit)}>
             <div className="row mb-3">
               <div className="col">
                 <h1 className="h4 mt-2 mb-3 ">{translate('Please enter your information',state.language)}</h1>
@@ -869,6 +912,8 @@ function App() {
                       options={services}
                       placeholder="Select a service"
                       className={"dropdown w-100 mb-3" + (errors.service ? " is-select-invalid" : "")}
+                      formatGroupLabel={formatGroupLabel}
+                      styles={selectStyles}
                     />
                   }
                 />
