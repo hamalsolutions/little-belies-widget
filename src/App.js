@@ -214,8 +214,8 @@ function App() {
   const [weeks, setWeeks] = useState([]);
   // const [selectedService, setSelectedService] = useState([]);
   const { control, watch, register, formState: { errors }, handleSubmit } = useForm();
-  //const watchFields = watch(["service"]); // you can also target specific fields by their names
-  const watchFields = [undefined]
+  const watchFields = watch(["service"]); // you can also target specific fields by their names
+  //const watchFields = [undefined]
   const formUrl = `https://dashboard.panzitas.net/appointments/${params.get('id')}`;
   const [width, setWindowWidth] = useState(0);
   
@@ -715,7 +715,7 @@ function App() {
   
   const onFormSubmit = async (data) => {
     
-
+    console.log({data})
     let sessionTypeId = data.service.value;
     let sessionTypeName = data.service.label;    
     if(data.service.value === 6 && addBabysGrowth){
@@ -949,6 +949,7 @@ function App() {
                       onChange={(service) => {
                         //console.log({service})
                         onChangeServices(service);
+                        field.onChange(service); 
                       }}
                     />
                   }
@@ -970,7 +971,20 @@ function App() {
                         </div>
                         <div className="row">
                           <div className="col text-center">
-                            <h3 className="h5" style={{marginLeft:5,marginRight:5}}>Baby's Growth</h3>
+                            <h3 className="h5" style={{fontSize: (width > 1023)?16:14,marginLeft:5,marginRight:5}}>Baby's Growth</h3>
+                          </div>
+                        </div>
+                        <div className="row">
+                          <div className="col menu ml-4 my-2">
+                          <ul>
+                          <li>Baby's measurements </li>
+                          <li>Baby's position in uterus</li>
+                          <li>Baby's weight</li>
+                          <li>Baby's heart activity</li>
+                          <li>Weeks of Pregnancy</li>
+                          <li>Estimated due date</li>
+                          <li>Amniotic fluid</li>
+                          </ul>
                           </div>
                         </div>
                         <div className="row justify-content-center">
@@ -1007,14 +1021,24 @@ function App() {
                       </div>
                       <div className="row">
                         <div className="col text-center">
-                          <h3 className="h5">Heartbeat Buddies</h3>
+                          <h3 className="h5" style={{fontSize: (width > 1023)?16:14}}>Heartbeat Buddies</h3>
                         </div>
                       </div>
+                      <div className="row">
+                      <div className="col menu my-2">
+                          <ul>
+                          <li>Beautiful high-quality stuffed animal</li>
+                          <li>2-second recording of bady's heartbeat</li>
+                          <li>Cherished forever</li>
+                          <li>Build connection an strenghtens bond with bady</li>
+                          </ul>
+                          </div>
+                        </div>                      
                       <div className="row justify-content-center">
                         <div className="col-auto h5">
-                          <span className="h5">$35</span>
+                          <span className="h5" >$35</span>
                         </div>
-                        <div className="col-auto h5">
+                        <div className="col-auto h5" >
                           {addHeartbeatBuddies && (
                             <>
                               <FontAwesomeIcon icon={faTrash} /> 
