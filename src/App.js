@@ -961,8 +961,8 @@ function App() {
                 {showBG  && (
                   
                   <div className="col-6 text-center">
-                    <div
-                      className={"btn rounded-3 px-3 mx-auto smaller-text w-100 " + (addBabysGrowth ? "btn-outline-addOn" : "btn-outline-secondary")}
+                    <div 
+                      className={"btn-addOn rounded-3 px-3 mx-auto smaller-text w-100 " + (addBabysGrowth ? "btn-outline-addOn" : "btn-outline-secondary-addOn")}
                       onClick={handleAddBabysGrowth}>
                         <div className="row">
                           <div className="col addOnIcon">
@@ -1012,7 +1012,7 @@ function App() {
                 )}
                 <div className="col-6 text-center">
                   <div
-                    className={"btn rounded-3 px-3 mx-auto smaller-text w-100 " + (addHeartbeatBuddies ? "btn-outline-addOn" : "btn-outline-secondary")}
+                    className={"btn-addOn rounded-3 px-3 mx-auto smaller-text w-100 " + (addHeartbeatBuddies ? "btn-outline-addOn" : "btn-outline-secondary-addOn")}
                     onClick={handleAddHeartbeatBuddies}>
                       <div className="row">
                         <div className="col addOnIcon">
