@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
-import ReactHorizontalDatePicker from "react-horizontal-strip-datepicker";
-import "react-horizontal-strip-datepicker/dist/ReactHorizontalDatePicker.css";
-import "./styles/ReactHorizontalDatePicker.css";
+// import ReactHorizontalDatePicker from "react-horizontal-strip-datepicker";
+// import "react-horizontal-strip-datepicker/dist/ReactHorizontalDatePicker.css";
+import DatePicker from "react-horizontal-datepicker";
+// import "./styles/ReactHorizontalDatePicker.css";
 import moment from "moment";
 import Select from "react-select";
 import { useForm, Controller, useFormState  } from "react-hook-form";
@@ -558,25 +559,25 @@ function App() {
     getAvailability();
   }, [state.startDate, state.locationId, state.siteId]);
 
-  const onSelectedDay = (d) => {
-    if(moment(d).format("MM/DD/YYYY").toString() === moment(state.startDate).format("MM/DD/YYYY").toString()){
+  const onSelectedDay = (val) => {
+    if(moment(val).format("MM/DD/YYYY").toString() === moment(state.startDate).format("MM/DD/YYYY").toString()){
       return
     }
     setState((state) => ({
       ...state,
-      startDate: moment(d).format("MM/DD/YYYY").toString(),
+      startDate: moment(val).format("MM/DD/YYYY").toString(),
     }));
   };
 
   // reload until found available space
-  // useEffect(()=>{
-  //   const nextDay = new Date(moment(state.startDate).add(1, "days").format("MM/DD/YYYY").toString());
-  //   if(availableBlocks.length===0){
-  //     setTimeout(() => {
-  //       onSelectedDay(nextDay);
-  //     }, 500);
-  //   }
-  // },[availableBlocks])
+  useEffect(()=>{
+    const nextDay = moment(state.startDate).add(1, "days").format("MM/DD/YYYY").toString();
+    if(availableBlocks.length === 0){
+      setTimeout(() => {
+        onSelectedDay(nextDay);
+      }, 500);
+    }
+  },[availableBlocks])
   // but doesnt change date on calendar
 
   const handleAvailabilityBlockSelect = (block) => {
@@ -1075,7 +1076,8 @@ function App() {
                   <button className="btn btn-cta rounded-pill btn-sm px-3 m-2" onClick={()=> previousStep("availability")}>BACK</button>
                 </div>
               </div>
-              <ReactHorizontalDatePicker selectedDay={onSelectedDay} enableScroll={true} enableDays={50} enableDaysBefore={5}/>
+              StartDate: {state.startDate}
+              <DatePicker selectDate={new Date(state.startDate)} getSelectedDay={onSelectedDay} color="#AE678C" endDate={50} />
               <br/><br/>
               {state.availabilityRequestStatus === "ready" && availableBlocks.length >= 1 && (
                 <>           
