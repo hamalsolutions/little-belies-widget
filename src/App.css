@@ -184,3 +184,14 @@ display: inline-block;
   color: #AE678C !important;
 
 }
+
+.menu ul, .menu li{
+  margin:0;
+  padding:0;
+  text-align: left;
+ 
+}
+
+#datePicker * {
+  box-sizing: content-box !important;
+}

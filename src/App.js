@@ -1,8 +1,6 @@
 import React, { useEffect, useState } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
-import ReactHorizontalDatePicker from "react-horizontal-strip-datepicker";
-import "react-horizontal-strip-datepicker/dist/ReactHorizontalDatePicker.css";
-import "./styles/ReactHorizontalDatePicker.css";
+import DatePicker from "react-horizontal-datepicker";
 import moment from "moment";
 import Select from "react-select";
 import { useForm, Controller, useFormState  } from "react-hook-form";
@@ -214,8 +212,8 @@ function App() {
   const [weeks, setWeeks] = useState([]);
   // const [selectedService, setSelectedService] = useState([]);
   const { control, watch, register, formState: { errors }, handleSubmit } = useForm();
-  //const watchFields = watch(["service"]); // you can also target specific fields by their names
-  const watchFields = [undefined]
+  const watchFields = watch(["service"]); // you can also target specific fields by their names
+  //const watchFields = [undefined]
   const formUrl = `https://dashboard.panzitas.net/appointments/${params.get('id')}`;
   const [width, setWindowWidth] = useState(0);
   
@@ -558,25 +556,25 @@ function App() {
     getAvailability();
   }, [state.startDate, state.locationId, state.siteId]);
 
-  const onSelectedDay = (d) => {
-    if(moment(d).format("MM/DD/YYYY").toString() === moment(state.startDate).format("MM/DD/YYYY").toString()){
+  const onSelectedDay = (val) => {
+    if(moment(val).format("MM/DD/YYYY").toString() === moment(state.startDate).format("MM/DD/YYYY").toString()){
       return
     }
     setState((state) => ({
       ...state,
-      startDate: moment(d).format("MM/DD/YYYY").toString(),
+      startDate: moment(val).format("MM/DD/YYYY").toString(),
     }));
   };
 
   // reload until found available space
-  // useEffect(()=>{
-  //   const nextDay = new Date(moment(state.startDate).add(1, "days").format("MM/DD/YYYY").toString());
-  //   if(availableBlocks.length===0){
-  //     setTimeout(() => {
-  //       onSelectedDay(nextDay);
-  //     }, 500);
-  //   }
-  // },[availableBlocks])
+  useEffect(()=>{
+    const nextDay = moment(state.startDate).add(1, "days").format("MM/DD/YYYY").toString();
+    if(availableBlocks.length === 0){
+      setTimeout(() => {
+        onSelectedDay(nextDay);
+      }, 500);
+    }
+  },[availableBlocks])
   // but doesnt change date on calendar
 
   const handleAvailabilityBlockSelect = (block) => {
@@ -715,7 +713,7 @@ function App() {
   
   const onFormSubmit = async (data) => {
     
-
+    console.log({data})
     let sessionTypeId = data.service.value;
     let sessionTypeName = data.service.label;    
     if(data.service.value === 6 && addBabysGrowth){
@@ -971,7 +969,20 @@ function App() {
                         </div>
                         <div className="row">
                           <div className="col text-center">
-                            <h3 className="h5" style={{marginLeft:5,marginRight:5}}>Baby's Growth</h3>
+                            <h3 className="h5" style={{fontSize: (width > 1023)?16:14,marginLeft:5,marginRight:5}}>Baby's Growth</h3>
+                          </div>
+                        </div>
+                        <div className="row">
+                          <div className="col menu ml-4 my-2">
+                          <ul>
+                          <li>Baby's measurements </li>
+                          <li>Baby's position in uterus</li>
+                          <li>Baby's weight</li>
+                          <li>Baby's heart activity</li>
+                          <li>Weeks of Pregnancy</li>
+                          <li>Estimated due date</li>
+                          <li>Amniotic fluid</li>
+                          </ul>
                           </div>
                         </div>
                         <div className="row justify-content-center">
@@ -1008,14 +1019,24 @@ function App() {
                       </div>
                       <div className="row">
                         <div className="col text-center">
-                          <h3 className="h5">Heartbeat Buddies</h3>
+                          <h3 className="h5" style={{fontSize: (width > 1023)?16:14}}>Heartbeat Buddies</h3>
                         </div>
                       </div>
+                      <div className="row">
+                      <div className="col menu my-2">
+                          <ul>
+                          <li>Beautiful high-quality stuffed animal</li>
+                          <li>2-second recording of bady's heartbeat</li>
+                          <li>Cherished forever</li>
+                          <li>Build connection an strenghtens bond with bady</li>
+                          </ul>
+                          </div>
+                        </div>                      
                       <div className="row justify-content-center">
                         <div className="col-auto h5">
-                          <span className="h5">$35</span>
+                          <span className="h5" >$35</span>
                         </div>
-                        <div className="col-auto h5">
+                        <div className="col-auto h5" >
                           {addHeartbeatBuddies && (
                             <>
                               <FontAwesomeIcon icon={faTrash} /> 
@@ -1052,8 +1073,13 @@ function App() {
                   <button className="btn btn-cta rounded-pill btn-sm px-3 m-2" onClick={()=> previousStep("availability")}>BACK</button>
                 </div>
               </div>
-              <ReactHorizontalDatePicker selectedDay={onSelectedDay} enableScroll={true} enableDays={50} enableDaysBefore={5}/>
-              <br/><br/>
+              <div className="row my-3">
+                <div id="datePicker" className="col">
+                  StartDate: {state.startDate}
+                  <DatePicker selectDate={new Date(state.startDate)} getSelectedDay={onSelectedDay} color="#AE678C" endDate={50} />
+                </div>
+              </div>
+
               {state.availabilityRequestStatus === "ready" && availableBlocks.length >= 1 && (
                 <>           
                 <h1 className="h4">Select time for you appointment:</h1>
@@ -1132,11 +1158,11 @@ function App() {
               </div>
             )}            
           </div>
-          <div className="row w-50 mb-3 bg-light-container mx-auto p-2 box-shadow justify-content-center">
+          <div className="row w-50 mb-3 bg-light-container mx-auto p-4 box-shadow justify-content-center">
            <div>
-            <div className="row mb-2 mt-2">
+            <div className="row my-3">
               <div className="col">
-                <div>Full name: <b>{clientState.firstName + " " + clientState.lastName}</b></div>
+                <div><b>Full Name:</b> {clientState.firstName + " " + clientState.lastName}</div>
               </div>
             </div>
             {/* <div className="row mb-2">
@@ -1149,37 +1175,39 @@ function App() {
                 <div>Phone: <b>{clientState.phone}</b></div>
               </div>
             </div> */}
-            <div className="row mb-2">
+            <div className="row mb-3">
               <div className="col">
-                <div>Service: <b>{clientState.sessionTypeName}</b></div>
+                <div><b>Service: </b>{clientState.sessionTypeName}</div>
               </div>
             </div>
+            {/* 
             <div className="row mb-2">
               <div className="col">
                 <div>Weeks: <b>{clientState.weeks}</b></div>
               </div>
             </div>
-            <div className="row mb-2">
-              <div className="col">
-                <div>Date: <b>{moment(state.block.blockDate).format("MM-DD-YYYY").toString()}</b></div>
+            */}
+            <div className="row mb-3">
+              <div className="col-auto">
+                <div><b>Date: </b>{moment(state.block.blockDate).format("MM-DD-YYYY").toString()}</div>
               </div>
-              <div className="col">
-                <div>Time: <b>{moment(state.block.blockDate).format("hh:mm A").toString()}</b></div>
-              </div>
-            </div>
-            <div className="row mb-2">
-              <div className="col">
-                <div>Location Address: <b>{state.address}</b></div>
+              <div className="col-auto">
+                <div><b>Time: </b>{moment(state.block.blockDate).format("hh:mm A").toString()}</div>
               </div>
             </div>
-            <div className="row mb-2">
+            <div className="row mb-3">
               <div className="col">
-                <div>How to Arrive: <b>{state.howtoarrive}</b></div>
+                <div><b>Location Address: </b>{state.address}</div>
+              </div>
+            </div>
+            <div className="row mb-3">
+              <div className="col">
+                <div><b>How to Arrive: </b>{state.howtoarrive}</div>
               </div>
             </div>            
-            <div className="row mb-2">
+            <div className="row mb-3">
               <div className="col">
-                <div>Location Phone: <b>{state.phone}</b></div>
+                <div><b>Location Phone: </b>{state.phone}</div>
               </div>
             </div>
             {/* { state.language !== 'English' && (
