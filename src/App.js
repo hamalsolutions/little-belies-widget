@@ -1,9 +1,6 @@
 import React, { useEffect, useState } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
-// import ReactHorizontalDatePicker from "react-horizontal-strip-datepicker";
-// import "react-horizontal-strip-datepicker/dist/ReactHorizontalDatePicker.css";
 import DatePicker from "react-horizontal-datepicker";
-// import "./styles/ReactHorizontalDatePicker.css";
 import moment from "moment";
 import Select from "react-select";
 import { useForm, Controller, useFormState  } from "react-hook-form";
@@ -1076,9 +1073,13 @@ function App() {
                   <button className="btn btn-cta rounded-pill btn-sm px-3 m-2" onClick={()=> previousStep("availability")}>BACK</button>
                 </div>
               </div>
-              StartDate: {state.startDate}
-              <DatePicker selectDate={new Date(state.startDate)} getSelectedDay={onSelectedDay} color="#AE678C" endDate={50} />
-              <br/><br/>
+              <div className="row my-3">
+                <div id="datePicker" className="col">
+                  StartDate: {state.startDate}
+                  <DatePicker selectDate={new Date(state.startDate)} getSelectedDay={onSelectedDay} color="#AE678C" endDate={50} />
+                </div>
+              </div>
+
               {state.availabilityRequestStatus === "ready" && availableBlocks.length >= 1 && (
                 <>           
                 <h1 className="h4">Select time for you appointment:</h1>
@@ -1157,11 +1158,11 @@ function App() {
               </div>
             )}            
           </div>
-          <div className="row w-50 mb-3 bg-light-container mx-auto p-2 box-shadow justify-content-center">
+          <div className="row w-50 mb-3 bg-light-container mx-auto p-4 box-shadow justify-content-center">
            <div>
-            <div className="row mb-2 mt-2">
+            <div className="row my-3">
               <div className="col">
-                <div>Full name: <b>{clientState.firstName + " " + clientState.lastName}</b></div>
+                <div><b>Full Name:</b> {clientState.firstName + " " + clientState.lastName}</div>
               </div>
             </div>
             {/* <div className="row mb-2">
@@ -1174,37 +1175,39 @@ function App() {
                 <div>Phone: <b>{clientState.phone}</b></div>
               </div>
             </div> */}
-            <div className="row mb-2">
+            <div className="row mb-3">
               <div className="col">
-                <div>Service: <b>{clientState.sessionTypeName}</b></div>
+                <div><b>Service: </b>{clientState.sessionTypeName}</div>
               </div>
             </div>
+            {/* 
             <div className="row mb-2">
               <div className="col">
                 <div>Weeks: <b>{clientState.weeks}</b></div>
               </div>
             </div>
-            <div className="row mb-2">
-              <div className="col">
-                <div>Date: <b>{moment(state.block.blockDate).format("MM-DD-YYYY").toString()}</b></div>
+            */}
+            <div className="row mb-3">
+              <div className="col-auto">
+                <div><b>Date: </b>{moment(state.block.blockDate).format("MM-DD-YYYY").toString()}</div>
               </div>
-              <div className="col">
-                <div>Time: <b>{moment(state.block.blockDate).format("hh:mm A").toString()}</b></div>
-              </div>
-            </div>
-            <div className="row mb-2">
-              <div className="col">
-                <div>Location Address: <b>{state.address}</b></div>
+              <div className="col-auto">
+                <div><b>Time: </b>{moment(state.block.blockDate).format("hh:mm A").toString()}</div>
               </div>
             </div>
-            <div className="row mb-2">
+            <div className="row mb-3">
               <div className="col">
-                <div>How to Arrive: <b>{state.howtoarrive}</b></div>
+                <div><b>Location Address: </b>{state.address}</div>
+              </div>
+            </div>
+            <div className="row mb-3">
+              <div className="col">
+                <div><b>How to Arrive: </b>{state.howtoarrive}</div>
               </div>
             </div>            
-            <div className="row mb-2">
+            <div className="row mb-3">
               <div className="col">
-                <div>Location Phone: <b>{state.phone}</b></div>
+                <div><b>Location Phone: </b>{state.phone}</div>
               </div>
             </div>
             {/* { state.language !== 'English' && (

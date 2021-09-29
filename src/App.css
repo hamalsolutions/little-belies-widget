@@ -191,3 +191,7 @@ display: inline-block;
   text-align: left;
  
 }
+
+#datePicker * {
+  box-sizing: content-box !important;
+}
