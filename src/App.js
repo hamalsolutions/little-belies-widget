@@ -749,7 +749,7 @@ function App() {
             arrive: state.howtoarrive,
             locationPhone: state.phone,
             clientMobilePhone: clientState.phone,
-            locationName: "Little Bellies - Houston" 
+            locationName: "Little Bellies - " + state.city 
           }
           const textMessageRequest = {
             method: "POST",
