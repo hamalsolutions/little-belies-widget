@@ -1063,11 +1063,10 @@ function App() {
             {showHB && (
               <div className="row gx-1 gx-md-2 my-3 justify-content-center">
                 {showBG && (
-                  <div className="col-12 col-sm-6 px-5 px-sm-2 text-center">
-                    {/* <div className="col-6 text-center"> */}
+                  <div className="col-12 col-sm-6 px-5 px-sm-2 text-center ">
                     <div
                       className={
-                        "btn-addOn rounded-3 px-3 mx-auto smaller-text w-100 " +
+                        "btn-addOn rounded-3 px-3 mx-auto smaller-text w-100 h-100 " +
                         (addBabysGrowth
                           ? "btn-outline-addOn"
                           : "btn-outline-secondary-addOn")
@@ -1095,14 +1094,14 @@ function App() {
                       </div>
                       <div className="row">
                         <div className="col text-start addonText">
-                          <ul class="fa-ul mt-2 mb-1">
-                            <li><span class="fa-li"><FontAwesomeIcon icon={faCheck} /></span>Baby's measurements </li>
-                            <li><span class="fa-li"><FontAwesomeIcon icon={faCheck} /></span>Baby's position in uterus</li>
-                            <li><span class="fa-li"><FontAwesomeIcon icon={faCheck} /></span>Baby's weight</li>
-                            <li><span class="fa-li"><FontAwesomeIcon icon={faCheck} /></span>Baby's heart activity</li>
-                            <li><span class="fa-li"><FontAwesomeIcon icon={faCheck} /></span>Weeks of Pregnancy</li>
-                            <li><span class="fa-li"><FontAwesomeIcon icon={faCheck} /></span>Estimated due date</li>
-                            <li><span class="fa-li"><FontAwesomeIcon icon={faCheck} /></span>Amniotic fluid</li>
+                          <ul className="fa-ul mt-2 mb-1">
+                            <li className=" lh-md"><span className="fa-li" ><FontAwesomeIcon icon={faCheck} /></span>Baby's measurements </li>
+                            <li className=" lh-md"><span className="fa-li" ><FontAwesomeIcon icon={faCheck} /></span>Baby's position in uterus</li>
+                            <li className=" lh-md"><span className="fa-li" ><FontAwesomeIcon icon={faCheck} /></span>Baby's weight</li>
+                            <li className=" lh-md"><span className="fa-li" ><FontAwesomeIcon icon={faCheck} /></span>Baby's heart activity</li>
+                            <li className=" lh-md"><span className="fa-li" ><FontAwesomeIcon icon={faCheck} /></span>Weeks of Pregnancy</li>
+                            <li className=" lh-md"><span className="fa-li" ><FontAwesomeIcon icon={faCheck} /></span>Estimated due date</li>
+                            <li className=" lh-md"><span className="fa-li" ><FontAwesomeIcon icon={faCheck} /></span>Amniotic fluid</li>
                           </ul>
                         </div>
                       </div>
@@ -1135,10 +1134,9 @@ function App() {
                   </div>
                 )}
                 <div className="col-12 col-sm-6 px-5 px-sm-2 my-3 my-md-0 text-center">
-                  {/* <div className="col-6 text-center"> */}
                   <div
                     className={
-                      "btn-addOn rounded-3 px-3 mx-auto smaller-text w-100 " +
+                      "btn-addOn rounded-3 px-3 mx-auto smaller-text w-100 h-100 " +
                       (addHeartbeatBuddies
                         ? "btn-outline-addOn"
                         : "btn-outline-secondary-addOn")
@@ -1146,7 +1144,7 @@ function App() {
                     onClick={handleAddHeartbeatBuddies}
                   >
                     <div className="row">
-                      <div className="col addonTittle">
+                      <div className="col addOnIcon">
                         <FontAwesomeIcon icon={faHeartbeat} />
                       </div>
                     </div>
@@ -1160,35 +1158,38 @@ function App() {
                         </h3>
                       </div>
                     </div>
+                    
                     <div className="row">
                       <div className="col text-start addonText">
-                        <ul class="fa-ul mt-2 mb-1">
-                          <li><span class="fa-li"><FontAwesomeIcon icon={faCheck} /></span>Beautiful high-quality stuffed animal</li>
-                          <li><span class="fa-li"><FontAwesomeIcon icon={faCheck} /></span>2-second recording of bady's heartbeat</li>
-                          <li><span class="fa-li"><FontAwesomeIcon icon={faCheck} /></span>Cherished forever</li>
-                          <li><span class="fa-li"><FontAwesomeIcon icon={faCheck} /></span>Build connection an strenghtens bond with bady</li>
+                        <ul className="fa-ul mt-2 mb-1 lh-md">
+                          <li className="ul-lh"><span className="fa-li"><FontAwesomeIcon icon={faCheck} /></span>Beautiful high-quality stuffed animal</li>
+                          <li className="ul-lh"><span className="fa-li"><FontAwesomeIcon icon={faCheck} /></span>2-second recording of bady's heartbeat</li>
+                          <li className="ul-lh"><span className="fa-li"><FontAwesomeIcon icon={faCheck} /></span>Cherished forever</li>
+                          <li className="ul-lh"><span className="fa-li"><FontAwesomeIcon icon={faCheck} /></span>Build connection an strenghtens bond with bady</li>
                         </ul>
                       </div>
                     </div>
-                    <div className="row justify-content-center mt-0 mb-2">
-                      <div className="col-12 fw-bold addOnIcon mb-2">
-                        <span>$35</span>
+                    <div className="row justify-content-center mt-1 mb-2">
+                      <div
+                        className="col-auto fw-bold"
+                        style={{ fontSize: width > 1023 ? 16 : 14 }}
+                      >
+                        <span className="">$35</span>
                       </div>
-                      <div className="col-12 ">
-                        <div className="btn btn-cta-active smaller-text rounded-pill px-3 mx-auto">
-                          {addHeartbeatBuddies && (
-                            <>
-                              <FontAwesomeIcon icon={faTrash} />
-                              <span> Remove</span>
-                            </>
-                          )}
-                          {!addHeartbeatBuddies && (
-                            <>
-                              <FontAwesomeIcon icon={faCartPlus} />
-                              <span> Add</span>
-                            </>
-                          )}
-                        </div>
+                      <div className="col-auto fw-bold"
+                        style={{ fontSize: width > 1023 ? 16 : 14 }}>
+                        {addHeartbeatBuddies && (
+                          <>
+                            <FontAwesomeIcon icon={faTrash} />
+                            <span> Remove</span>
+                          </>
+                        )}
+                        {!addHeartbeatBuddies && (
+                          <>
+                            <FontAwesomeIcon icon={faCartPlus} />
+                            <span> Add</span>
+                          </>
+                        )}
                       </div>
                     </div>
                   </div>
