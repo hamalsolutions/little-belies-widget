@@ -157,7 +157,7 @@ const translations = {
 function App() {
   const params = new URLSearchParams(window.location.search);
   const languageList = { en: "English", es: "Spanish" };
-  const bypass = true;
+  const bypass = false;
   const [firstLoad, setFirstLoad] = useState(true);
   const translate = (text) => {
     const trans = translations[params.get("lang") || "en"];
@@ -1522,8 +1522,7 @@ function App() {
             {state.appointmentRequestStatus === "BOOK-APPOINTMENT-OK" && (
               <div className="video-responsive">
                 <iframe
-                 // width="853"
-                 // height="480"
+
                   src={"https://www.youtube.com/embed/uspIXX4uU9c"}
                   frameBorder="0"
                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
