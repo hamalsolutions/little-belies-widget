@@ -100,6 +100,12 @@
     background-color: #f5e6ed !important;
     box-shadow: 0 0 0 0.25rem rgb(174 103 140 / 25%) !important;
     }
+    
+  #datePicker #container div div div:hover {
+    background-color: #AE678C !important;
+    color: #fff !important;
+    font-weight: bold;
+  }
 }
 .btn-addOn {
 display: inline-block;
@@ -197,16 +203,11 @@ display: inline-block;
   border-radius: 50% !important;
 }
 
-#datePicker #container div div div:hover {
-  background-color: #AE678C !important;
-  color: #fff !important;
-  font-weight: bold;
-}
-
 .addonText{
   font-size: 0.75rem !important;
   letter-spacing: 0px !important;
 }
-.addonTittle{
-  font-size: 1rem;
+
+.addonTittle {
+  font-size: 2.5rem !important;
 }
