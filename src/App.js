@@ -168,7 +168,7 @@ function App() {
   const [addHeartbeatBuddies, setAddHeartbeatBuddies] = useState(false);
   const [addBabysGrowth, setAddBabysGrowth] = useState(false);
   const [state, setState] = useState({
-    step: "availability", // TODO return to original value registerForm
+    step: "registerForm",
     status: "IDLE",
     availabilityRequestStatus: "IDLE",
     appointmentRequestStatus: "IDLE",
@@ -1439,16 +1439,17 @@ function App() {
               )}
 
               {state.appointmentRequestStatus !== "BOOK-APPOINTMENT-OK" && (
+                <>
+                <div className="row no-gutters">
+                  <div className="col captcha-container px-0 d-flex">
+                    <ReCAPTCHA
+                      sitekey="6LdsCnAcAAAAAHG8I-ADbn4GG6ztVOzEO0C93Yuh"
+                      onChange={onChange}
+                    />
+                  </div>
+                </div>
                 <div className="row my-2">
                   <div className="col text-center">
-                    <div className="row">
-                      <div className="col captcha-container d-flex">
-                        <ReCAPTCHA
-                          sitekey="6LdsCnAcAAAAAHG8I-ADbn4GG6ztVOzEO0C93Yuh"
-                          onChange={onChange}
-                        />
-                      </div>
-                    </div>
                     <div className="row mt-3">
                       <div className="col text-center">
                         <button
@@ -1470,6 +1471,7 @@ function App() {
                     </div>
                   </div>
                 </div>
+                </>
               )}
             </div>
             {state.appointmentRequestStatus === "BOOK-APPOINTMENT-OK" && (
