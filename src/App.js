@@ -157,7 +157,7 @@ const translations = {
 function App() {
   const params = new URLSearchParams(window.location.search);
   const languageList = { en: "English", es: "Spanish" };
-  const bypass = false;
+  const bypass = true;
   const [firstLoad, setFirstLoad] = useState(true);
   const translate = (text) => {
     const trans = translations[params.get("lang") || "en"];
@@ -1474,10 +1474,9 @@ function App() {
                 <div className="row mb-2">
                   <div className="col">
                     <div>
+                    <a target="_blank" href={formUrl}>
                       Please, remember to fill out the form before your
-                      appointment{" "}
-                      <a target="_blank" href={formUrl}>
-                        AQUI
+                      appointment{" "} HERE
                       </a>
                     </div>
                   </div>
@@ -1523,8 +1522,8 @@ function App() {
             {state.appointmentRequestStatus === "BOOK-APPOINTMENT-OK" && (
               <div className="video-responsive">
                 <iframe
-                  width="853"
-                  height="480"
+                 // width="853"
+                 // height="480"
                   src={"https://www.youtube.com/embed/uspIXX4uU9c"}
                   frameBorder="0"
                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
