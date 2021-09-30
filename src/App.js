@@ -187,6 +187,8 @@ function App() {
     },
     captchaReady: bypass,
     showAddons: false,
+    textMessageStatus: "IDLE",
+    textMessage: "",
     //showbabyGrowth: false,
     //addBabysGrowth: false,
     //addHeartbeatBuddies: false,
@@ -738,10 +740,47 @@ function App() {
         );
         const bookAppointmentData = await bookAppointmentResponse.json();
         if (bookAppointmentResponse.ok) {
-          setState((state) => ({
-            ...state,
-            appointmentRequestStatus: "BOOK-APPOINTMENT-OK",
-          }));
+          const smsPayload = {
+            clientName: clientState.firstName + " " + clientState.lastName,
+            service: clientState.sessionTypeName,
+            date: moment(state.block.blockDate).format("MM-DD-YYYY").toString(),
+            time: moment(state.block.blockDate).format("hh:mm A").toString(),
+            address: state.address,
+            arrive: state.howtoarrive,
+            locationPhone: state.phone,
+            clientMobilePhone: clientState.phone,
+            locationName: "Little Bellies - Houston" 
+          }
+          const textMessageRequest = {
+            method: "POST",
+            headers: {
+              "Content-type": "application/json; charset=UTF-8",
+              siteid: state.siteId,
+              locationid: state.locationId,
+            },
+            body: JSON.stringify(smsPayload),
+          };
+
+          const textMessageResponse = await fetch(
+            `${process.env.REACT_APP_API_URL}/api/services/sendSms/booking`,
+            textMessageRequest
+          );
+          
+          const textMessageData = await textMessageResponse.json();
+          if(textMessageResponse.ok){
+            console.log(textMessageData);
+            setState((state) => ({
+              ...state,
+              appointmentRequestStatus: "BOOK-APPOINTMENT-OK",
+            }));
+          }
+          else{
+            setState((state) => ({
+              ...state,
+              textMessageStatus: "TEXT-FAIL",
+              textMessage: JSON.stringify(textMessageData),
+            }));
+          }          
         } else {
           setState((state) => ({
             ...state,
@@ -1324,6 +1363,12 @@ function App() {
                     "BOOK-APPOINTMENT-FAIL" && (
                     <div className="d-block alert alert-danger">
                       <span> {state.message} </span>
+                    </div>
+                  )}
+                  {state.textMessageStatus ===
+                    "TEXT-FAIL" && (
+                    <div className="d-block alert alert-warning">
+                      <span> {state.textMessage} </span>
                     </div>
                   )}
                   {state.appointmentRequestStatus === "BOOK-APPOINTMENT-OK" && (
