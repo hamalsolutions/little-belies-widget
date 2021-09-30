@@ -5,7 +5,7 @@ import moment from "moment";
 import Select from "react-select";
 import { useForm, Controller, useFormState } from "react-hook-form";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faSpinner,faBaby,faHeartbeat,faCartPlus,faTrash } from "@fortawesome/free-solid-svg-icons";
+import { faSpinner, faBaby, faHeartbeat, faCartPlus, faTrash, faCheck } from "@fortawesome/free-solid-svg-icons";
 import ReCAPTCHA from "react-google-recaptcha";
 import "./App.css";
 
@@ -158,6 +158,7 @@ function App() {
   const params = new URLSearchParams(window.location.search);
   const languageList = { en: "English", es: "Spanish" };
   const bypass = false;
+  const [firstLoad, setFirstLoad] = useState(true);
   const translate = (text) => {
     const trans = translations[params.get("lang") || "en"];
     return trans[text] || text;
@@ -180,7 +181,7 @@ function App() {
     address: params.get("address") || "N/A",
     phone: params.get("phone") || "N/A",
     howtoarrive: params.get("howtoarrive") || "N/A",
-    startDate: moment(new Date()).format("MM/DD/YYYY").toString(), 
+    startDate: moment(new Date()).format("MM/DD/YYYY").toString(),
     block: {
       id: "",
     },
@@ -561,6 +562,7 @@ function App() {
                 : 0
             );
 
+            setFirstLoad(false);
             setAvailableBlocks(sortedBlocks);
 
             setState((state) => ({
@@ -597,7 +599,7 @@ function App() {
   const onSelectedDay = (val) => {
     if (
       moment(val).format("MM/DD/YYYY").toString() ===
-      moment(state.startDate).format("MM/DD/YYYY").toString() || state.availabilityRequestStatus === "loading"
+        moment(state.startDate).format("MM/DD/YYYY").toString()
     ) {
       return;
     }
@@ -608,11 +610,12 @@ function App() {
   };
   // Search availabilities until found available space
   useEffect(() => {
+    
     const nextDay = moment(state.startDate)
       .add(1, "days")
       .format("MM/DD/YYYY")
       .toString();
-    if (availableBlocks.length === 0) {
+    if (availableBlocks.length === 0 && !firstLoad) {
       setTimeout(() => {
         onSelectedDay(nextDay);
       }, 500);
@@ -627,7 +630,6 @@ function App() {
   };
   // Handle the booking of the appointment and creation of the client if necesary
   const bookAppointment = async () => {
-    
     if (state.appointmentRequestStatus === "loading") {
       return;
     }
@@ -696,7 +698,10 @@ function App() {
         }
       }
 
-      if (clientState.clientRequestStatus === "CLIENT-FOUND-DIFFERENT" || clientState.clientRequestStatus === "CLIENT-FOUND") {
+      if (
+        clientState.clientRequestStatus === "CLIENT-FOUND-DIFFERENT" ||
+        clientState.clientRequestStatus === "CLIENT-FOUND"
+      ) {
         createAppointment = true;
       }
 
@@ -1089,15 +1094,15 @@ function App() {
                         </div>
                       </div>
                       <div className="row">
-                        <div className="col text-start my-1 addonText">
-                          <ul className="px-2 px-md-4 mb-0">
-                            <li>Baby's measurements </li>
-                            <li>Baby's position in uterus</li>
-                            <li>Baby's weight</li>
-                            <li>Baby's heart activity</li>
-                            <li>Weeks of Pregnancy</li>
-                            <li>Estimated due date</li>
-                            <li>Amniotic fluid</li>
+                        <div className="col text-start addonText">
+                          <ul class="fa-ul mt-2 mb-1">
+                            <li><span class="fa-li"><FontAwesomeIcon icon={faCheck} /></span>Baby's measurements </li>
+                            <li><span class="fa-li"><FontAwesomeIcon icon={faCheck} /></span>Baby's position in uterus</li>
+                            <li><span class="fa-li"><FontAwesomeIcon icon={faCheck} /></span>Baby's weight</li>
+                            <li><span class="fa-li"><FontAwesomeIcon icon={faCheck} /></span>Baby's heart activity</li>
+                            <li><span class="fa-li"><FontAwesomeIcon icon={faCheck} /></span>Weeks of Pregnancy</li>
+                            <li><span class="fa-li"><FontAwesomeIcon icon={faCheck} /></span>Estimated due date</li>
+                            <li><span class="fa-li"><FontAwesomeIcon icon={faCheck} /></span>Amniotic fluid</li>
                           </ul>
                         </div>
                       </div>
@@ -1129,7 +1134,7 @@ function App() {
                     </div>
                   </div>
                 )}
-                <div className="col-12 col-sm-6 px-5 px-sm-2 text-center">
+                <div className="col-12 col-sm-6 px-5 px-sm-2 my-3 my-md-0 text-center">
                   {/* <div className="col-6 text-center"> */}
                   <div
                     className={
@@ -1141,7 +1146,7 @@ function App() {
                     onClick={handleAddHeartbeatBuddies}
                   >
                     <div className="row">
-                      <div className="col addOnIcon">
+                      <div className="col addonTittle">
                         <FontAwesomeIcon icon={faHeartbeat} />
                       </div>
                     </div>
@@ -1156,40 +1161,34 @@ function App() {
                       </div>
                     </div>
                     <div className="row">
-                      <div className="col text-start my-1 addonText">
-                        <ul className="px-1 px-md-3 mb-0">
-                          <li>Beautiful high-quality stuffed animal</li>
-                          <li>2-second recording of bady's heartbeat</li>
-                          <li>Cherished forever</li>
-                          <li>
-                            Build connection an strenghtens bond with bady
-                          </li>
+                      <div className="col text-start addonText">
+                        <ul class="fa-ul mt-2 mb-1">
+                          <li><span class="fa-li"><FontAwesomeIcon icon={faCheck} /></span>Beautiful high-quality stuffed animal</li>
+                          <li><span class="fa-li"><FontAwesomeIcon icon={faCheck} /></span>2-second recording of bady's heartbeat</li>
+                          <li><span class="fa-li"><FontAwesomeIcon icon={faCheck} /></span>Cherished forever</li>
+                          <li><span class="fa-li"><FontAwesomeIcon icon={faCheck} /></span>Build connection an strenghtens bond with bady</li>
                         </ul>
                       </div>
                     </div>
-                    <div className="row justify-content-center mt-1 mb-2">
-                      <div
-                        className="col-auto fw-bold"
-                        style={{ fontSize: width > 1023 ? 16 : 14 }}
-                      >
+                    <div className="row justify-content-center mt-0 mb-2">
+                      <div className="col-12 fw-bold addOnIcon mb-2">
                         <span>$35</span>
                       </div>
-                      <div
-                        className="col-auto fw-bold"
-                        style={{ fontSize: width > 1023 ? 16 : 14 }}
-                      >
-                        {addHeartbeatBuddies && (
-                          <>
-                            <FontAwesomeIcon icon={faTrash} />
-                            <span> Remove</span>
-                          </>
-                        )}
-                        {!addHeartbeatBuddies && (
-                          <>
-                            <FontAwesomeIcon icon={faCartPlus} />
-                            <span> Add</span>
-                          </>
-                        )}
+                      <div className="col-12 ">
+                        <div className="btn btn-cta-active smaller-text rounded-pill px-3 mx-auto">
+                          {addHeartbeatBuddies && (
+                            <>
+                              <FontAwesomeIcon icon={faTrash} />
+                              <span> Remove</span>
+                            </>
+                          )}
+                          {!addHeartbeatBuddies && (
+                            <>
+                              <FontAwesomeIcon icon={faCartPlus} />
+                              <span> Add</span>
+                            </>
+                          )}
+                        </div>
                       </div>
                     </div>
                   </div>
