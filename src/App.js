@@ -157,7 +157,7 @@ const translations = {
 function App() {
   const params = new URLSearchParams(window.location.search);
   const languageList = { en: "English", es: "Spanish" };
-  const bypass = false;
+  const bypass = true;
   const [firstLoad, setFirstLoad] = useState(true);
   const translate = (text) => {
     const trans = translations[params.get("lang") || "en"];
@@ -597,6 +597,19 @@ function App() {
 
     getAvailability();
   }, [state.startDate, state.locationId, state.siteId]);
+
+  const removeTags = (str) => {
+    if ((str===null) || (str===''))
+        return false;
+    else
+        str = str.toString();
+          
+    // Regular expression to identify HTML tags in 
+    // the input string. Replacing the identified 
+    // HTML tag with a null string.
+    return str.replace( /(<([^>]+)>)/ig, '');
+}
+
   // Handles the date change
   const onSelectedDay = (val) => {
     if (
@@ -1443,7 +1456,7 @@ function App() {
                 <div className="col">
                   <div>
                     <b>Location Address: </b>
-                    {state.address}
+                    {removeTags(state.address)}
                   </div>
                 </div>
               </div>
@@ -1451,7 +1464,7 @@ function App() {
                 <div className="col">
                   <div>
                     <b>How to Arrive: </b>
-                    {state.howtoarrive}
+                    {removeTags(state.howtoarrive)}
                   </div>
                 </div>
               </div>
