@@ -143,7 +143,7 @@ const blocks = [
     appointment: {},
   },
 ];
-
+//TODO: Complete all text and translate
 const translations = {
   en: {
     "Please enter your information": "Please enter your information",
@@ -501,6 +501,7 @@ function App() {
 
                 mutableBlock.appointment =
                   blockAppointment === undefined ? {} : blockAppointment;
+
                 mutableBlock.available = Boolean(available);
                 // add time to date
                 var startMomentWithNowTime = moment(state.startDate);
