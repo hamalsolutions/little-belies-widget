@@ -1216,7 +1216,7 @@ function App() {
                       <div className="col text-start addonText">
                         <ul className="fa-ul mt-2 mb-1 lh-md">
                           <li className="ul-lh"><span className="fa-li"><FontAwesomeIcon icon={faCheck} /></span>Beautiful high-quality stuffed animal</li>
-                          <li className="ul-lh"><span className="fa-li"><FontAwesomeIcon icon={faCheck} /></span>2-second recording of baby's heartbeat</li>
+                          <li className="ul-lh"><span className="fa-li"><FontAwesomeIcon icon={faCheck} /></span>Recording of baby's heartbeat</li>
                           <li className="ul-lh"><span className="fa-li"><FontAwesomeIcon icon={faCheck} /></span>Cherished forever</li>
                           <li className="ul-lh"><span className="fa-li"><FontAwesomeIcon icon={faCheck} /></span>Build connection an strenghtens bond with baby</li>
                         </ul>
