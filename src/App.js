@@ -259,6 +259,22 @@ function App() {
     const width = window.innerWidth;
     setWindowWidth(width);
   };
+  const servicesToRemoveitem = [
+    "Meet Your Baby - 25 Min 5D/HD + Baby's Growth $168", 
+    "Meet Your Baby - 15 Min 5D/HD + Baby's Growth $128", 
+    "Come back for free",
+    "Special Promo Ultrasound (G)",
+    "Membership + Visit  - $198",
+    "Membership Ultrasound -$30",
+    "Gender Determination  + Baby's Growth - $108",
+    "CBFF + Baby's Growth",
+    "Special Promo 50 min (G)"
+
+   ]
+  const filterServices = (services) =>{
+    console.log(services);
+    return services.filter( (item) => {return !servicesToRemoveitem.includes(item.label) })
+  }
 
   // Loads the dropdown values and set the states for that display on first load
   useEffect(() => {
@@ -334,11 +350,11 @@ function App() {
           const displayableServices = [
             {
               label: "Ultrasounds",
-              options: ultrasounds,
+              options: filterServices(ultrasounds),
             },
             {
               label: "Massages",
-              options: massages,
+              options: filterServices(massages),
             },
           ];
           setServices(displayableServices);
