@@ -209,6 +209,8 @@ function App() {
   });
   const [availableBlocks, setAvailableBlocks] = useState([]);
   const [services, setServices] = useState([]);
+  const [ultrasounds, setUltrasounds] = useState([]);
+  const [consultedUltrasounds, setConsultedUltrasounds] = useState([]);
   const [weeks, setWeeks] = useState([]);
   const {
     control,
@@ -239,8 +241,8 @@ function App() {
       setShowHB(false);
     }
     if (
-      service &&
-      (service.value === 6 || service.value === 7 || service.value === 25)
+      service && 
+      (service.value === ultrasounds[1].value || service.value === ultrasounds[2].value || service.value === ultrasounds[3].value)
     ) {
       setShowBG(true);
     } else {
@@ -259,93 +261,221 @@ function App() {
     const width = window.innerWidth;
     setWindowWidth(width);
   };
+  const servicesToRemoveitem = [
+    "Meet Your Baby - 25 Min 5D/HD + Baby's Growth $168", 
+    "Meet Your Baby - 15 Min 5D/HD + Baby's Growth $128", 
+    "Come back for free",
+    "Special Promo Ultrasound (G)",
+    "Membership + Visit  - $198",
+    "Membership Ultrasound -$30",
+    "Gender Determination  + Baby's Growth - $108  ",
+    "Gender Determination  + Baby's Growth - $108",
+    "CBFF + Baby's Growth",
+    "Special Promo 50 min (G)",
+    "Membership - $169",
+    "Early Pregnancy + Baby's Growth"
+
+   ]
+  const filterServices = (services) =>{
+    return services.filter( (item) => {return !servicesToRemoveitem.includes(item.label) })
+  }
+
+  const removePrice =  (service) => {
+    return service.substring(0, service.lastIndexOf("-")).trim();
+  }
+
+  const hasBabyGrowth = (service, services) => {
+    return services.find((item)=>{ 
+      return item.name.indexOf(removePrice(service))>=0 && item.name.indexOf("Baby's Growth")>=0;
+     })
+  }
+  const getPrice = (service) => {
+    return parseInt(service.split('$')[1])
+  }
+  const orderServices = (services) => {
+    return services.sort(function(a, b){
+      // console.log(a.label.split('$')[1])
+      if(getPrice(a.label) < getPrice(b.label)) { return -1; }
+      if(getPrice(a.label) > getPrice(b.label)) { return 1; }
+      return 0;
+    })
+  }
+
+  const getServiceId = (serviceName, servicesArray) => {
+    const sessionTypeName = serviceName;
+    let purifiedServiceName = "";
+    let remaining = "";
+    let serviceId = "";
+    const regex = /[-.()+\s]/g;
+
+    if (sessionTypeName.toLowerCase().includes("$")){
+      const indexPrice = sessionTypeName.toLowerCase().indexOf("$");
+      remaining = sessionTypeName.toLowerCase().slice(0, indexPrice); 
+    }
+    else{
+      remaining = serviceName;
+    }
+    purifiedServiceName = remaining.replace(regex, '');
+    
+
+    servicesArray.forEach(serviceItem => {
+      let purifiedServiceArray = "";
+      let remainingService = "";
+
+      if (serviceItem.name.toLowerCase().includes("$")){
+        const indexPrice = serviceItem.name.toLowerCase().indexOf("$");
+        remainingService = serviceItem.name.toLowerCase().slice(0, indexPrice); 
+      }
+      else{
+        remainingService = serviceItem.name;
+      }
+      purifiedServiceArray = remainingService.replace(regex, '');
+      if(purifiedServiceArray === purifiedServiceName){
+        serviceId = serviceItem.sessionTypeId;
+      }
+    });
+    // console.log("ServiceId: " + serviceId);
+    return serviceId;
+  }
+  const getBGCombo = (serviceName, servicesArray) => {
+    const sessionTypeName = serviceName;
+    let purifiedServiceName = "";
+    let serviceId = "";
+    const regex = /[-.()+\s]/g;
+  
+    if (sessionTypeName.toLowerCase().includes("$")){
+      const indexPrice = sessionTypeName.toLowerCase().indexOf("$");
+      const remaining = sessionTypeName.toLowerCase().slice(0, indexPrice);
+      purifiedServiceName = remaining.replace(regex, '');
+      // console.log("Service: "+purifiedServiceName);
+    }
+
+    servicesArray.forEach(serviceItem => {
+      if (serviceItem.name.toLowerCase().includes("$")){
+        const indexAddon = serviceItem.name.toLowerCase().indexOf("$");
+        const remainingConsulted = serviceItem.name.toLowerCase().slice(0, indexAddon);
+        const purifiedConsulted = remainingConsulted.replace(regex, '');
+        // console.log("ServiceConsulted: "+purifiedConsulted);
+        if(purifiedServiceName === purifiedConsulted){
+          serviceId = serviceItem.sessionTypeId;
+        }
+      }
+    });
+    // console.log("ServiceId: " + serviceId);
+    return serviceId;
+  }
 
   // Loads the dropdown values and set the states for that display on first load
   useEffect(() => {
-    const ultrasoundServices = {
-      services: [
-        { sessionTypeId: 5, name: "Early Pregnancy - $59", price: 59 },
-        { sessionTypeId: 25, name: "Gender Determination - $79", price: 79 },
-        {
-          sessionTypeId: 6,
-          name: "Meet Your Baby - 15 Min 5D/HD - $99",
-          price: 99,
-        },
-        {
-          sessionTypeId: 7,
-          name: "Meet Your Baby - 25 min 5D/HD - $139",
-          price: 139,
-        },
-        {
-          sessionTypeId: 8,
-          name: "Special Promotion 25 min 5D/HD Ultrasound - $219",
-          price: 219,
-        },
-        // {sessionTypeId: 18,name: "Meet Your Baby - 25 Min 5D/HD + Baby's Growth $168",price: 168,},
-        // {sessionTypeId: 19,name: "Meet Your Baby - 15 Min 5D/HD + Baby's Growth $128",price: 128,},
-        // { sessionTypeId: 20, name: "Come back for free", price: 0 },
-        // { sessionTypeId: 24, name: "Special Promo Ultrasound (G)", price: 0 }, // no va
-
-        // { sessionTypeId: 32, name: "Membership + Visit  - $198", price: 198 },
-        // { sessionTypeId: 33, name: "Membership Ultrasound -$30", price: 30 },
-        // {sessionTypeId: 34,name: "Gender Determination  + Baby's Growth - $108  ",price: 108,},
-        // { sessionTypeId: 37, name: "CBFF + Baby's Growth", price: 29 },
-      ],
-    };
-    const massageServices = {
-      services: [
-        {
-          sessionTypeId: 13,
-          name: "30 Minute Prenatal Massage - $49",
-          price: 49,
-        },
-        {
-          sessionTypeId: 9,
-          name: "50 Minute Prenatal Massage - $79",
-          price: 79,
-        },
-        {
-          sessionTypeId: 10,
-          name: "80 Minute Prenatal Massage - $109",
-          price: 109,
-        },
-
-        // { sessionTypeId: 21, name: "Special Promo 50 min (G)", price: 0 }, //no va
-        {
-          sessionTypeId: 23,
-          name: "Special Promotion 50 min Massage - $219",
-          price: 219,
-        },
-      ],
-    };
-    const ultrasounds = [];
-    const massages = [];
-    ultrasoundServices.services.forEach((item) => {
-      const mutableItem = {
-        value: item.sessionTypeId,
-        label: item.name,
+    async function getServices (){
+      const authPayload = {
+        Username: `${process.env.REACT_APP_USER_NAME}`,
+        Password: `${process.env.REACT_APP_PASSWORD}`,
       };
-      ultrasounds.push(mutableItem);
-    });
-    massageServices.services.forEach((item) => {
-      const mutableItem = {
-        value: item.sessionTypeId,
-        label: item.name,
+      const authRequest = {
+        method: "PUT",
+        headers: {
+          "Content-type": "application/json; charset=UTF-8",
+          siteid: state.siteId,
+        },
+        body: JSON.stringify(authPayload),
       };
-      massages.push(mutableItem);
-    });
-    const displayableServices = [
-      {
-        label: "Ultrasounds",
-        options: ultrasounds,
-      },
-      {
-        label: "Massages",
-        options: massages,
-      },
-    ];
-
-    setServices(displayableServices);
+      const authResponse = await fetch(
+        `${process.env.REACT_APP_API_URL}/api/userToken/`,
+        authRequest
+      );
+      const authData = await authResponse.json();
+      if(authResponse.ok){
+        setState((state) => ({
+          ...state,
+          authorization: authData.accesssToken,
+        }));
+        const ultrasoundsRequest = {
+          method: "GET",
+          headers: {
+            "Content-type": "application/json; charset=UTF-8",
+            siteid: state.siteId,
+            authorization: authData.accesssToken,
+            locationid: state.locationId,
+          },
+        };
+        const ultrasoundResponse = await fetch(
+          `${process.env.REACT_APP_API_URL}/api/sessionTypes/2`,
+          ultrasoundsRequest
+        );
+        const ultrasoundsData = await ultrasoundResponse.json();
+        if(ultrasoundResponse.ok){
+          const massageRequest = {
+            method: "GET",
+            headers: {
+              "Content-type": "application/json; charset=UTF-8",
+              siteid: state.siteId,
+              authorization: authData.accesssToken,
+              locationid: state.locationId,
+            },
+          };
+          const massageResponse = await fetch(
+            `${process.env.REACT_APP_API_URL}/api/sessionTypes/3`,
+            massageRequest
+          );
+          const massageData = await massageResponse.json();
+          const ultrasounds = [];
+          const massages = [];
+          // console.log( hasBabyGrowth("Meet Your Baby - 15 Min 5D/HD - $99", ultrasoundsData.services ) );
+          const ultrasoundServices = {
+            services: [
+              { sessionTypeId: getServiceId("Early Pregnancy - $59",  ultrasoundsData.services), name: "Early Pregnancy - $59", price: 59 },
+              { sessionTypeId: getServiceId("Gender Determination - $79",  ultrasoundsData.services), name: "Gender Determination - $79", price: 79 }, 
+              {
+                sessionTypeId: getServiceId("Meet Your Baby - 15 Min 5D/HD - $99",  ultrasoundsData.services),
+                name: "Meet Your Baby - 15 Min 5D/HD - $99", 
+                price: 99,
+              },
+              {
+                sessionTypeId: getServiceId("Meet Your Baby - 25 min 5D/HD - $139",  ultrasoundsData.services),
+                name: "Meet Your Baby - 25 min 5D/HD - $139", 
+                price: 139,
+              },
+              {
+                sessionTypeId: getServiceId("Special Promotion 25 min 5D/HD Ultrasound - $219",  ultrasoundsData.services),
+                name: "Special Promotion 25 min 5D/HD Ultrasound - $219",
+                price: 219,
+              },
+            ],
+          };
+          
+          ultrasoundServices.services.forEach((item) => {
+            const mutableItem = {
+              value: item.sessionTypeId,
+              label: item.name,
+            };
+            ultrasounds.push(mutableItem);
+          });
+          setUltrasounds(ultrasounds);
+          setConsultedUltrasounds(ultrasoundsData.services);
+          
+          massageData.services.forEach((item) => {
+            const mutableItem = {
+              value: item.sessionTypeId,
+              label: item.name,
+            };
+            massages.push(mutableItem);
+          });
+          const displayableServices = [
+            {
+              label: "Ultrasounds",
+              options: ultrasounds,
+            },
+            {
+              label: "Massages",
+              options: orderServices(filterServices(massages)),
+            },
+          ];
+          setServices(displayableServices);
+        }
+      }
+    }
+    getServices();
     const arrayOfWeeks = [];
     arrayOfWeeks.push({
       value: "I don't know",
@@ -362,6 +492,10 @@ function App() {
   }, []);
   // Gets the availability when the date changes
   useEffect(() => {
+    if(state.authorization === ""){
+      return;
+    }
+
     const getAvailability = async () => {
       setState((state) => ({
         ...state,
@@ -369,28 +503,6 @@ function App() {
       }));
 
       try {
-        const authPayload = {
-          Username: `${process.env.REACT_APP_USER_NAME}`,
-          Password: `${process.env.REACT_APP_PASSWORD}`,
-        };
-        const authRequest = {
-          method: "PUT",
-          headers: {
-            "Content-type": "application/json; charset=UTF-8",
-            siteid: state.siteId,
-          },
-          body: JSON.stringify(authPayload),
-        };
-        const authResponse = await fetch(
-          `${process.env.REACT_APP_API_URL}/api/userToken/`,
-          authRequest
-        );
-        const authData = await authResponse.json();
-        if (authResponse.ok) {
-          setState((state) => ({
-            ...state,
-            authorization: authData.accesssToken,
-          }));
           const queryStartDate = moment(state.startDate)
             .format("MM/DD/YYYY")
             .toString();
@@ -400,7 +512,7 @@ function App() {
             headers: {
               "Content-type": "application/json; charset=UTF-8",
               siteid: state.siteId,
-              authorization: authData.accesssToken,
+              authorization: state.authorization,
               locationid: state.locationId,
             },
           };
@@ -579,13 +691,6 @@ function App() {
               message: JSON.stringify(availabilityData),
             }));
           }
-        } else {
-          setState((state) => ({
-            ...state,
-            availabilityRequestStatus: "no-data-found",
-            message: JSON.stringify(authData),
-          }));
-        }
       } catch (error) {
         setState((state) => ({
           ...state,
@@ -597,7 +702,7 @@ function App() {
     };
 
     getAvailability();
-  }, [state.startDate, state.locationId, state.siteId]);
+  }, [state.startDate, state.locationId, state.siteId, state.authorization]);
 
   const removeTags = (str) => {
     if ((str===null) || (str===''))
@@ -782,7 +887,7 @@ function App() {
           
           const textMessageData = await textMessageResponse.json();
           if(textMessageResponse.ok){
-            console.log(textMessageData);
+            // console.log(textMessageData);
             setState((state) => ({
               ...state,
               appointmentRequestStatus: "BOOK-APPOINTMENT-OK",
@@ -813,21 +918,21 @@ function App() {
   };
   // Search the client to see if it exist in MindBody
   const onFormSubmit = async (data) => {
-    console.log({ data });
+    // console.log({ data });
     let sessionTypeId = data.service.value;
     let sessionTypeName = data.service.label;
 
     // Changes the service in case of adding Babys Growth
-    if (data.service.value === 6 && addBabysGrowth) {
-      sessionTypeId = 18;
+    if (data.service.value === ultrasounds[3].value && addBabysGrowth) {
+      sessionTypeId = getBGCombo("Meet Your Baby - 25 Min 5D/HD + Baby's Growth $168" ,consultedUltrasounds);
       sessionTypeName = "Meet Your Baby - 25 Min 5D/HD + Baby's Growth $168";
     }
-    if (data.service.value === 7 && addBabysGrowth) {
-      sessionTypeId = 19;
+    if (data.service.value === ultrasounds[2].value && addBabysGrowth) {
+      sessionTypeId = getBGCombo("Meet Your Baby - 15 Min 5D/HD + Baby's Growth $128" ,consultedUltrasounds);
       sessionTypeName = "Meet Your Baby - 15 Min 5D/HD + Baby's Growth $128";
     }
-    if (data.service.value === 25 && addBabysGrowth) {
-      sessionTypeId = 34;
+    if (data.service.value === ultrasounds[1].value && addBabysGrowth) {
+      sessionTypeId = getBGCombo("Gender Determination  + Baby's Growth - $108" ,consultedUltrasounds);
       sessionTypeName = "Gender Determination  + Baby's Growth - $108";
     }
 
@@ -1296,7 +1401,7 @@ function App() {
                   <div className="row my-4 gx-0 mx-auto justify-content-center justify-content-lg-start">
                     {availableBlocks.map((block, index) => {
                       return (
-                        <div className="col-auto mx-0 d-flex d-sm-block">
+                        <div className="col-auto mx-0 d-flex d-sm-block" key={index}>
                           <button
                             className={
                               block.id === state.block.id
