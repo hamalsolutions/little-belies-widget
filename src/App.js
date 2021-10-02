@@ -262,90 +262,90 @@ function App() {
 
   // Loads the dropdown values and set the states for that display on first load
   useEffect(() => {
-    const ultrasoundServices = {
-      services: [
-        { sessionTypeId: 5, name: "Early Pregnancy - $59", price: 59 },
-        { sessionTypeId: 25, name: "Gender Determination - $79", price: 79 },
-        {
-          sessionTypeId: 6,
-          name: "Meet Your Baby - 15 Min 5D/HD - $99",
-          price: 99,
-        },
-        {
-          sessionTypeId: 7,
-          name: "Meet Your Baby - 25 min 5D/HD - $139",
-          price: 139,
-        },
-        {
-          sessionTypeId: 8,
-          name: "Special Promotion 25 min 5D/HD Ultrasound - $219",
-          price: 219,
-        },
-        // {sessionTypeId: 18,name: "Meet Your Baby - 25 Min 5D/HD + Baby's Growth $168",price: 168,},
-        // {sessionTypeId: 19,name: "Meet Your Baby - 15 Min 5D/HD + Baby's Growth $128",price: 128,},
-        // { sessionTypeId: 20, name: "Come back for free", price: 0 },
-        // { sessionTypeId: 24, name: "Special Promo Ultrasound (G)", price: 0 }, // no va
-
-        // { sessionTypeId: 32, name: "Membership + Visit  - $198", price: 198 },
-        // { sessionTypeId: 33, name: "Membership Ultrasound -$30", price: 30 },
-        // {sessionTypeId: 34,name: "Gender Determination  + Baby's Growth - $108  ",price: 108,},
-        // { sessionTypeId: 37, name: "CBFF + Baby's Growth", price: 29 },
-      ],
-    };
-    const massageServices = {
-      services: [
-        {
-          sessionTypeId: 13,
-          name: "30 Minute Prenatal Massage - $49",
-          price: 49,
-        },
-        {
-          sessionTypeId: 9,
-          name: "50 Minute Prenatal Massage - $79",
-          price: 79,
-        },
-        {
-          sessionTypeId: 10,
-          name: "80 Minute Prenatal Massage - $109",
-          price: 109,
-        },
-
-        // { sessionTypeId: 21, name: "Special Promo 50 min (G)", price: 0 }, //no va
-        {
-          sessionTypeId: 23,
-          name: "Special Promotion 50 min Massage - $219",
-          price: 219,
-        },
-      ],
-    };
-    const ultrasounds = [];
-    const massages = [];
-    ultrasoundServices.services.forEach((item) => {
-      const mutableItem = {
-        value: item.sessionTypeId,
-        label: item.name,
+    async function getServices (){
+      const authPayload = {
+        Username: `${process.env.REACT_APP_USER_NAME}`,
+        Password: `${process.env.REACT_APP_PASSWORD}`,
       };
-      ultrasounds.push(mutableItem);
-    });
-    massageServices.services.forEach((item) => {
-      const mutableItem = {
-        value: item.sessionTypeId,
-        label: item.name,
+      const authRequest = {
+        method: "PUT",
+        headers: {
+          "Content-type": "application/json; charset=UTF-8",
+          siteid: state.siteId,
+        },
+        body: JSON.stringify(authPayload),
       };
-      massages.push(mutableItem);
-    });
-    const displayableServices = [
-      {
-        label: "Ultrasounds",
-        options: ultrasounds,
-      },
-      {
-        label: "Massages",
-        options: massages,
-      },
-    ];
+      const authResponse = await fetch(
+        `${process.env.REACT_APP_API_URL}/api/userToken/`,
+        authRequest
+      );
+      const authData = await authResponse.json();
+      if(authResponse.ok){
+        setState((state) => ({
+          ...state,
+          authorization: authData.accesssToken,
+        }));
 
-    setServices(displayableServices);
+        const ultrasoundsRequest = {
+          method: "GET",
+          headers: {
+            "Content-type": "application/json; charset=UTF-8",
+            siteid: state.siteId,
+            authorization: authData.accesssToken,
+            locationid: state.locationId,
+          },
+        };
+        const ultrasoundResponse = await fetch(
+          `${process.env.REACT_APP_API_URL}/api/sessionTypes/2`,
+          ultrasoundsRequest
+        );
+        const ultrasoundsData = await ultrasoundResponse.json();
+        if(ultrasoundResponse.ok){
+          const massageRequest = {
+            method: "GET",
+            headers: {
+              "Content-type": "application/json; charset=UTF-8",
+              siteid: state.siteId,
+              authorization: authData.accesssToken,
+              locationid: state.locationId,
+            },
+          };
+          const massageResponse = await fetch(
+            `${process.env.REACT_APP_API_URL}/api/sessionTypes/3`,
+            massageRequest
+          );
+          const massageData = await massageResponse.json();
+          const ultrasounds = [];
+          const massages = [];
+          ultrasoundsData.services.forEach((item) => {
+            const mutableItem = {
+              value: item.sessionTypeId,
+              label: item.name,
+            };
+            ultrasounds.push(mutableItem);
+          });
+          massageData.services.forEach((item) => {
+            const mutableItem = {
+              value: item.sessionTypeId,
+              label: item.name,
+            };
+            massages.push(mutableItem);
+          });
+          const displayableServices = [
+            {
+              label: "Ultrasounds",
+              options: ultrasounds,
+            },
+            {
+              label: "Massages",
+              options: massages,
+            },
+          ];
+          setServices(displayableServices);
+        }
+      }
+    }
+    getServices();
     const arrayOfWeeks = [];
     arrayOfWeeks.push({
       value: "I don't know",
@@ -362,6 +362,10 @@ function App() {
   }, []);
   // Gets the availability when the date changes
   useEffect(() => {
+    if(state.authorization === ""){
+      return;
+    }
+
     const getAvailability = async () => {
       setState((state) => ({
         ...state,
@@ -369,28 +373,6 @@ function App() {
       }));
 
       try {
-        const authPayload = {
-          Username: `${process.env.REACT_APP_USER_NAME}`,
-          Password: `${process.env.REACT_APP_PASSWORD}`,
-        };
-        const authRequest = {
-          method: "PUT",
-          headers: {
-            "Content-type": "application/json; charset=UTF-8",
-            siteid: state.siteId,
-          },
-          body: JSON.stringify(authPayload),
-        };
-        const authResponse = await fetch(
-          `${process.env.REACT_APP_API_URL}/api/userToken/`,
-          authRequest
-        );
-        const authData = await authResponse.json();
-        if (authResponse.ok) {
-          setState((state) => ({
-            ...state,
-            authorization: authData.accesssToken,
-          }));
           const queryStartDate = moment(state.startDate)
             .format("MM/DD/YYYY")
             .toString();
@@ -400,7 +382,7 @@ function App() {
             headers: {
               "Content-type": "application/json; charset=UTF-8",
               siteid: state.siteId,
-              authorization: authData.accesssToken,
+              authorization: state.authorization,
               locationid: state.locationId,
             },
           };
@@ -579,13 +561,6 @@ function App() {
               message: JSON.stringify(availabilityData),
             }));
           }
-        } else {
-          setState((state) => ({
-            ...state,
-            availabilityRequestStatus: "no-data-found",
-            message: JSON.stringify(authData),
-          }));
-        }
       } catch (error) {
         setState((state) => ({
           ...state,
@@ -597,7 +572,7 @@ function App() {
     };
 
     getAvailability();
-  }, [state.startDate, state.locationId, state.siteId]);
+  }, [state.startDate, state.locationId, state.siteId, state.authorization]);
 
   const removeTags = (str) => {
     if ((str===null) || (str===''))
