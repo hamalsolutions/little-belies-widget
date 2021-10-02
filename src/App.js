@@ -268,12 +268,24 @@ function App() {
     "Membership Ultrasound -$30",
     "Gender Determination  + Baby's Growth - $108",
     "CBFF + Baby's Growth",
-    "Special Promo 50 min (G)"
+    "Special Promo 50 min (G)",
+    "Membership - $169"
 
    ]
   const filterServices = (services) =>{
-    console.log(services);
     return services.filter( (item) => {return !servicesToRemoveitem.includes(item.label) })
+  }
+
+  const getPrice = (service) => {
+    return parseInt(service.split('$')[1])
+  }
+  const orderServices = (services) => {
+    return services.sort(function(a, b){
+      console.log(a.label.split('$')[1])
+      if(getPrice(a.label) < getPrice(b.label)) { return -1; }
+      if(getPrice(a.label) > getPrice(b.label)) { return 1; }
+      return 0;
+  })
   }
 
   // Loads the dropdown values and set the states for that display on first load
@@ -350,11 +362,11 @@ function App() {
           const displayableServices = [
             {
               label: "Ultrasounds",
-              options: filterServices(ultrasounds),
+              options: orderServices(filterServices(ultrasounds)),
             },
             {
               label: "Massages",
-              options: filterServices(massages),
+              options: orderServices(filterServices(massages)),
             },
           ];
           setServices(displayableServices);
