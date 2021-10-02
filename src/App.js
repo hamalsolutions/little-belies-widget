@@ -267,6 +267,7 @@ function App() {
     "Membership + Visit  - $198",
     "Membership Ultrasound -$30",
     "Gender Determination  + Baby's Growth - $108  ",
+    "Gender Determination  + Baby's Growth - $108",
     "CBFF + Baby's Growth",
     "Special Promo 50 min (G)",
     "Membership - $169",
@@ -277,6 +278,15 @@ function App() {
     return services.filter( (item) => {return !servicesToRemoveitem.includes(item.label) })
   }
 
+  const removePrice =  (service) => {
+    return service.substring(0, service.lastIndexOf("-")).trim();
+  }
+
+  const hasBabyGrowth = (service, services) => {
+    return services.find((item)=>{ 
+      return item.name.indexOf(removePrice(service))>=0 && item.name.indexOf("Baby's Growth")>=0;
+     })
+  }
   const getPrice = (service) => {
     return parseInt(service.split('$')[1])
   }
@@ -346,6 +356,7 @@ function App() {
           const massageData = await massageResponse.json();
           const ultrasounds = [];
           const massages = [];
+          console.log( hasBabyGrowth("Meet Your Baby - 15 Min 5D/HD - $99", ultrasoundsData.services ) );
           ultrasoundsData.services.forEach((item) => {
             const mutableItem = {
               value: item.sessionTypeId,
