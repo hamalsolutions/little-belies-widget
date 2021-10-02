@@ -266,10 +266,11 @@ function App() {
     "Special Promo Ultrasound (G)",
     "Membership + Visit  - $198",
     "Membership Ultrasound -$30",
-    "Gender Determination  + Baby's Growth - $108",
+    "Gender Determination  + Baby's Growth - $108  ",
     "CBFF + Baby's Growth",
     "Special Promo 50 min (G)",
-    "Membership - $169"
+    "Membership - $169",
+    "Early Pregnancy + Baby's Growth"
 
    ]
   const filterServices = (services) =>{
