@@ -168,7 +168,7 @@ function App() {
   const [addHeartbeatBuddies, setAddHeartbeatBuddies] = useState(false);
   const [addBabysGrowth, setAddBabysGrowth] = useState(false);
   const [state, setState] = useState({
-    step: "registerForm",
+    step: "availability",
     status: "IDLE",
     availabilityRequestStatus: "IDLE",
     appointmentRequestStatus: "IDLE",
@@ -189,6 +189,7 @@ function App() {
     showAddons: false,
     textMessageStatus: "IDLE",
     textMessage: "",
+    today: moment(new Date()).format("MM/DD/YYYY").toString(), //delete after testing
     //showbabyGrowth: false,
     //addBabysGrowth: false,
     //addHeartbeatBuddies: false,
@@ -736,7 +737,7 @@ function App() {
       .add(1, "days")
       .format("MM/DD/YYYY")
       .toString();
-    if (availableBlocks.length === 0 && !firstLoad) {
+    if ((availableBlocks.length === 0 || state.startDate === state.today) && !firstLoad) {
       setTimeout(() => {
         onSelectedDay(nextDay);
       }, 500);
