@@ -48,5 +48,17 @@
       To begin the development, run `npm start` or `yarn start`.
       To create a production bundle, use `npm run build` or `yarn build`.
     -->
+    <script>
+      window.addEventListener('load', function(){
+        document.querySelector('button[type=submit]').addEventListener('click',function(){
+          var chk = setInterval(function(){
+            if(document.querySelector('.alert-success') && document.querySelector('.alert-success').innerText.includes("success")){
+              gtag('event', 'conversion', {'send_to': 'AW-959642009/maFQCLyZ4-4CEJnzy8kD'});
+              clearInterval(chk);
+            }
+          },1000)
+          })
+      });
+    </script>
   </body>
 </html>
