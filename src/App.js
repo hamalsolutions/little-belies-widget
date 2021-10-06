@@ -1389,7 +1389,7 @@ function App() {
                   selectDate={new Date(state.startDate)}
                   getSelectedDay={onSelectedDay}
                   color="#AE678C"
-                  endDate={50}
+                  endDate={15}
                 />
               </div>
             </div>
