@@ -864,8 +864,8 @@ function App() {
             service: clientState.sessionTypeName,
             date: moment(state.block.blockDate).format("MM-DD-YYYY").toString(),
             time: moment(state.block.blockDate).format("hh:mm A").toString(),
-            address: state.address,
-            arrive: state.howtoarrive,
+            address: removeTags(state.address),
+            arrive: removeTags(state.howtoarrive),
             locationPhone: state.phone,
             clientMobilePhone: clientState.phone,
             locationName: "Little Bellies - " + state.city 
