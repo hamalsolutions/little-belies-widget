@@ -175,6 +175,8 @@ function App() {
     city: params.get("city"),
     message: "",
     siteId: params.get("id") || "549974",
+    latitude: params.get("latitude") || "0",
+    longitude: params.get("longitude") || "0",
     language: languageList[params.get("lang")] || "English",
     locationId: params.get("city") !== "coral-springs" ? "1" : "2",
     authorization: "",
@@ -1084,7 +1086,9 @@ function App() {
       <span style={groupTextStyles}>{data.label}</span>
     </div>
   );
-
+  const showInMapClicked = () => {
+    window.open("https://maps.google.com?q="+state.latitude+","+state.longitude );
+  };
   // console.log("availableBlocks");
   // console.log(availableBlocks);
   // console.log(state.locationId);
@@ -1560,9 +1564,11 @@ function App() {
               </div>
               <div className="row mb-3">
                 <div className="col">
-                  <div>
+                  <div className="col">
                     <b>Location Address: </b>
+                    <span className="link-primary" style={{cursor: "pointer"}}  onClick={showInMapClicked}>
                     {removeTags(state.address)}
+                    </span>
                   </div>
                 </div>
               </div>
