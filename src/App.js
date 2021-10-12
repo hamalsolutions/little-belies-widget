@@ -1584,7 +1584,7 @@ function App() {
                 <div className="col">
                   <div>
                     <b>Location Phone: </b>
-                    {state.phone}
+                    <a href={`tel:${state.phone}`}>{state.phone}</a>
                   </div>
                 </div>
               </div>
