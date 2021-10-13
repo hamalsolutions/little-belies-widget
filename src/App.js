@@ -5,7 +5,16 @@ import moment from "moment";
 import Select from "react-select";
 import { useForm, Controller, useFormState } from "react-hook-form";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faSpinner, faBaby, faHeartbeat, faCartPlus, faTrash, faCheck } from "@fortawesome/free-solid-svg-icons";
+import {
+  faSpinner,
+  faBaby,
+  faHeartbeat,
+  faCartPlus,
+  faTrash,
+  faCheck,
+  faChevronUp,
+  faChevronDown,
+} from "@fortawesome/free-solid-svg-icons";
 import ReCAPTCHA from "react-google-recaptcha";
 import "./App.css";
 
@@ -165,6 +174,8 @@ function App() {
   };
   const [showBG, setShowBG] = useState(false);
   const [showHB, setShowHB] = useState(false);
+  const [showDetailsBG, setShowDetailsBG] = useState(false);
+  const [showDetailsHB, setShowDetailsHB] = useState(false);
   const [addHeartbeatBuddies, setAddHeartbeatBuddies] = useState(false);
   const [addBabysGrowth, setAddBabysGrowth] = useState(false);
   const [state, setState] = useState({
@@ -243,8 +254,10 @@ function App() {
       setShowHB(false);
     }
     if (
-      service && 
-      (service.value === ultrasounds[1].value || service.value === ultrasounds[2].value || service.value === ultrasounds[3].value)
+      service &&
+      (service.value === ultrasounds[1].value ||
+        service.value === ultrasounds[2].value ||
+        service.value === ultrasounds[3].value)
     ) {
       setShowBG(true);
     } else {
@@ -264,8 +277,8 @@ function App() {
     setWindowWidth(width);
   };
   const servicesToRemoveitem = [
-    "Meet Your Baby - 25 Min 5D/HD + Baby's Growth $168", 
-    "Meet Your Baby - 15 Min 5D/HD + Baby's Growth $128", 
+    "Meet Your Baby - 25 Min 5D/HD + Baby's Growth $168",
+    "Meet Your Baby - 15 Min 5D/HD + Baby's Growth $128",
     "Come back for free",
     "Special Promo Ultrasound (G)",
     "Membership + Visit  - $198",
@@ -275,33 +288,41 @@ function App() {
     "CBFF + Baby's Growth",
     "Special Promo 50 min (G)",
     "Membership - $169",
-    "Early Pregnancy + Baby's Growth"
+    "Early Pregnancy + Baby's Growth",
+  ];
+  const filterServices = (services) => {
+    return services.filter((item) => {
+      return !servicesToRemoveitem.includes(item.label);
+    });
+  };
 
-   ]
-  const filterServices = (services) =>{
-    return services.filter( (item) => {return !servicesToRemoveitem.includes(item.label) })
-  }
-
-  const removePrice =  (service) => {
+  const removePrice = (service) => {
     return service.substring(0, service.lastIndexOf("-")).trim();
-  }
+  };
 
   const hasBabyGrowth = (service, services) => {
-    return services.find((item)=>{ 
-      return item.name.indexOf(removePrice(service))>=0 && item.name.indexOf("Baby's Growth")>=0;
-     })
-  }
+    return services.find((item) => {
+      return (
+        item.name.indexOf(removePrice(service)) >= 0 &&
+        item.name.indexOf("Baby's Growth") >= 0
+      );
+    });
+  };
   const getPrice = (service) => {
-    return parseInt(service.split('$')[1])
-  }
+    return parseInt(service.split("$")[1]);
+  };
   const orderServices = (services) => {
-    return services.sort(function(a, b){
+    return services.sort(function (a, b) {
       // console.log(a.label.split('$')[1])
-      if(getPrice(a.label) < getPrice(b.label)) { return -1; }
-      if(getPrice(a.label) > getPrice(b.label)) { return 1; }
+      if (getPrice(a.label) < getPrice(b.label)) {
+        return -1;
+      }
+      if (getPrice(a.label) > getPrice(b.label)) {
+        return 1;
+      }
       return 0;
-    })
-  }
+    });
+  };
 
   const getServiceId = (serviceName, servicesArray) => {
     const sessionTypeName = serviceName;
@@ -310,104 +331,89 @@ function App() {
     let serviceId = "";
     const regex = /[-.()+\s]/g;
 
-    if (sessionTypeName.toLowerCase().includes("$")){
+    if (sessionTypeName.toLowerCase().includes("$")) {
       const indexPrice = sessionTypeName.toLowerCase().indexOf("$");
-      remaining = sessionTypeName.toLowerCase().slice(0, indexPrice); 
-    }
-    else{
+      remaining = sessionTypeName.toLowerCase().slice(0, indexPrice);
+    } else {
       remaining = serviceName;
     }
-    purifiedServiceName = remaining.replace(regex, '');
-    
+    purifiedServiceName = remaining.replace(regex, "");
 
-    servicesArray.forEach(serviceItem => {
+    servicesArray.forEach((serviceItem) => {
       let purifiedServiceArray = "";
       let remainingService = "";
 
-      if (serviceItem.name.toLowerCase().includes("$")){
+      if (serviceItem.name.toLowerCase().includes("$")) {
         const indexPrice = serviceItem.name.toLowerCase().indexOf("$");
-        remainingService = serviceItem.name.toLowerCase().slice(0, indexPrice); 
-      }
-      else{
+        remainingService = serviceItem.name.toLowerCase().slice(0, indexPrice);
+      } else {
         remainingService = serviceItem.name;
       }
-      purifiedServiceArray = remainingService.replace(regex, '');
-      if(purifiedServiceArray === purifiedServiceName){
+      purifiedServiceArray = remainingService.replace(regex, "");
+      if (purifiedServiceArray === purifiedServiceName) {
         serviceId = serviceItem.sessionTypeId;
       }
     });
     // console.log("ServiceId: " + serviceId);
     return serviceId;
-  }
+  };
   const getBGCombo = (serviceName, servicesArray) => {
     const sessionTypeName = serviceName;
     let purifiedServiceName = "";
     let serviceId = "";
     const regex = /[-.()+\s]/g;
-  
-    if (sessionTypeName.toLowerCase().includes("$")){
+
+    if (sessionTypeName.toLowerCase().includes("$")) {
       const indexPrice = sessionTypeName.toLowerCase().indexOf("$");
       const remaining = sessionTypeName.toLowerCase().slice(0, indexPrice);
-      purifiedServiceName = remaining.replace(regex, '');
+      purifiedServiceName = remaining.replace(regex, "");
       // console.log("Service: "+purifiedServiceName);
     }
 
-    servicesArray.forEach(serviceItem => {
-      if (serviceItem.name.toLowerCase().includes("$")){
+    servicesArray.forEach((serviceItem) => {
+      if (serviceItem.name.toLowerCase().includes("$")) {
         const indexAddon = serviceItem.name.toLowerCase().indexOf("$");
-        const remainingConsulted = serviceItem.name.toLowerCase().slice(0, indexAddon);
-        const purifiedConsulted = remainingConsulted.replace(regex, '');
+        const remainingConsulted = serviceItem.name
+          .toLowerCase()
+          .slice(0, indexAddon);
+        const purifiedConsulted = remainingConsulted.replace(regex, "");
         // console.log("ServiceConsulted: "+purifiedConsulted);
-        if(purifiedServiceName === purifiedConsulted){
+        if (purifiedServiceName === purifiedConsulted) {
           serviceId = serviceItem.sessionTypeId;
         }
       }
     });
     // console.log("ServiceId: " + serviceId);
     return serviceId;
-  }
+  };
 
   // Loads the dropdown values and set the states for that display on first load
   useEffect(() => {
-    async function getServices (){
-      const authPayload = {
-        Username: `${process.env.REACT_APP_USER_NAME}`,
-        Password: `${process.env.REACT_APP_PASSWORD}`,
-      };
-      const authRequest = {
-        method: "PUT",
-        headers: {
-          "Content-type": "application/json; charset=UTF-8",
-          siteid: state.siteId,
-        },
-        body: JSON.stringify(authPayload),
-      };
-      const authResponse = await fetch(
-        `${process.env.REACT_APP_API_URL}/api/userToken/`,
-        authRequest
-      );
-      const authData = await authResponse.json();
-      if(authResponse.ok){
-        setState((state) => ({
-          ...state,
-          authorization: authData.accesssToken,
-        }));
-        const ultrasoundsRequest = {
-          method: "GET",
+    async function getServices() {
+      try {
+        const authPayload = {
+          Username: `${process.env.REACT_APP_USER_NAME}`,
+          Password: `${process.env.REACT_APP_PASSWORD}`,
+        };
+        const authRequest = {
+          method: "PUT",
           headers: {
             "Content-type": "application/json; charset=UTF-8",
             siteid: state.siteId,
-            authorization: authData.accesssToken,
-            locationid: state.locationId,
           },
+          body: JSON.stringify(authPayload),
         };
-        const ultrasoundResponse = await fetch(
-          `${process.env.REACT_APP_API_URL}/api/sessionTypes/2`,
-          ultrasoundsRequest
+        const authResponse = await fetch(
+          `${process.env.REACT_APP_API_URL}/api/userToken/`,
+          authRequest
         );
-        const ultrasoundsData = await ultrasoundResponse.json();
-        if(ultrasoundResponse.ok){
-          const massageRequest = {
+        const authData = await authResponse.json();
+        if (authResponse.ok) {
+          setState((state) => ({
+            ...state,
+            authorization: authData.accesssToken,
+          }));
+          const ultrasoundsRequest = {
             method: "GET",
             headers: {
               "Content-type": "application/json; charset=UTF-8",
@@ -416,65 +422,106 @@ function App() {
               locationid: state.locationId,
             },
           };
-          const massageResponse = await fetch(
-            `${process.env.REACT_APP_API_URL}/api/sessionTypes/3`,
-            massageRequest
+          const ultrasoundResponse = await fetch(
+            `${process.env.REACT_APP_API_URL}/api/sessionTypes/2`,
+            ultrasoundsRequest
           );
-          const massageData = await massageResponse.json();
-          const ultrasounds = [];
-          const massages = [];
-          // console.log( hasBabyGrowth("Meet Your Baby - 15 Min 5D/HD - $99", ultrasoundsData.services ) );
-          const ultrasoundServices = {
-            services: [
-              { sessionTypeId: getServiceId("Early Pregnancy - $59",  ultrasoundsData.services), name: "Early Pregnancy - $59", price: 59 },
-              { sessionTypeId: getServiceId("Gender Determination - $79",  ultrasoundsData.services), name: "Gender Determination - $79", price: 79 }, 
-              {
-                sessionTypeId: getServiceId("Meet Your Baby - 15 Min 5D/HD - $99",  ultrasoundsData.services),
-                name: "Meet Your Baby - 15 Min 5D/HD - $99", 
-                price: 99,
+          const ultrasoundsData = await ultrasoundResponse.json();
+          if (ultrasoundResponse.ok) {
+            const massageRequest = {
+              method: "GET",
+              headers: {
+                "Content-type": "application/json; charset=UTF-8",
+                siteid: state.siteId,
+                authorization: authData.accesssToken,
+                locationid: state.locationId,
               },
-              {
-                sessionTypeId: getServiceId("Meet Your Baby - 25 min 5D/HD - $139",  ultrasoundsData.services),
-                name: "Meet Your Baby - 25 min 5D/HD - $139", 
-                price: 139,
-              },
-              {
-                sessionTypeId: getServiceId("Special Promotion 25 min 5D/HD Ultrasound - $219",  ultrasoundsData.services),
-                name: "Special Promotion 25 min 5D/HD Ultrasound - $219",
-                price: 219,
-              },
-            ],
-          };
-          
-          ultrasoundServices.services.forEach((item) => {
-            const mutableItem = {
-              value: item.sessionTypeId,
-              label: item.name,
             };
-            ultrasounds.push(mutableItem);
-          });
-          setUltrasounds(ultrasounds);
-          setConsultedUltrasounds(ultrasoundsData.services);
-          
-          massageData.services.forEach((item) => {
-            const mutableItem = {
-              value: item.sessionTypeId,
-              label: item.name,
+            const massageResponse = await fetch(
+              `${process.env.REACT_APP_API_URL}/api/sessionTypes/3`,
+              massageRequest
+            );
+            const massageData = await massageResponse.json();
+            const ultrasounds = [];
+            const massages = [];
+            // console.log( hasBabyGrowth("Meet Your Baby - 15 Min 5D/HD - $99", ultrasoundsData.services ) );
+            const ultrasoundServices = {
+              services: [
+                {
+                  sessionTypeId: getServiceId(
+                    "Early Pregnancy - $59",
+                    ultrasoundsData.services
+                  ),
+                  name: "Early Pregnancy - $59",
+                  price: 59,
+                },
+                {
+                  sessionTypeId: getServiceId(
+                    "Gender Determination - $79",
+                    ultrasoundsData.services
+                  ),
+                  name: "Gender Determination - $79",
+                  price: 79,
+                },
+                {
+                  sessionTypeId: getServiceId(
+                    "Meet Your Baby - 15 Min 5D/HD - $99",
+                    ultrasoundsData.services
+                  ),
+                  name: "Meet Your Baby - 15 Min 5D/HD - $99",
+                  price: 99,
+                },
+                {
+                  sessionTypeId: getServiceId(
+                    "Meet Your Baby - 25 min 5D/HD - $139",
+                    ultrasoundsData.services
+                  ),
+                  name: "Meet Your Baby - 25 min 5D/HD - $139",
+                  price: 139,
+                },
+                {
+                  sessionTypeId: getServiceId(
+                    "Special Promotion 25 min 5D/HD Ultrasound - $219",
+                    ultrasoundsData.services
+                  ),
+                  name: "Special Promotion 25 min 5D/HD Ultrasound - $219",
+                  price: 219,
+                },
+              ],
             };
-            massages.push(mutableItem);
-          });
-          const displayableServices = [
-            {
-              label: "Ultrasounds",
-              options: ultrasounds,
-            },
-            {
-              label: "Massages",
-              options: orderServices(filterServices(massages)),
-            },
-          ];
-          setServices(displayableServices);
+
+            ultrasoundServices.services.forEach((item) => {
+              const mutableItem = {
+                value: item.sessionTypeId,
+                label: item.name,
+              };
+              ultrasounds.push(mutableItem);
+            });
+            setUltrasounds(ultrasounds);
+            setConsultedUltrasounds(ultrasoundsData.services);
+
+            massageData.services.forEach((item) => {
+              const mutableItem = {
+                value: item.sessionTypeId,
+                label: item.name,
+              };
+              massages.push(mutableItem);
+            });
+            const displayableServices = [
+              {
+                label: "Ultrasounds",
+                options: ultrasounds,
+              },
+              {
+                label: "Massages",
+                options: orderServices(filterServices(massages)),
+              },
+            ];
+            setServices(displayableServices);
+          }
         }
+      } catch (error) {
+        console.error(JSON.stringify(error));
       }
     }
     getServices();
@@ -494,7 +541,7 @@ function App() {
   }, []);
   // Gets the availability when the date changes
   useEffect(() => {
-    if(state.authorization === ""){
+    if (state.authorization === "") {
       return;
     }
 
@@ -505,194 +552,194 @@ function App() {
       }));
 
       try {
-          const queryStartDate = moment(state.startDate)
-            .format("MM/DD/YYYY")
-            .toString();
+        const queryStartDate = moment(state.startDate)
+          .format("MM/DD/YYYY")
+          .toString();
 
-          const availabilityRequest = {
-            method: "GET",
-            headers: {
-              "Content-type": "application/json; charset=UTF-8",
-              siteid: state.siteId,
-              authorization: state.authorization,
-              locationid: state.locationId,
-            },
-          };
-          const availabilityResponse = await fetch(
-            `${process.env.REACT_APP_API_URL}/api/book/sites/${state.siteId}/locations/${state.locationId}/schedule?startDate=${queryStartDate}&endDate=${queryStartDate}`,
-            availabilityRequest
-          );
+        const availabilityRequest = {
+          method: "GET",
+          headers: {
+            "Content-type": "application/json; charset=UTF-8",
+            siteid: state.siteId,
+            authorization: state.authorization,
+            locationid: state.locationId,
+          },
+        };
+        const availabilityResponse = await fetch(
+          `${process.env.REACT_APP_API_URL}/api/book/sites/${state.siteId}/locations/${state.locationId}/schedule?startDate=${queryStartDate}&endDate=${queryStartDate}`,
+          availabilityRequest
+        );
 
-          const availabilityData = await availabilityResponse.json();
-          if (availabilityResponse.ok) {
-            const rooms = availabilityData.schedule.map((room) => {
-              const appointments = [];
-              room.appointments.forEach((appointment) => {
-                const mutableAppointment = appointment;
-                const segment = new Date(
-                  mutableAppointment.StartDateTime
-                ).toLocaleTimeString("en-US", {
-                  hour: "2-digit",
-                  minute: "2-digit",
-                });
-                mutableAppointment.segment = segment;
-                appointments.push(mutableAppointment);
+        const availabilityData = await availabilityResponse.json();
+        if (availabilityResponse.ok) {
+          const rooms = availabilityData.schedule.map((room) => {
+            const appointments = [];
+            room.appointments.forEach((appointment) => {
+              const mutableAppointment = appointment;
+              const segment = new Date(
+                mutableAppointment.StartDateTime
+              ).toLocaleTimeString("en-US", {
+                hour: "2-digit",
+                minute: "2-digit",
               });
-
-              const roomReturn = {
-                staffId: room.id,
-                staffName: room.name,
-                unavailabilities: room.unavailabilities,
-                availabilities: room.availabilities,
-                roomBlocks: [],
-                appointments: appointments,
-              };
-              return roomReturn;
+              mutableAppointment.segment = segment;
+              appointments.push(mutableAppointment);
             });
 
-            const displayableRooms = [];
-            rooms.forEach((room) => {
-              const mutableBlocks = [...blocks];
-              const availableBlocks = [];
-              const roomBlocks = mutableBlocks.map((block) => {
-                const mutableBlock = { ...block };
-                const addTwelve = mutableBlock.segment.includes("PM");
-                const rawHours = parseInt(
-                  mutableBlock.segment.split(" ")[0].split(":")[0]
-                );
-                const hours =
-                  addTwelve && rawHours !== 12 ? rawHours + 12 : rawHours;
-                const minutes = parseInt(
-                  mutableBlock.segment.split(" ")[0].split(":")[1]
-                );
-                const stringDate = moment(state.startDate)
-                  .format("MM/DD/YYYY")
-                  .toString();
-                const startDateTime = moment(stringDate)
-                  .add(hours, "hours")
-                  .add(minutes, "minutes")
-                  .format("YYYY-MM-DD[T]HH:mm:ss");
-                const endDateTime = moment(startDateTime)
-                  .add(30, "minutes")
-                  .format("YYYY-MM-DD[T]HH:mm:ss");
-                mutableBlock.startDateTime = startDateTime;
-                mutableBlock.endDateTime = endDateTime;
-                const blockDate = moment(stringDate)
-                  .add(hours, "hours")
-                  .add(minutes, "minutes")
-                  .toString();
-                mutableBlock.blockDate = blockDate;
-                mutableBlock.selected = false;
-                let available = false;
-                room.availabilities.forEach((availabilityBlock) => {
-                  available =
-                    available +
-                    moment(blockDate).isBetween(
-                      availabilityBlock.startDateTime,
-                      availabilityBlock.endDateTime,
-                      undefined,
-                      "[)"
-                    );
-                });
-                room.unavailabilities.forEach((unavailabilityBlock) => {
-                  available =
-                    available *
-                    !moment(blockDate).isBetween(
-                      unavailabilityBlock.StartDateTime,
-                      unavailabilityBlock.EndDateTime,
-                      undefined,
-                      "[)"
-                    );
-                });
-                const blockAppointment = room.appointments.find((appointment) =>
+            const roomReturn = {
+              staffId: room.id,
+              staffName: room.name,
+              unavailabilities: room.unavailabilities,
+              availabilities: room.availabilities,
+              roomBlocks: [],
+              appointments: appointments,
+            };
+            return roomReturn;
+          });
+
+          const displayableRooms = [];
+          rooms.forEach((room) => {
+            const mutableBlocks = [...blocks];
+            const availableBlocks = [];
+            const roomBlocks = mutableBlocks.map((block) => {
+              const mutableBlock = { ...block };
+              const addTwelve = mutableBlock.segment.includes("PM");
+              const rawHours = parseInt(
+                mutableBlock.segment.split(" ")[0].split(":")[0]
+              );
+              const hours =
+                addTwelve && rawHours !== 12 ? rawHours + 12 : rawHours;
+              const minutes = parseInt(
+                mutableBlock.segment.split(" ")[0].split(":")[1]
+              );
+              const stringDate = moment(state.startDate)
+                .format("MM/DD/YYYY")
+                .toString();
+              const startDateTime = moment(stringDate)
+                .add(hours, "hours")
+                .add(minutes, "minutes")
+                .format("YYYY-MM-DD[T]HH:mm:ss");
+              const endDateTime = moment(startDateTime)
+                .add(30, "minutes")
+                .format("YYYY-MM-DD[T]HH:mm:ss");
+              mutableBlock.startDateTime = startDateTime;
+              mutableBlock.endDateTime = endDateTime;
+              const blockDate = moment(stringDate)
+                .add(hours, "hours")
+                .add(minutes, "minutes")
+                .toString();
+              mutableBlock.blockDate = blockDate;
+              mutableBlock.selected = false;
+              let available = false;
+              room.availabilities.forEach((availabilityBlock) => {
+                available =
+                  available +
                   moment(blockDate).isBetween(
-                    appointment.startDateTime,
-                    appointment.endDateTime,
+                    availabilityBlock.startDateTime,
+                    availabilityBlock.endDateTime,
                     undefined,
                     "[)"
-                  )
-                );
-
-                mutableBlock.appointment =
-                  blockAppointment === undefined ? {} : blockAppointment;
-
-                mutableBlock.available = Boolean(available);
-                // add time to date
-                var startMomentWithNowTime = moment(state.startDate);
-                var now = moment().format("MM/DD/YYYY");
-                if (now === startMomentWithNowTime.format("MM/DD/YYYY")) {
-                  // console.log("IS TODAY")
-                  var nowWithTime = moment();
-                  startMomentWithNowTime = startMomentWithNowTime.set({
-                    hour: nowWithTime.hour(),
-                    minute: nowWithTime.minute(),
-                    second: nowWithTime.second(),
-                  });
-                }
-                if (
-                  blockAppointment === undefined &&
-                  available &&
-                  moment(blockDate).isAfter(
-                    startMomentWithNowTime.add(2, "hours")
-                  )
-                ) {
-                  availableBlocks.push(mutableBlock);
-                }
-
-                return mutableBlock;
+                  );
               });
+              room.unavailabilities.forEach((unavailabilityBlock) => {
+                available =
+                  available *
+                  !moment(blockDate).isBetween(
+                    unavailabilityBlock.StartDateTime,
+                    unavailabilityBlock.EndDateTime,
+                    undefined,
+                    "[)"
+                  );
+              });
+              const blockAppointment = room.appointments.find((appointment) =>
+                moment(blockDate).isBetween(
+                  appointment.startDateTime,
+                  appointment.endDateTime,
+                  undefined,
+                  "[)"
+                )
+              );
 
-              const returnRoom = {
-                staffId: room.staffId,
-                staffName: room.staffName,
-                unavailabilities: room.unavailabilities,
-                availabilities: room.availabilities,
-                roomBlocks: roomBlocks,
-                availableBlocks: availableBlocks,
-              };
-              displayableRooms.push(returnRoom);
+              mutableBlock.appointment =
+                blockAppointment === undefined ? {} : blockAppointment;
+
+              mutableBlock.available = Boolean(available);
+              // add time to date
+              var startMomentWithNowTime = moment(state.startDate);
+              var now = moment().format("MM/DD/YYYY");
+              if (now === startMomentWithNowTime.format("MM/DD/YYYY")) {
+                // console.log("IS TODAY")
+                var nowWithTime = moment();
+                startMomentWithNowTime = startMomentWithNowTime.set({
+                  hour: nowWithTime.hour(),
+                  minute: nowWithTime.minute(),
+                  second: nowWithTime.second(),
+                });
+              }
+              if (
+                blockAppointment === undefined &&
+                available &&
+                moment(blockDate).isAfter(
+                  startMomentWithNowTime.add(2, "hours")
+                )
+              ) {
+                availableBlocks.push(mutableBlock);
+              }
+
+              return mutableBlock;
             });
 
-            const availableBlocksForDisplay = [];
-            displayableRooms.forEach((room) => {
-              room.availableBlocks.forEach((block) => {
-                const foundedBlock = availableBlocksForDisplay.find(
-                  (availableBlock) => availableBlock.id === block.id
-                );
-                if (foundedBlock !== undefined) {
-                  const mutableBlock = foundedBlock;
-                  mutableBlock.staffId.push(room.staffId);
-                  mutableBlock.count++;
-                } else {
-                  const mutableBlock = { ...block };
-                  mutableBlock.staffId = [room.staffId];
-                  mutableBlock.count = 1;
-                  availableBlocksForDisplay.push(mutableBlock);
-                }
-              });
+            const returnRoom = {
+              staffId: room.staffId,
+              staffName: room.staffName,
+              unavailabilities: room.unavailabilities,
+              availabilities: room.availabilities,
+              roomBlocks: roomBlocks,
+              availableBlocks: availableBlocks,
+            };
+            displayableRooms.push(returnRoom);
+          });
+
+          const availableBlocksForDisplay = [];
+          displayableRooms.forEach((room) => {
+            room.availableBlocks.forEach((block) => {
+              const foundedBlock = availableBlocksForDisplay.find(
+                (availableBlock) => availableBlock.id === block.id
+              );
+              if (foundedBlock !== undefined) {
+                const mutableBlock = foundedBlock;
+                mutableBlock.staffId.push(room.staffId);
+                mutableBlock.count++;
+              } else {
+                const mutableBlock = { ...block };
+                mutableBlock.staffId = [room.staffId];
+                mutableBlock.count = 1;
+                availableBlocksForDisplay.push(mutableBlock);
+              }
             });
-            const sortedBlocks = availableBlocksForDisplay.sort((a, b) =>
-              a.startDateTime > b.startDateTime
-                ? 1
-                : b.startDateTime > a.startDateTime
-                ? -1
-                : 0
-            );
+          });
+          const sortedBlocks = availableBlocksForDisplay.sort((a, b) =>
+            a.startDateTime > b.startDateTime
+              ? 1
+              : b.startDateTime > a.startDateTime
+              ? -1
+              : 0
+          );
 
-            setFirstLoad(false);
-            setAvailableBlocks(sortedBlocks);
+          setFirstLoad(false);
+          setAvailableBlocks(sortedBlocks);
 
-            setState((state) => ({
-              ...state,
-              availabilityRequestStatus: "ready",
-            }));
-          } else {
-            setState((state) => ({
-              ...state,
-              availabilityRequestStatus: "no-data-found",
-              message: JSON.stringify(availabilityData),
-            }));
-          }
+          setState((state) => ({
+            ...state,
+            availabilityRequestStatus: "ready",
+          }));
+        } else {
+          setState((state) => ({
+            ...state,
+            availabilityRequestStatus: "no-data-found",
+            message: JSON.stringify(availabilityData),
+          }));
+        }
       } catch (error) {
         setState((state) => ({
           ...state,
@@ -707,22 +754,20 @@ function App() {
   }, [state.startDate, state.locationId, state.siteId, state.authorization]);
 
   const removeTags = (str) => {
-    if ((str===null) || (str===''))
-        return false;
-    else
-        str = str.toString();
-          
-    // Regular expression to identify HTML tags in 
-    // the input string. Replacing the identified 
+    if (str === null || str === "") return false;
+    else str = str.toString();
+
+    // Regular expression to identify HTML tags in
+    // the input string. Replacing the identified
     // HTML tag with a null string.
-    return str.replace( /(<([^>]+)>)/ig, '');
-}
+    return str.replace(/(<([^>]+)>)/gi, "");
+  };
 
   // Handles the date change
   const onSelectedDay = (val) => {
     if (
       moment(val).format("MM/DD/YYYY").toString() ===
-        moment(state.startDate).format("MM/DD/YYYY").toString()
+      moment(state.startDate).format("MM/DD/YYYY").toString()
     ) {
       return;
     }
@@ -733,7 +778,6 @@ function App() {
   };
   // Search availabilities until found available space
   useEffect(() => {
-    
     const nextDay = moment(state.startDate)
       .add(1, "days")
       .format("MM/DD/YYYY")
@@ -870,8 +914,8 @@ function App() {
             arrive: removeTags(state.howtoarrive),
             locationPhone: state.phone,
             clientMobilePhone: clientState.phone,
-            locationName: "Little Bellies - " + state.city 
-          }
+            locationName: "Little Bellies - " + state.city,
+          };
           const textMessageRequest = {
             method: "POST",
             headers: {
@@ -886,22 +930,21 @@ function App() {
             `${process.env.REACT_APP_API_URL}/api/services/sendSms/booking`,
             textMessageRequest
           );
-          
+
           const textMessageData = await textMessageResponse.json();
-          if(textMessageResponse.ok){
+          if (textMessageResponse.ok) {
             // console.log(textMessageData);
             setState((state) => ({
               ...state,
               appointmentRequestStatus: "BOOK-APPOINTMENT-OK",
             }));
-          }
-          else{
+          } else {
             setState((state) => ({
               ...state,
               textMessageStatus: "TEXT-FAIL",
               textMessage: JSON.stringify(textMessageData),
             }));
-          }          
+          }
         } else {
           setState((state) => ({
             ...state,
@@ -926,15 +969,24 @@ function App() {
 
     // Changes the service in case of adding Babys Growth
     if (data.service.value === ultrasounds[3].value && addBabysGrowth) {
-      sessionTypeId = getBGCombo("Meet Your Baby - 25 Min 5D/HD + Baby's Growth $168" ,consultedUltrasounds);
+      sessionTypeId = getBGCombo(
+        "Meet Your Baby - 25 Min 5D/HD + Baby's Growth $168",
+        consultedUltrasounds
+      );
       sessionTypeName = "Meet Your Baby - 25 Min 5D/HD + Baby's Growth $168";
     }
     if (data.service.value === ultrasounds[2].value && addBabysGrowth) {
-      sessionTypeId = getBGCombo("Meet Your Baby - 15 Min 5D/HD + Baby's Growth $128" ,consultedUltrasounds);
+      sessionTypeId = getBGCombo(
+        "Meet Your Baby - 15 Min 5D/HD + Baby's Growth $128",
+        consultedUltrasounds
+      );
       sessionTypeName = "Meet Your Baby - 15 Min 5D/HD + Baby's Growth $128";
     }
     if (data.service.value === ultrasounds[1].value && addBabysGrowth) {
-      sessionTypeId = getBGCombo("Gender Determination  + Baby's Growth - $108" ,consultedUltrasounds);
+      sessionTypeId = getBGCombo(
+        "Gender Determination  + Baby's Growth - $108",
+        consultedUltrasounds
+      );
       sessionTypeName = "Gender Determination  + Baby's Growth - $108";
     }
 
@@ -951,7 +1003,7 @@ function App() {
     }));
     setState((state) => ({
       ...state,
-      step: "availability",
+      step: "addons",
     }));
 
     if (clientState.clientRequestStatus === "loading") {
@@ -1062,6 +1114,13 @@ function App() {
       step: "summary",
     }));
   };
+  // Takes the app to the summary step of booking
+  const stepToAvailability = () => {
+    setState((state) => ({
+      ...state,
+      step: "availability",
+    }));
+  };
 
   const groupStyles = {
     display: "flex",
@@ -1087,7 +1146,9 @@ function App() {
     </div>
   );
   const showInMapClicked = () => {
-    window.open("https://maps.google.com?q="+state.latitude+","+state.longitude );
+    window.open(
+      "https://maps.google.com?q=" + state.latitude + "," + state.longitude
+    );
   };
   // console.log("availableBlocks");
   // console.log(availableBlocks);
@@ -1222,142 +1283,7 @@ function App() {
                 />
               </div>
             </div>
-            {showHB && (
-              <div className="row gx-1 gx-md-2 my-3 justify-content-center">
-                {showBG && (
-                  <div className="col-12 col-sm-6 px-5 px-sm-2 text-center ">
-                    <div
-                      className={
-                        "btn-addOn rounded-3 px-3 mx-auto smaller-text w-100 h-100 " +
-                        (addBabysGrowth
-                          ? "btn-outline-addOn"
-                          : "btn-outline-secondary-addOn")
-                      }
-                      onClick={handleAddBabysGrowth}
-                    >
-                      <div className="row">
-                        <div className="col addOnIcon">
-                          <FontAwesomeIcon icon={faBaby} />
-                        </div>
-                      </div>
-                      <div className="row">
-                        <div className="col text-center">
-                          <h3
-                            className="h5"
-                            style={{
-                              fontSize: width > 1023 ? 16 : 14,
-                              marginLeft: 5,
-                              marginRight: 5,
-                            }}
-                          >
-                            Baby's Growth
-                          </h3>
-                        </div>
-                      </div>
-                      <div className="row">
-                        <div className="col text-start addonText">
-                          <ul className="fa-ul mt-2 mb-1">
-                            <li className=" lh-md"><span className="fa-li" ><FontAwesomeIcon icon={faCheck} /></span>Baby's measurements </li>
-                            <li className=" lh-md"><span className="fa-li" ><FontAwesomeIcon icon={faCheck} /></span>Baby's position in uterus</li>
-                            <li className=" lh-md"><span className="fa-li" ><FontAwesomeIcon icon={faCheck} /></span>Baby's weight</li>
-                            <li className=" lh-md"><span className="fa-li" ><FontAwesomeIcon icon={faCheck} /></span>Baby's heart activity</li>
-                            <li className=" lh-md"><span className="fa-li" ><FontAwesomeIcon icon={faCheck} /></span>Weeks of Pregnancy</li>
-                            <li className=" lh-md"><span className="fa-li" ><FontAwesomeIcon icon={faCheck} /></span>Estimated due date</li>
-                            <li className=" lh-md"><span className="fa-li" ><FontAwesomeIcon icon={faCheck} /></span>Amniotic fluid</li>
-                          </ul>
-                        </div>
-                      </div>
-                      <div className="row justify-content-center mt-1 mb-2">
-                        <div
-                          className="col-auto fw-bold"
-                          style={{ fontSize: width > 1023 ? 16 : 14 }}
-                        >
-                          <span className="">$29</span>
-                        </div>
-                        <div
-                          className="col-auto fw-bold"
-                          style={{ fontSize: width > 1023 ? 16 : 14 }}
-                        >
-                          {addBabysGrowth && (
-                            <>
-                              <FontAwesomeIcon icon={faTrash} />
-                              <span> Remove</span>
-                            </>
-                          )}
-                          {!addBabysGrowth && (
-                            <>
-                              <FontAwesomeIcon icon={faCartPlus} />
-                              <span> Add</span>
-                            </>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                )}
-                <div className="col-12 col-sm-6 px-5 px-sm-2 my-3 my-md-0 text-center">
-                  <div
-                    className={
-                      "btn-addOn rounded-3 px-3 mx-auto smaller-text w-100 h-100 " +
-                      (addHeartbeatBuddies
-                        ? "btn-outline-addOn"
-                        : "btn-outline-secondary-addOn")
-                    }
-                    onClick={handleAddHeartbeatBuddies}
-                  >
-                    <div className="row">
-                      <div className="col addOnIcon">
-                        <FontAwesomeIcon icon={faHeartbeat} />
-                      </div>
-                    </div>
-                    <div className="row">
-                      <div className="col text-center">
-                        <h3
-                          className="h5"
-                          style={{ fontSize: width > 1023 ? 16 : 14 }}
-                        >
-                          Heartbeat Buddies
-                        </h3>
-                      </div>
-                    </div>
-                    
-                    <div className="row">
-                      <div className="col text-start addonText">
-                        <ul className="fa-ul mt-2 mb-1 lh-md">
-                          <li className="ul-lh"><span className="fa-li"><FontAwesomeIcon icon={faCheck} /></span>Beautiful high-quality stuffed animal</li>
-                          <li className="ul-lh"><span className="fa-li"><FontAwesomeIcon icon={faCheck} /></span>Recording of baby's heartbeat</li>
-                          <li className="ul-lh"><span className="fa-li"><FontAwesomeIcon icon={faCheck} /></span>Cherished forever</li>
-                          <li className="ul-lh"><span className="fa-li"><FontAwesomeIcon icon={faCheck} /></span>Build connection an strenghtens bond with baby</li>
-                        </ul>
-                      </div>
-                    </div>
-                    <div className="row justify-content-center mt-1 mb-2">
-                      <div
-                        className="col-auto fw-bold"
-                        style={{ fontSize: width > 1023 ? 16 : 14 }}
-                      >
-                        <span className="">$35</span>
-                      </div>
-                      <div className="col-auto fw-bold"
-                        style={{ fontSize: width > 1023 ? 16 : 14 }}>
-                        {addHeartbeatBuddies && (
-                          <>
-                            <FontAwesomeIcon icon={faTrash} />
-                            <span> Remove</span>
-                          </>
-                        )}
-                        {!addHeartbeatBuddies && (
-                          <>
-                            <FontAwesomeIcon icon={faCartPlus} />
-                            <span> Add</span>
-                          </>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            )}
+
             <div className="row my-3">
               <div className="col text-center">
                 <button
@@ -1369,6 +1295,258 @@ function App() {
               </div>
             </div>
           </form>
+        </>
+      )}
+
+      {state.step === "addons" && (
+        <>
+          <div className="row my-3 bg-light-container mx-auto p-md-4 justify-content-center">
+            <div className="row mt-3 justify-content-center">
+              <div className="col">
+                <h3 className="h2">Check out our amazing promos</h3>
+              </div>
+            </div>
+
+            {showHB && (
+              <div className="row gx-1 gx-md-2 mt-1 mt-md-3 mb-3 justify-content-center">
+                {showBG && (
+                  <div className="col-12 col-sm-6 px-4 px-sm-2 my-3 my-md-0 text-center ">
+                    <div
+                      className={
+                        "btn-addOn rounded-3 px-3 mx-auto smaller-text w-100 h-100 " +
+                        (addBabysGrowth
+                          ? "btn-outline-addOn"
+                          : "btn-outline-secondary-addOn")
+                      }
+                    >
+                      <div className="row">
+                        <div className="col addOnIcon">
+                          <FontAwesomeIcon icon={faBaby} />
+                        </div>
+                      </div>
+                      <div className="row">
+                        <div className="col text-center">
+                          <h3 className="h4">Baby's Growth</h3>
+                        </div>
+                      </div>
+                      {showDetailsBG && (
+                        <div className="row gx-3 mt-2">
+                          <div className="col-12 padding-x-25 m-0 text-start">
+                            <ul className="fa-ul mb-1 mb-md-3">
+                              <li className=" lh-md">
+                                <span className="fa-li">
+                                  <FontAwesomeIcon icon={faCheck} />
+                                </span>
+                                Baby's measurements{" "}
+                              </li>
+                              <li className=" lh-md">
+                                <span className="fa-li">
+                                  <FontAwesomeIcon icon={faCheck} />
+                                </span>
+                                Baby's position in uterus
+                              </li>
+                              <li className=" lh-md">
+                                <span className="fa-li">
+                                  <FontAwesomeIcon icon={faCheck} />
+                                </span>
+                                Baby's weight
+                              </li>
+                              <li className=" lh-md">
+                                <span className="fa-li">
+                                  <FontAwesomeIcon icon={faCheck} />
+                                </span>
+                                Baby's heart activity
+                              </li>
+                              <li className=" lh-md">
+                                <span className="fa-li">
+                                  <FontAwesomeIcon icon={faCheck} />
+                                </span>
+                                Weeks of Pregnancy
+                              </li>
+                              <li className=" lh-md">
+                                <span className="fa-li">
+                                  <FontAwesomeIcon icon={faCheck} />
+                                </span>
+                                Estimated due date
+                              </li>
+                              <li className=" lh-md">
+                                <span className="fa-li">
+                                  <FontAwesomeIcon icon={faCheck} />
+                                </span>
+                                Amniotic fluid
+                              </li>
+                            </ul>
+                          </div>
+                        </div>
+                      )}
+                      <div className="row gx-3 mt-2">
+                        <div className="col-6 px-1 m-0">
+                          <button
+                            type="submit"
+                            className="btn btn-cta-active smaller-text rounded-pill py-1 px-3 mx-auto w-100"
+                            onClick={() => {
+                              setShowDetailsBG(!showDetailsBG);
+                            }}
+                          >
+                            {showDetailsBG && (
+                              <FontAwesomeIcon icon={faChevronUp} />
+                            )}
+                            {!showDetailsBG && (
+                              <FontAwesomeIcon icon={faChevronDown} />
+                            )}
+                            &nbsp;Details
+                          </button>
+                        </div>
+                        <div className="col-6 px-1 m-0">
+                          <button
+                            className="btn btn-cta-active rounded-pill py-1 smaller-text px-3 mx-auto w-100"
+                            onClick={handleAddBabysGrowth}
+                          >
+                            {addBabysGrowth && (
+                              <>
+                                <FontAwesomeIcon icon={faTrash} />
+                                <span> Remove</span>
+                              </>
+                            )}
+                            {!addBabysGrowth && (
+                              <>
+                                <FontAwesomeIcon icon={faCartPlus} />
+                                <span> Add</span>
+                              </>
+                            )}
+                          </button>
+                        </div>
+                      </div>
+                      <div className="row justify-content-center my-2">
+                        <div className="col-auto fw-bold display-6">
+                          <span className="">$29</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                <div className="col-12 col-sm-6 px-4 px-sm-2 my-3 my-md-0 text-center ">
+                  <div
+                    className={
+                      "btn-addOn rounded-3 px-3 mx-auto smaller-text w-100 h-100 " +
+                      (addHeartbeatBuddies
+                        ? "btn-outline-addOn"
+                        : "btn-outline-secondary-addOn")
+                    }
+                  >
+                    <div className="row">
+                      <div className="col addOnIcon">
+                        <FontAwesomeIcon icon={faHeartbeat} />
+                      </div>
+                    </div>
+                    <div className="row">
+                      <div className="col text-center">
+                        <h3 className="h4">Heartbeat Buddies</h3>
+                      </div>
+                    </div>
+                    {showDetailsHB && (
+                      <div className="row gx-3 mt-2">
+                        <div className="col-12 padding-x-25 m-0 text-start">
+                          <ul className="fa-ul mb-1 mb-md-3">
+                            <li className=" lh-md">
+                              <span className="fa-li">
+                                <FontAwesomeIcon icon={faCheck} />
+                              </span>
+                              Beautiful high-quality stuffed animal{" "}
+                            </li>
+                            <li className=" lh-md">
+                              <span className="fa-li">
+                                <FontAwesomeIcon icon={faCheck} />
+                              </span>
+                              Recording of baby's heartbeat{" "}
+                            </li>
+                            <li className=" lh-md">
+                              <span className="fa-li">
+                                <FontAwesomeIcon icon={faCheck} />
+                              </span>
+                              Cherished forever{" "}
+                            </li>
+                            <li className=" lh-md">
+                              <span className="fa-li">
+                                <FontAwesomeIcon icon={faCheck} />
+                              </span>
+                              Build connection an strenghtens bond with baby
+                            </li>
+                          </ul>
+                        </div>
+                      </div>
+                    )}
+                    <div className="row gx-3 mt-2">
+                      <div className="col-6 px-1 m-0">
+                        <button
+                          type="submit"
+                          className="btn btn-cta-active smaller-text rounded-pill py-1 px-3 mx-auto w-100"
+                          onClick={() => {
+                            setShowDetailsHB(!showDetailsHB);
+                          }}
+                        >
+                          {showDetailsHB && (
+                            <FontAwesomeIcon icon={faChevronUp} />
+                          )}
+                          {!showDetailsHB && (
+                            <FontAwesomeIcon icon={faChevronDown} />
+                          )}
+                          &nbsp;Details
+                        </button>
+                      </div>
+                      <div className="col-6 px-1 m-0">
+                        <button
+                          className="btn btn-cta-active rounded-pill py-1 smaller-text px-3 mx-auto w-100"
+                          onClick={handleAddHeartbeatBuddies}
+                        >
+                          {addHeartbeatBuddies && (
+                            <>
+                              <FontAwesomeIcon icon={faTrash} />
+                              <span> Remove</span>
+                            </>
+                          )}
+                          {!addHeartbeatBuddies && (
+                            <>
+                              <FontAwesomeIcon icon={faCartPlus} />
+                              <span> Add</span>
+                            </>
+                          )}
+                        </button>
+                      </div>
+                    </div>
+                    <div className="row justify-content-center my-2">
+                      <div className="col-auto fw-bold display-6">
+                        <span className="">$35</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+            <div className="row">
+              <div className="col text-center">
+                {(addHeartbeatBuddies || addBabysGrowth) && (
+                  <button
+                    type="button"
+                    class="btn btn-selected-block btn-sm rounded-pill px-3 m-2"
+                    onClick={stepToAvailability}
+                  >
+                    Check availability
+                  </button>
+                )}
+                {!addHeartbeatBuddies && !addBabysGrowth && (
+                  <button
+                    type="button"
+                    class="btn btn-outline-secondary rounded-pill btn-sm px-3 m-2"
+                    onClick={stepToAvailability}
+                  >
+                    No thanks, maybe later
+                  </button>
+                )}
+              </div>
+            </div>
+          </div>
         </>
       )}
 
@@ -1405,7 +1583,10 @@ function App() {
                   <div className="row my-4 gx-0 mx-auto justify-content-center justify-content-lg-start">
                     {availableBlocks.map((block, index) => {
                       return (
-                        <div className="col-auto mx-0 d-flex d-sm-block" key={index}>
+                        <div
+                          className="col-auto mx-0 d-flex d-sm-block"
+                          key={index}
+                        >
                           <button
                             className={
                               block.id === state.block.id
@@ -1488,8 +1669,7 @@ function App() {
                       <span> {state.message} </span>
                     </div>
                   )}
-                  {state.textMessageStatus ===
-                    "TEXT-FAIL" && (
+                  {state.textMessageStatus === "TEXT-FAIL" && (
                     <div className="d-block alert alert-warning">
                       <span> {state.textMessage} </span>
                     </div>
@@ -1566,8 +1746,12 @@ function App() {
                 <div className="col">
                   <div className="col">
                     <b>Location Address: </b>
-                    <span className="link-primary" style={{cursor: "pointer"}}  onClick={showInMapClicked}>
-                    {removeTags(state.address)}
+                    <span
+                      className="link-primary"
+                      style={{ cursor: "pointer" }}
+                      onClick={showInMapClicked}
+                    >
+                      {removeTags(state.address)}
                     </span>
                   </div>
                 </div>
@@ -1599,9 +1783,9 @@ function App() {
                 <div className="row mb-2">
                   <div className="col">
                     <div>
-                    <a target="_blank" href={formUrl}>
-                      Please, remember to fill out the form before your
-                      appointment{" "} HERE
+                      <a target="_blank" href={formUrl}>
+                        Please, remember to fill out the form before your
+                        appointment HERE
                       </a>
                     </div>
                   </div>
@@ -1610,44 +1794,44 @@ function App() {
 
               {state.appointmentRequestStatus !== "BOOK-APPOINTMENT-OK" && (
                 <>
-                <div className="row no-gutters">
-                  <div className="col captcha-container px-0 d-flex">
-                    <ReCAPTCHA
-                      sitekey="6LdsCnAcAAAAAHG8I-ADbn4GG6ztVOzEO0C93Yuh"
-                      onChange={onChange}
-                    />
+                  <div className="row no-gutters">
+                    <div className="col captcha-container px-0 d-flex">
+                      <ReCAPTCHA
+                        sitekey="6LdsCnAcAAAAAHG8I-ADbn4GG6ztVOzEO0C93Yuh"
+                        onChange={onChange}
+                      />
+                    </div>
                   </div>
-                </div>
-                <div className="row my-2">
-                  <div className="col text-center">
-                    <div className="row mt-3">
-                      <div className="col text-center">
-                        <button
-                          type="button"
-                          disabled={!state.captchaReady}
-                          className="btn btn-cta-active rounded-pill px-3 mx-auto"
-                          onClick={bookAppointment}
-                        >
-                          {state.appointmentRequestStatus === "loading" && (
-                            <>
-                              <FontAwesomeIcon spin icon={faSpinner} /> Booking
-                            </>
-                          )}
-                          {state.appointmentRequestStatus !== "loading" && (
-                            <>Book appointment</>
-                          )}
-                        </button>
+                  <div className="row my-2">
+                    <div className="col text-center">
+                      <div className="row mt-3">
+                        <div className="col text-center">
+                          <button
+                            type="button"
+                            disabled={!state.captchaReady}
+                            className="btn btn-cta-active rounded-pill px-3 mx-auto"
+                            onClick={bookAppointment}
+                          >
+                            {state.appointmentRequestStatus === "loading" && (
+                              <>
+                                <FontAwesomeIcon spin icon={faSpinner} />{" "}
+                                Booking
+                              </>
+                            )}
+                            {state.appointmentRequestStatus !== "loading" && (
+                              <>Book appointment</>
+                            )}
+                          </button>
+                        </div>
                       </div>
                     </div>
                   </div>
-                </div>
                 </>
               )}
             </div>
             {state.appointmentRequestStatus === "BOOK-APPOINTMENT-OK" && (
               <div className="video-responsive">
                 <iframe
-
                   src={"https://www.youtube.com/embed/uspIXX4uU9c"}
                   frameBorder="0"
                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
