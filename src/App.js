@@ -175,6 +175,8 @@ function App() {
     city: params.get("city"),
     message: "",
     siteId: params.get("id") || "549974",
+    latitude: params.get("latitude") || "0",
+    longitude: params.get("longitude") || "0",
     language: languageList[params.get("lang")] || "English",
     locationId: params.get("city") !== "coral-springs" ? "1" : "2",
     authorization: "",
@@ -1084,7 +1086,9 @@ function App() {
       <span style={groupTextStyles}>{data.label}</span>
     </div>
   );
-
+  const showInMapClicked = () => {
+    window.open("https://maps.google.com?q="+state.latitude+","+state.longitude );
+  };
   // console.log("availableBlocks");
   // console.log(availableBlocks);
   // console.log(state.locationId);
@@ -1480,8 +1484,8 @@ function App() {
                 <div className="col text-center">
                   {state.appointmentRequestStatus ===
                     "BOOK-APPOINTMENT-FAIL" && (
-                    <div className="d-block alert alert-danger">
-                      <span> {state.message} </span>
+                    <div className="d-block alert alert-danger text-center">
+                      <span> There has been an error booking your appointment, please try again, if the error persist please call this number: <a href={`tel:${state.phone}`}>{state.phone}</a> and we will get you sorted out </span>
                     </div>
                   )}
                   {state.textMessageStatus ===
@@ -1560,9 +1564,11 @@ function App() {
               </div>
               <div className="row mb-3">
                 <div className="col">
-                  <div>
+                  <div className="col">
                     <b>Location Address: </b>
+                    <span className="link-primary" style={{cursor: "pointer"}}  onClick={showInMapClicked}>
                     {removeTags(state.address)}
+                    </span>
                   </div>
                 </div>
               </div>
@@ -1578,7 +1584,7 @@ function App() {
                 <div className="col">
                   <div>
                     <b>Location Phone: </b>
-                    {state.phone}
+                    <a href={`tel:${state.phone}`}>{state.phone}</a>
                   </div>
                 </div>
               </div>
