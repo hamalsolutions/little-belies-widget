@@ -1566,9 +1566,10 @@ function App() {
                 <div className="col">
                   <div className="col">
                     <b>Location Address: </b>
-                    <span className="link-primary" style={{cursor: "pointer"}}  onClick={showInMapClicked}>
                     {removeTags(state.address)}
-                    </span>
+                    {/* <span className="link-primary" style={{cursor: "pointer"}}  onClick={showInMapClicked}>
+                    {removeTags(state.address)}
+                    </span> */}
                   </div>
                 </div>
               </div>
