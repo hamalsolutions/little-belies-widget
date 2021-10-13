@@ -1484,8 +1484,8 @@ function App() {
                 <div className="col text-center">
                   {state.appointmentRequestStatus ===
                     "BOOK-APPOINTMENT-FAIL" && (
-                    <div className="d-block alert alert-danger">
-                      <span> {state.message} </span>
+                    <div className="d-block alert alert-danger text-center">
+                      <span> There has been an error booking your appointment, please try again, if the error persist please call this number: <a href={`tel:${state.phone}`}>{state.phone}</a> and we will get you sorted out </span>
                     </div>
                   )}
                   {state.textMessageStatus ===
