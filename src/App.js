@@ -505,6 +505,7 @@ function App() {
       }));
 
       try {
+          const sessionTypeId = "" +clientState.sessionTypeId;
           const queryStartDate = moment(state.startDate)
             .format("MM/DD/YYYY")
             .toString();
@@ -519,7 +520,7 @@ function App() {
             },
           };
           const availabilityResponse = await fetch(
-            `${process.env.REACT_APP_API_URL}/api/book/sites/${state.siteId}/locations/${state.locationId}/schedule?startDate=${queryStartDate}&endDate=${queryStartDate}`,
+            `${process.env.REACT_APP_API_URL}/api/book/sites/${state.siteId}/locations/${state.locationId}/schedule?sessionTypeId=${sessionTypeId}&startDate=${queryStartDate}&endDate=${queryStartDate}`,
             availabilityRequest
           );
 
@@ -702,9 +703,9 @@ function App() {
         }));
       }
     };
-
-    getAvailability();
-  }, [state.startDate, state.locationId, state.siteId, state.authorization]);
+    if (clientState.sessionTypeId!=="")
+      getAvailability();
+  }, [state.startDate, state.locationId, state.siteId, state.authorization, clientState.sessionTypeId]);
 
   const removeTags = (str) => {
     if ((str===null) || (str===''))
