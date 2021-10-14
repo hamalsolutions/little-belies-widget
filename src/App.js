@@ -14,6 +14,7 @@ import {
   faCheck,
   faChevronUp,
   faChevronDown,
+  faTimesCircle,
 } from "@fortawesome/free-solid-svg-icons";
 import ReCAPTCHA from "react-google-recaptcha";
 import "./App.css";
@@ -552,23 +553,24 @@ function App() {
       }));
 
       try {
-        const queryStartDate = moment(state.startDate)
-          .format("MM/DD/YYYY")
-          .toString();
+          const sessionTypeId = "" +clientState.sessionTypeId;
+          const queryStartDate = moment(state.startDate)
+            .format("MM/DD/YYYY")
+            .toString();
 
-        const availabilityRequest = {
-          method: "GET",
-          headers: {
-            "Content-type": "application/json; charset=UTF-8",
-            siteid: state.siteId,
-            authorization: state.authorization,
-            locationid: state.locationId,
-          },
-        };
-        const availabilityResponse = await fetch(
-          `${process.env.REACT_APP_API_URL}/api/book/sites/${state.siteId}/locations/${state.locationId}/schedule?startDate=${queryStartDate}&endDate=${queryStartDate}`,
-          availabilityRequest
-        );
+          const availabilityRequest = {
+            method: "GET",
+            headers: {
+              "Content-type": "application/json; charset=UTF-8",
+              siteid: state.siteId,
+              authorization: state.authorization,
+              locationid: state.locationId,
+            },
+          };
+          const availabilityResponse = await fetch(
+            `${process.env.REACT_APP_API_URL}/api/book/sites/${state.siteId}/locations/${state.locationId}/schedule?sessionTypeId=${sessionTypeId}&startDate=${queryStartDate}&endDate=${queryStartDate}`,
+            availabilityRequest
+          );
 
         const availabilityData = await availabilityResponse.json();
         if (availabilityResponse.ok) {
@@ -749,9 +751,9 @@ function App() {
         }));
       }
     };
-
-    getAvailability();
-  }, [state.startDate, state.locationId, state.siteId, state.authorization]);
+    if (clientState.sessionTypeId!=="")
+      getAvailability();
+  }, [state.startDate, state.locationId, state.siteId, state.authorization, clientState.sessionTypeId]);
 
   const removeTags = (str) => {
     if (str === null || str === "") return false;
@@ -1309,6 +1311,10 @@ function App() {
 
             {showHB && (
               <div className="row gx-1 gx-md-2 mt-1 mt-md-3 mb-3 justify-content-center">
+                <button className="closeAddonsButton btn btn-link m-0 p-0" onClick={stepToAvailability}>
+                  <FontAwesomeIcon icon={faTimesCircle} />
+                </button>
+                
                 {showBG && (
                   <div className="col-12 col-sm-6 px-4 px-sm-2 my-3 my-md-0 text-center ">
                     <div
@@ -1326,7 +1332,7 @@ function App() {
                       </div>
                       <div className="row">
                         <div className="col text-center">
-                          <h3 className="h4">Baby's Growth</h3>
+                          <h3 className="h4">Baby's <br className="d-none d-lg-block"/> Growth</h3>
                         </div>
                       </div>
                       {showDetailsBG && (
@@ -1477,7 +1483,7 @@ function App() {
                         </div>
                       </div>
                     )}
-                    <div className="row gx-3 mt-2">
+                    <div className="row algo gx-3 mt-2">
                       <div className="col-6 px-1 m-0">
                         <button
                           type="submit"
@@ -1665,8 +1671,8 @@ function App() {
                 <div className="col text-center">
                   {state.appointmentRequestStatus ===
                     "BOOK-APPOINTMENT-FAIL" && (
-                    <div className="d-block alert alert-danger">
-                      <span> {state.message} </span>
+                    <div className="d-block alert alert-danger text-center">
+                      <span> There has been an error booking your appointment, please try again, if the error persist please call this number: <a href={`tel:${state.phone}`}>{state.phone}</a> and we will get you sorted out </span>
                     </div>
                   )}
                   {state.textMessageStatus === "TEXT-FAIL" && (
@@ -1746,13 +1752,10 @@ function App() {
                 <div className="col">
                   <div className="col">
                     <b>Location Address: </b>
-                    <span
-                      className="link-primary"
-                      style={{ cursor: "pointer" }}
-                      onClick={showInMapClicked}
-                    >
-                      {removeTags(state.address)}
-                    </span>
+                    {removeTags(state.address)}
+                    {/* <span className="link-primary" style={{cursor: "pointer"}}  onClick={showInMapClicked}>
+                    {removeTags(state.address)}
+                    </span> */}
                   </div>
                 </div>
               </div>

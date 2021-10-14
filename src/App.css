@@ -232,3 +232,11 @@ display: inline-block;
   padding-left: 8% !important;
   padding-right: 18% !important;
 }
+
+.closeAddonsButton{
+  position: absolute !important;
+  top: 5px !important;
+  right: 5px !important;
+  width: auto;
+  color: #AE678C !important;
+}
