@@ -28,7 +28,7 @@
 
 @media (min-width: 769px) { 
   .bg-light-container{
-    width: 70% !important;
+    width: 95% !important;
   }
  }
 
@@ -135,6 +135,13 @@ display: inline-block;
   color: #AE678C !important;
   background-color: #f5e6ed !important;
 }
+
+.alert-success{
+  border: solid 2px #AE678C !important;
+  color: #955074 !important;
+  background-color: #dbbdcd !important;
+}
+
 
 .btn-cta{
   font-weight: bold;

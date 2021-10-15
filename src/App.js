@@ -553,24 +553,24 @@ function App() {
       }));
 
       try {
-          const sessionTypeId = "" +clientState.sessionTypeId;
-          const queryStartDate = moment(state.startDate)
-            .format("MM/DD/YYYY")
-            .toString();
+        const sessionTypeId = "" + clientState.sessionTypeId;
+        const queryStartDate = moment(state.startDate)
+          .format("MM/DD/YYYY")
+          .toString();
 
-          const availabilityRequest = {
-            method: "GET",
-            headers: {
-              "Content-type": "application/json; charset=UTF-8",
-              siteid: state.siteId,
-              authorization: state.authorization,
-              locationid: state.locationId,
-            },
-          };
-          const availabilityResponse = await fetch(
-            `${process.env.REACT_APP_API_URL}/api/book/sites/${state.siteId}/locations/${state.locationId}/schedule?sessionTypeId=${sessionTypeId}&startDate=${queryStartDate}&endDate=${queryStartDate}`,
-            availabilityRequest
-          );
+        const availabilityRequest = {
+          method: "GET",
+          headers: {
+            "Content-type": "application/json; charset=UTF-8",
+            siteid: state.siteId,
+            authorization: state.authorization,
+            locationid: state.locationId,
+          },
+        };
+        const availabilityResponse = await fetch(
+          `${process.env.REACT_APP_API_URL}/api/book/sites/${state.siteId}/locations/${state.locationId}/schedule?sessionTypeId=${sessionTypeId}&startDate=${queryStartDate}&endDate=${queryStartDate}`,
+          availabilityRequest
+        );
 
         const availabilityData = await availabilityResponse.json();
         if (availabilityResponse.ok) {
@@ -751,9 +751,14 @@ function App() {
         }));
       }
     };
-    if (clientState.sessionTypeId!=="")
-      getAvailability();
-  }, [state.startDate, state.locationId, state.siteId, state.authorization, clientState.sessionTypeId]);
+    if (clientState.sessionTypeId !== "") getAvailability();
+  }, [
+    state.startDate,
+    state.locationId,
+    state.siteId,
+    state.authorization,
+    clientState.sessionTypeId,
+  ]);
 
   const removeTags = (str) => {
     if (str === null || str === "") return false;
@@ -1165,7 +1170,7 @@ function App() {
           >
             <div className="row mb-3">
               <div className="col">
-                <h1 className="h4 mt-2 mb-3 ">
+                <h1 className="h4 mt-2 mb-3 text-uppercase text-center">
                   {translate("Please enter your information", state.language)}
                 </h1>
                 <h3 className="h6 fw-normal">
@@ -1311,10 +1316,13 @@ function App() {
 
             {showHB && (
               <div className="row gx-1 gx-md-2 mt-1 mt-md-3 mb-3 justify-content-center">
-                <button className="closeAddonsButton btn btn-link m-0 p-0" onClick={stepToAvailability}>
+                <button
+                  className="closeAddonsButton btn btn-link m-0 p-0"
+                  onClick={stepToAvailability}
+                >
                   <FontAwesomeIcon icon={faTimesCircle} />
                 </button>
-                
+
                 {showBG && (
                   <div className="col-12 col-sm-6 px-4 px-sm-2 my-3 my-md-0 text-center ">
                     <div
@@ -1332,7 +1340,9 @@ function App() {
                       </div>
                       <div className="row">
                         <div className="col text-center">
-                          <h3 className="h4">Baby's <br className="d-none d-lg-block"/> Growth</h3>
+                          <h3 className="h4">
+                            Baby's <br className="d-none d-lg-block" /> Growth
+                          </h3>
                         </div>
                       </div>
                       {showDetailsBG && (
@@ -1656,7 +1666,7 @@ function App() {
           <div className="row gx-5">
             {state.appointmentRequestStatus !== "BOOK-APPOINTMENT-OK" && (
               <div className="col d-flex justify-content-between">
-                <h1 className="h3 ">Your booking information</h1>
+                <h1 className="h3 text-uppercase text-center">Your booking information</h1>
                 <button
                   className="btn btn-cta rounded-pill btn-sm px-3 m-2"
                   onClick={() => previousStep("summary")}
@@ -1672,7 +1682,13 @@ function App() {
                   {state.appointmentRequestStatus ===
                     "BOOK-APPOINTMENT-FAIL" && (
                     <div className="d-block alert alert-danger text-center">
-                      <span> There has been an error booking your appointment, please try again, if the error persist please call this number: <a href={`tel:${state.phone}`}>{state.phone}</a> and we will get you sorted out </span>
+                      <span>
+                        {" "}
+                        There has been an error booking your appointment, please
+                        try again, if the error persist please call this number:{" "}
+                        <a href={`tel:${state.phone}`}>{state.phone}</a> and we
+                        will get you sorted out{" "}
+                      </span>
                     </div>
                   )}
                   {state.textMessageStatus === "TEXT-FAIL" && (
@@ -1681,10 +1697,10 @@ function App() {
                     </div>
                   )}
                   {state.appointmentRequestStatus === "BOOK-APPOINTMENT-OK" && (
-                    <div className="d-block alert alert-success">
+                    <div className="d-block alert alert-success text-uppercase text-center fw-bold">
                       <span>
                         {" "}
-                        Your appointment has been successfuly booked{" "}
+                        Hooray! Your appointment has been successfuly booked!{" "}
                       </span>
                     </div>
                   )}
