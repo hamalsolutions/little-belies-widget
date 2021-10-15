@@ -136,6 +136,13 @@ display: inline-block;
   background-color: #f5e6ed !important;
 }
 
+.alert-success{
+  border: solid 2px #AE678C !important;
+  color: #955074 !important;
+  background-color: #dbbdcd !important;
+}
+
+
 .btn-cta{
   font-weight: bold;
   letter-spacing: 1px;
