@@ -187,7 +187,8 @@ function App() {
     block: {
       id: "",
     },
-    captchaReady: bypass,
+    //captchaReady: bypass,
+    captchaReady: true, /// DISABLE CAPTCHA
     showAddons: false,
     textMessageStatus: "IDLE",
     textMessage: "",
@@ -1612,14 +1613,14 @@ function App() {
 
               {state.appointmentRequestStatus !== "BOOK-APPOINTMENT-OK" && (
                 <>
-                <div className="row no-gutters">
+                {/* <div className="row no-gutters">
                   <div className="col captcha-container px-0 d-flex">
                     <ReCAPTCHA
                       sitekey="6LdsCnAcAAAAAHG8I-ADbn4GG6ztVOzEO0C93Yuh"
                       onChange={onChange}
                     />
                   </div>
-                </div>
+                </div> */}
                 <div className="row my-2">
                   <div className="col text-center">
                     <div className="row mt-3">
