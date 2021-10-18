@@ -15,13 +15,13 @@
 
 
 @media (max-width: 576px) { 
-  .bg-light-container{
+  .bg-light-container, .registerForm{
     width: 100% !important;
   }
  }
 
 @media (min-width: 576px) { 
-  .bg-light-container{
+  .bg-light-container, .registerForm{
     width: 100% !important;
   }
  }
@@ -30,22 +30,25 @@
   .bg-light-container{
     width: 95% !important;
   }
+  .registerForm{
+    width: 70% !important;
+  }
  }
 
 @media (min-width: 992px) { 
-  .bg-light-container{
+  .bg-light-container, .registerForm{
     width: 50% !important;
   }
  }
 
 @media (min-width: 1200px) { 
-  .bg-light-container{
+  .bg-light-container, .registerForm{
     width: 50% !important;
   }
  }
 
 @media (min-width: 1400px) { 
-  .bg-light-container{
+  .bg-light-container, .registerForm{
     width: 50% !important;
   }
  }

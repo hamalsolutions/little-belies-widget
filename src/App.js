@@ -1165,7 +1165,7 @@ function App() {
       {state.step === "registerForm" && (
         <>
           <form
-            className="row my-3 bg-light-container mx-auto p-md-4 box-shadow justify-content-center"
+            className="row my-3 registerForm mx-auto p-md-4 box-shadow justify-content-center"
             onSubmit={handleSubmit(onFormSubmit)}
           >
             <div className="row mb-3">
