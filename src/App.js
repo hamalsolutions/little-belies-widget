@@ -1174,7 +1174,7 @@ function App() {
       {state.step === "registerForm" && (
         <>
           <form
-            className="row my-3 registerForm mx-auto p-md-4 box-shadow justify-content-center"
+            className="row my-3 registerForm mx-auto p-md-4 justify-content-center"
             onSubmit={handleSubmit(onFormSubmit)}
           >
             <div className="row mb-3">
@@ -1672,7 +1672,7 @@ function App() {
 
       {state.step === "summary" && (
         <div className="">
-          <div className="row gx-5">
+          <div className="row mt-4 gx-5">
             {state.appointmentRequestStatus !== "BOOK-APPOINTMENT-OK" && (
               <div className="col d-flex justify-content-between">
                 <h1 className="h3 text-uppercase text-center">Your booking information</h1>
@@ -1722,7 +1722,7 @@ function App() {
               </div>
             )}
           </div>
-          <div className="row w-50 mb-3 bg-light-container mx-auto p-4 box-shadow justify-content-center">
+          <div className="row w-50 mb-3 bg-light-container mx-auto p-4 justify-content-center">
             <div>
               <div className="row my-3">
                 <div className="col">
