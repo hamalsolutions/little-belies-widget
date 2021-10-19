@@ -1171,7 +1171,6 @@ function App() {
   // console.log(state.locationId);
   return (
     <div className="container">
-      {clientState.sessionTypeId} - {clientState.sessionTypeName}
       {state.step === "registerForm" && (
         <>
           <form
