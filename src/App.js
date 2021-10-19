@@ -975,29 +975,6 @@ function App() {
     let sessionTypeId = data.service.value;
     let sessionTypeName = data.service.label;
 
-    // Changes the service in case of adding Babys Growth
-    if (data.service.value === ultrasounds[3].value && addBabysGrowth) {
-      sessionTypeId = getBGCombo(
-        "Meet Your Baby - 25 Min 5D/HD + Baby's Growth $168",
-        consultedUltrasounds
-      );
-      sessionTypeName = "Meet Your Baby - 25 Min 5D/HD + Baby's Growth $168";
-    }
-    if (data.service.value === ultrasounds[2].value && addBabysGrowth) {
-      sessionTypeId = getBGCombo(
-        "Meet Your Baby - 15 Min 5D/HD + Baby's Growth $128",
-        consultedUltrasounds
-      );
-      sessionTypeName = "Meet Your Baby - 15 Min 5D/HD + Baby's Growth $128";
-    }
-    if (data.service.value === ultrasounds[1].value && addBabysGrowth) {
-      sessionTypeId = getBGCombo(
-        "Gender Determination  + Baby's Growth - $108",
-        consultedUltrasounds
-      );
-      sessionTypeName = "Gender Determination  + Baby's Growth - $108";
-    }
-
     setClientState((clientState) => ({
       ...clientState,
       firstName: data.firstName,
@@ -1122,8 +1099,39 @@ function App() {
       step: "summary",
     }));
   };
-  // Takes the app to the summary step of booking
+  // Takes the app to the availability step of booking
   const stepToAvailability = () => {
+    
+    let newSessionTypeId = clientState.sessionTypeId;
+    let newSessionTypeName = clientState.sessionTypeName;
+
+    // Changes the service in case of adding Babys Growth
+    if (clientState.sessionTypeId === ultrasounds[3].value && addBabysGrowth) {
+      newSessionTypeId = getBGCombo(
+        "Meet Your Baby - 25 Min 5D/HD + Baby's Growth $168",
+        consultedUltrasounds
+      );
+      newSessionTypeName = "Meet Your Baby - 25 Min 5D/HD + Baby's Growth $168";
+    }
+    if (clientState.sessionTypeId === ultrasounds[2].value && addBabysGrowth) {
+      newSessionTypeId = getBGCombo(
+        "Meet Your Baby - 15 Min 5D/HD + Baby's Growth $128",
+        consultedUltrasounds
+      );
+      newSessionTypeName = "Meet Your Baby - 15 Min 5D/HD + Baby's Growth $128";
+    }
+    if (clientState.sessionTypeId === ultrasounds[1].value && addBabysGrowth) {
+      newSessionTypeId = getBGCombo(
+        "Gender Determination  + Baby's Growth - $108",
+        consultedUltrasounds
+      );
+      newSessionTypeName = "Gender Determination  + Baby's Growth - $108";
+    }
+    setClientState((clientState) => ({
+      ...clientState,
+      sessionTypeId: newSessionTypeId,
+      sessionTypeName: newSessionTypeName,
+    }));
     setState((state) => ({
       ...state,
       step: "availability",
@@ -1163,6 +1171,7 @@ function App() {
   // console.log(state.locationId);
   return (
     <div className="container">
+      {clientState.sessionTypeId} - {clientState.sessionTypeName}
       {state.step === "registerForm" && (
         <>
           <form
