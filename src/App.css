@@ -13,42 +13,42 @@
   background-color: rgb(248, 249, 250) !important;
 }
 
-.bg-light-container{
-  background-color: rgb(239, 239, 239) !important;
-}
 
 @media (max-width: 576px) { 
-  .bg-light-container{
+  .bg-light-container, .registerForm{
     width: 100% !important;
   }
  }
 
 @media (min-width: 576px) { 
-  .bg-light-container{
+  .bg-light-container, .registerForm{
     width: 100% !important;
   }
  }
 
-@media (min-width: 768px) { 
+@media (min-width: 769px) { 
   .bg-light-container{
+    width: 95% !important;
+  }
+  .registerForm{
     width: 70% !important;
   }
  }
 
 @media (min-width: 992px) { 
-  .bg-light-container{
+  .bg-light-container, .registerForm{
     width: 50% !important;
   }
  }
 
 @media (min-width: 1200px) { 
-  .bg-light-container{
+  .bg-light-container, .registerForm{
     width: 50% !important;
   }
  }
 
 @media (min-width: 1400px) { 
-  .bg-light-container{
+  .bg-light-container, .registerForm{
     width: 50% !important;
   }
  }
@@ -139,6 +139,13 @@ display: inline-block;
   background-color: #f5e6ed !important;
 }
 
+.alert-success{
+  border: solid 2px #AE678C !important;
+  color: #955074 !important;
+  background-color: #dbbdcd !important;
+}
+
+
 .btn-cta{
   font-weight: bold;
   letter-spacing: 1px;
@@ -176,11 +183,11 @@ display: inline-block;
 }
 
 .smaller-text {
-  font-size: 0.9rem !important;
+  font-size: 0.775rem !important;
 }
 
 .addOnIcon {
-  font-size: 2rem !important;
+  font-size: 2.3rem !important;
 }
 
 .groupTextStyles  {
@@ -230,3 +237,16 @@ display: inline-block;
 	top: 0;
 	width: 100%;
 	}
+
+.padding-x-25{
+  padding-left: 8% !important;
+  padding-right: 18% !important;
+}
+
+.closeAddonsButton{
+  position: absolute !important;
+  top: 5px !important;
+  right: 5px !important;
+  width: auto;
+  color: #AE678C !important;
+}
