@@ -302,7 +302,7 @@ function App() {
     return service.substring(0, service.lastIndexOf("-")).trim();
   };
   // const parent_origin = 'https://test.littlebelliesspa.com'
-  const parent_origin = 'https://littlebelliesspa.com'
+  const parent_origin = 'https://www.littlebelliesspa.com'
   const scrollParenTop = () => {
     window.parent.postMessage({'task': 'scroll_top'}, parent_origin);
   }
