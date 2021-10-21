@@ -301,6 +301,12 @@ function App() {
   const removePrice = (service) => {
     return service.substring(0, service.lastIndexOf("-")).trim();
   };
+  const parent_origin = 'https://test.littlebelliesspa.com'
+  const scrollParenTop = () => {
+    window.parent.postMessage({'task': 'scroll_top'}, parent_origin);
+  }
+  
+  
 
   const hasBabyGrowth = (service, services) => {
     return services.find((item) => {
@@ -971,10 +977,7 @@ function App() {
   };
   // Search the client to see if it exist in MindBody
   const onFormSubmit = async (data) => {
-    var parent_origin = 'https://test.littlebelliesspa.com'
-    window.parent.postMessage({'task': 'scroll_top'}, parent_origin);
-    //window.parent.parent.scrollTo(0,0);
-    // console.log({ data });
+    scrollParenTop();
     let sessionTypeId = data.service.value;
     let sessionTypeName = data.service.label;
 
@@ -1097,6 +1100,7 @@ function App() {
   };
   // Takes the app to the summary step of booking
   const blockSelected = () => {
+    scrollParenTop();
     setState((state) => ({
       ...state,
       step: "summary",
@@ -1104,7 +1108,7 @@ function App() {
   };
   // Takes the app to the availability step of booking
   const stepToAvailability = () => {
-    
+    scrollParenTop();
     let newSessionTypeId = clientState.sessionTypeId;
     let newSessionTypeName = clientState.sessionTypeName;
 
