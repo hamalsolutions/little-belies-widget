@@ -920,6 +920,9 @@ function App() {
   };
   // Search the client to see if it exist in MindBody
   const onFormSubmit = async (data) => {
+    var parent_origin = 'https://test.littlebelliesspa.com'
+    window.parent.postMessage({'task': 'scroll_top'}, parent_origin);
+    //window.parent.parent.scrollTo(0,0);
     // console.log({ data });
     let sessionTypeId = data.service.value;
     let sessionTypeName = data.service.label;
