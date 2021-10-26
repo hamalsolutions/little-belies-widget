@@ -167,7 +167,7 @@ const translations = {
 function App() {
   const params = new URLSearchParams(window.location.search);
   const languageList = { en: "English", es: "Spanish" };
-  const bypass = false;
+  const bypass = true;
   const [firstLoad, setFirstLoad] = useState(true);
   const translate = (text) => {
     const trans = translations[params.get("lang") || "en"];
@@ -823,6 +823,7 @@ function App() {
     try {
       /// BYPASS BOOKING
       if (bypass) {
+        googleTrackBooking();
         setState((state) => ({
           ...state,
           appointmentRequestStatus: "BOOK-APPOINTMENT-OK",
