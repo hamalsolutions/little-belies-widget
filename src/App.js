@@ -301,10 +301,15 @@ function App() {
   const removePrice = (service) => {
     return service.substring(0, service.lastIndexOf("-")).trim();
   };
-  // const parent_origin = 'https://test.littlebelliesspa.com'
-  const parent_origin = 'https://www.littlebelliesspa.com'
+  const parent_origin = 'https://test.littlebelliesspa.com'
+  // const parent_origin = 'https://www.littlebelliesspa.com'
   const scrollParenTop = () => {
     window.parent.postMessage({'task': 'scroll_top'}, parent_origin);
+  }
+
+  const googleTrackBooking = () => {
+    console.log("sending task to parent");
+    window.parent.postMessage({'task': 'google_track_booking'}, parent_origin);
   }
   
   
@@ -949,6 +954,7 @@ function App() {
           const textMessageData = await textMessageResponse.json();
           if (textMessageResponse.ok) {
             // console.log(textMessageData);
+            googleTrackBooking();
             setState((state) => ({
               ...state,
               appointmentRequestStatus: "BOOK-APPOINTMENT-OK",
