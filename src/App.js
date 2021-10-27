@@ -167,7 +167,7 @@ const translations = {
 function App() {
   const params = new URLSearchParams(window.location.search);
   const languageList = { en: "English", es: "Spanish" };
-  const bypass = true;
+  const bypass = false;
   const [firstLoad, setFirstLoad] = useState(true);
   const translate = (text) => {
     const trans = translations[params.get("lang") || "en"];
@@ -301,8 +301,8 @@ function App() {
   const removePrice = (service) => {
     return service.substring(0, service.lastIndexOf("-")).trim();
   };
-  const parent_origin = 'https://test.littlebelliesspa.com'
-  // const parent_origin = 'https://www.littlebelliesspa.com'
+  // const parent_origin = 'https://test.littlebelliesspa.com'
+  const parent_origin = 'https://www.littlebelliesspa.com'
   const scrollParenTop = () => {
     window.parent.postMessage({'task': 'scroll_top'}, parent_origin);
   }
@@ -823,7 +823,6 @@ function App() {
     try {
       /// BYPASS BOOKING
       if (bypass) {
-        googleTrackBooking();
         setState((state) => ({
           ...state,
           appointmentRequestStatus: "BOOK-APPOINTMENT-OK",
