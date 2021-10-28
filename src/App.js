@@ -960,40 +960,46 @@ function App() {
           if (textMessageResponse.ok) {
             // console.log(textMessageData);
             googleTrackBooking();
-            setState((state) => ({
-              ...state,
-              appointmentRequestStatus: "BOOK-APPOINTMENT-OK",
-            }));
-            const leadPayload = {
-              partititonKey: leadState.partititonKey,
-              orderKey: leadState.orderKey,
-            };
-            const leadRequest = {
-              method: "DELETE",
-              headers: {
-                "Content-type": "application/json; charset=UTF-8",
-                authorization: state.authorization,
-                siteid: state.siteId,
-              },
-              body: JSON.stringify(leadPayload),
-            };
-            const leadResponse = await fetch(
-              `${process.env.REACT_APP_API_URL}/api/book/clients`,
-              leadRequest
-            );
-            const leadData = await leadResponse.json();
-            if (leadResponse.ok) {
-              setLeadState((leadState) => ({
-                ...leadState,
-                leadDeleted: true,
-              }));
-            } else {
-              setLeadState((leadState) => ({
-                ...leadState,
-                leadDeleted: false,
-              }));
-              console.log("Error deleting lead");
-              console.error(leadData);
+            if (leadState.leadRegistered) {
+              const leadPayload = {
+                partititonKey: leadState.partititonKey,
+                orderKey: leadState.orderKey,
+              };
+              const leadRequest = {
+                method: "DELETE",
+                headers: {
+                  "Content-type": "application/json; charset=UTF-8",
+                  authorization: state.authorization,
+                  siteid: state.siteId,
+                },
+                body: JSON.stringify(leadPayload),
+              };
+              const leadResponse = await fetch(
+                `${process.env.REACT_APP_API_URL}/api/book/clients`,
+                leadRequest
+              );
+              const leadData = await leadResponse.json();
+              if (leadResponse.ok) {
+                setLeadState((leadState) => ({
+                  ...leadState,
+                  leadDeleted: true,
+                }));
+                setState((state) => ({
+                  ...state,
+                  appointmentRequestStatus: "BOOK-APPOINTMENT-OK",
+                }));
+              } else {
+                setState((state) => ({
+                  ...state,
+                  appointmentRequestStatus: "BOOK-APPOINTMENT-OK",
+                }));
+                setLeadState((leadState) => ({
+                  ...leadState,
+                  leadDeleted: false,
+                }));
+                console.log("Error deleting lead");
+                console.error(leadData);
+              }
             }
           } else {
             setState((state) => ({
