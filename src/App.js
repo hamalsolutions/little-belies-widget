@@ -1080,44 +1080,6 @@ function App() {
             clientObject: searchClientsData.clients[0],
             searchResults: searchClientsData.clients,
           }));
-          const leadPayload = {
-            siteId: state.siteId,
-            name: data.firstName + " " + data.lastName,
-            mobilePhone: data.phone,
-            email: data.email,
-            service: sessionTypeName,
-          };
-          const leadRequest = {
-            method: "POST",
-            headers: {
-              "Content-type": "application/json; charset=UTF-8",
-              authorization: state.authorization,
-              siteid: state.siteId,
-            },
-            body: JSON.stringify(leadPayload),
-          };
-          const leadResponse = await fetch(
-            `${process.env.REACT_APP_API_URL}/api/book/clients`,
-            leadRequest
-          );
-          const leadData = await leadResponse.json();
-          if (leadResponse.ok) {
-            setLeadState((leadState) => ({
-              ...leadState,
-              clientFound: true,
-              leadRegistered: true,
-              partititonKey: leadData.partititonKey,
-              orderKey: leadData.orderKey,
-            }));
-          } else {
-            setLeadState((leadState) => ({
-              ...leadState,
-              clientFound: true,
-              leadRegistered: false,
-            }));
-            console.log("Error registering lead");
-            console.error(leadData);
-          }
         } else {
           setClientState((clientState) => ({
             ...clientState,
@@ -1128,7 +1090,6 @@ function App() {
           setLeadState((leadState) => ({
             ...leadState,
             clientFound: false,
-            leadRegistered: false,
           }));
         }
       } else {
@@ -1140,8 +1101,45 @@ function App() {
         setLeadState((leadState) => ({
           ...leadState,
           clientFound: false,
+        }));
+      }
+      const leadPayload = {
+        siteId: state.siteId,
+        name: data.firstName + " " + data.lastName,
+        mobilePhone: data.phone,
+        email: data.email,
+        service: sessionTypeName,
+      };
+      const leadRequest = {
+        method: "POST",
+        headers: {
+          "Content-type": "application/json; charset=UTF-8",
+          authorization: state.authorization,
+          siteid: state.siteId,
+        },
+        body: JSON.stringify(leadPayload),
+      };
+      const leadResponse = await fetch(
+        `${process.env.REACT_APP_API_URL}/api/book/clients`,
+        leadRequest
+      );
+      const leadData = await leadResponse.json();
+      if (leadResponse.ok) {
+        setLeadState((leadState) => ({
+          ...leadState,
+          clientFound: true,
+          leadRegistered: true,
+          partititonKey: leadData.partititonKey,
+          orderKey: leadData.orderKey,
+        }));
+      } else {
+        setLeadState((leadState) => ({
+          ...leadState,
+          clientFound: true,
           leadRegistered: false,
         }));
+        console.log("Error registering lead");
+        console.error(leadData);
       }
     } catch (error) {
       setState((state) => ({
