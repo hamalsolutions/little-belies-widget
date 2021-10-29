@@ -240,6 +240,13 @@ function App() {
     "id"
   )}`;
   const [width, setWindowWidth] = useState(0);
+  const [leadState, setLeadState] = useState({
+    clientFound: false,
+    leadRegistered: false,
+    leadDeleted: false,
+    partititonKey: "",
+    orderKey: "",
+  });
 
   const onChangeServices = (service) => {
     // console.log({service});
@@ -302,17 +309,15 @@ function App() {
     return service.substring(0, service.lastIndexOf("-")).trim();
   };
   // const parent_origin = 'https://test.littlebelliesspa.com'
-  const parent_origin = 'https://www.littlebelliesspa.com'
+  const parent_origin = "https://www.littlebelliesspa.com";
   const scrollParenTop = () => {
-    window.parent.postMessage({'task': 'scroll_top'}, parent_origin);
-  }
+    window.parent.postMessage({ task: "scroll_top" }, parent_origin);
+  };
 
   const googleTrackBooking = () => {
     console.log("sending task to parent");
-    window.parent.postMessage({'task': 'google_track_booking'}, parent_origin);
-  }
-  
-  
+    window.parent.postMessage({ task: "google_track_booking" }, parent_origin);
+  };
 
   const hasBabyGrowth = (service, services) => {
     return services.find((item) => {
@@ -955,10 +960,47 @@ function App() {
           if (textMessageResponse.ok) {
             // console.log(textMessageData);
             googleTrackBooking();
-            setState((state) => ({
-              ...state,
-              appointmentRequestStatus: "BOOK-APPOINTMENT-OK",
-            }));
+            if (leadState.leadRegistered) {
+              const leadPayload = {
+                partititonKey: leadState.partititonKey,
+                orderKey: leadState.orderKey,
+              };
+              const leadRequest = {
+                method: "DELETE",
+                headers: {
+                  "Content-type": "application/json; charset=UTF-8",
+                  authorization: state.authorization,
+                  siteid: state.siteId,
+                },
+                body: JSON.stringify(leadPayload),
+              };
+              const leadResponse = await fetch(
+                `${process.env.REACT_APP_API_URL}/api/book/clients`,
+                leadRequest
+              );
+              const leadData = await leadResponse.json();
+              if (leadResponse.ok) {
+                setLeadState((leadState) => ({
+                  ...leadState,
+                  leadDeleted: true,
+                }));
+                setState((state) => ({
+                  ...state,
+                  appointmentRequestStatus: "BOOK-APPOINTMENT-OK",
+                }));
+              } else {
+                setState((state) => ({
+                  ...state,
+                  appointmentRequestStatus: "BOOK-APPOINTMENT-OK",
+                }));
+                setLeadState((leadState) => ({
+                  ...leadState,
+                  leadDeleted: false,
+                }));
+                console.log("Error deleting lead");
+                console.error(leadData);
+              }
+            }
           } else {
             setState((state) => ({
               ...state,
@@ -1045,6 +1087,10 @@ function App() {
             clientObject: searchClientsData.clients[0],
             searchResults: searchClientsData.clients,
           }));
+          setLeadState((leadState) => ({
+            ...leadState,
+            clientFound: false,
+          }));
         }
       } else {
         setClientState((clientState) => ({
@@ -1052,6 +1098,48 @@ function App() {
           clientRequestStatus: "CLIENT-NOT-FOUND",
           searchResults: [],
         }));
+        setLeadState((leadState) => ({
+          ...leadState,
+          clientFound: false,
+        }));
+      }
+      const leadPayload = {
+        siteId: state.siteId,
+        name: data.firstName + " " + data.lastName,
+        mobilePhone: data.phone,
+        email: data.email,
+        service: sessionTypeName,
+      };
+      const leadRequest = {
+        method: "POST",
+        headers: {
+          "Content-type": "application/json; charset=UTF-8",
+          authorization: state.authorization,
+          siteid: state.siteId,
+        },
+        body: JSON.stringify(leadPayload),
+      };
+      const leadResponse = await fetch(
+        `${process.env.REACT_APP_API_URL}/api/book/clients`,
+        leadRequest
+      );
+      const leadData = await leadResponse.json();
+      if (leadResponse.ok) {
+        setLeadState((leadState) => ({
+          ...leadState,
+          clientFound: true,
+          leadRegistered: true,
+          partititonKey: leadData.partititonKey,
+          orderKey: leadData.orderKey,
+        }));
+      } else {
+        setLeadState((leadState) => ({
+          ...leadState,
+          clientFound: true,
+          leadRegistered: false,
+        }));
+        console.log("Error registering lead");
+        console.error(leadData);
       }
     } catch (error) {
       setState((state) => ({
@@ -1689,7 +1777,9 @@ function App() {
           <div className="row mt-4 gx-5">
             {state.appointmentRequestStatus !== "BOOK-APPOINTMENT-OK" && (
               <div className="col d-flex justify-content-between">
-                <h1 className="h3 text-uppercase text-center">Your booking information</h1>
+                <h1 className="h3 text-uppercase text-center">
+                  Your booking information
+                </h1>
                 <button
                   className="btn btn-cta rounded-pill btn-sm px-3 m-2"
                   onClick={() => previousStep("summary")}
