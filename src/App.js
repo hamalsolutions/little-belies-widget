@@ -549,7 +549,7 @@ function App() {
       value: "I don't know",
       label: "I don't know",
     });
-    for (let index = 4; index < 34; index++) {
+    for (let index = 4; index < 43; index++) {
       const element = {
         value: "" + index,
         label: "" + index,
