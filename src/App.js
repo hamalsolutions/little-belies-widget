@@ -1421,7 +1421,7 @@ function App() {
           <div className="row my-3 bg-light-container mx-auto p-md-4 justify-content-center">
             <div className="row mt-3 justify-content-center">
               <div className="col">
-                <h3 className="h2">Check out our amazing addons</h3>
+                <h3 className="h2">Check out our amazing add ons</h3>
               </div>
             </div>
 
