@@ -931,15 +931,15 @@ function App() {
         const bookAppointmentData = await bookAppointmentResponse.json();
         if (bookAppointmentResponse.ok) {
           const dynamoPayload = {
-            sessionTypeId: bookAppointmentResponse.SessionTypeId,
-            locationId:bookAppointmentResponse.LocationId,
-            staffId: bookAppointmentResponse.StaffId,
-            clientId: bookAppointmentResponse.ClientId,
-            notes: bookAppointmentResponse.Notes,
-            startDateTime: bookAppointmentResponse.StartDateTime,
-            status: bookAppointmentResponse.Status,
-            firstAppointment: bookAppointmentResponse.FirstAppointment,
-            addOns: addHeartbeatBuddies ? "HeartBeat Buddies" : bookAppointmentResponse.AddOns,
+            sessionTypeId: bookAppointmentData.SessionTypeId,
+            locationId:bookAppointmentData.LocationId,
+            staffId: bookAppointmentData.StaffId,
+            clientId: bookAppointmentData.ClientId,
+            notes: bookAppointmentData.Notes,
+            startDateTime: bookAppointmentData.StartDateTime,
+            status: bookAppointmentData.Status,
+            firstAppointment: bookAppointmentData.FirstAppointment,
+            addOns: addHeartbeatBuddies ? "HeartBeat Buddies" : bookAppointmentData.AddOns,
             siteId: state.siteId,            
             source: "online",
           };
