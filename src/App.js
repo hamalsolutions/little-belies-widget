@@ -932,10 +932,10 @@ function App() {
         if (bookAppointmentResponse.ok) {
           const dynamoPayload = {
             id: bookAppointmentData.Appointment.Id,
-            sessionTypeId: bookAppointmentData.Appointment.SessionTypeId,
-            locationId:bookAppointmentData.Appointment.LocationId,
-            staffId: bookAppointmentData.Appointment.StaffId,
-            clientId: bookAppointmentData.Appointment.ClientId,
+            sessionTypeId: "" +bookAppointmentData.Appointment.SessionTypeId,
+            locationId: "" +bookAppointmentData.Appointment.LocationId,
+            staffId: "" +bookAppointmentData.Appointment.StaffId,
+            clientId: "" +bookAppointmentData.Appointment.ClientId,
             notes: bookAppointmentData.Appointment.Notes,
             startDateTime: bookAppointmentData.Appointment.StartDateTime,
             status: bookAppointmentData.Appointment.Status,
