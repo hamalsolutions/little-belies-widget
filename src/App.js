@@ -931,6 +931,7 @@ function App() {
         const bookAppointmentData = await bookAppointmentResponse.json();
         if (bookAppointmentResponse.ok) {
           const dynamoPayload = {
+            appointmentId: bookAppointmentData.Appointment.Id,
             sessionTypeId: bookAppointmentData.Appointment.SessionTypeId,
             locationId:bookAppointmentData.Appointment.LocationId,
             staffId: bookAppointmentData.Appointment.StaffId,
