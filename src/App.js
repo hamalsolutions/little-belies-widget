@@ -930,82 +930,116 @@ function App() {
         );
         const bookAppointmentData = await bookAppointmentResponse.json();
         if (bookAppointmentResponse.ok) {
-          const smsPayload = {
-            clientName: clientState.firstName + " " + clientState.lastName,
-            service: clientState.sessionTypeName,
-            date: moment(state.block.blockDate).format("MM-DD-YYYY").toString(),
-            time: moment(state.block.blockDate).format("hh:mm A").toString(),
-            address: removeTags(state.address),
-            arrive: removeTags(state.howtoarrive),
-            locationPhone: state.phone,
-            clientMobilePhone: clientState.phone,
-            locationName: "Little Bellies - " + state.city,
+          const dynamoPayload = {
+            id: "" + bookAppointmentData.Appointment.Id,
+            sessionTypeId: "" +bookAppointmentData.Appointment.SessionTypeId,
+            locationId: "" +bookAppointmentData.Appointment.LocationId,
+            staffId: "" +bookAppointmentData.Appointment.StaffId,
+            clientId: "" +bookAppointmentData.Appointment.ClientId,
+            notes: bookAppointmentData.Appointment.Notes,
+            startDateTime: bookAppointmentData.Appointment.StartDateTime,
+            status: bookAppointmentData.Appointment.Status,
+            firstAppointment: bookAppointmentData.Appointment.FirstAppointment,
+            addOns: addHeartbeatBuddies ? "HeartBeat Buddies" : bookAppointmentData.Appointment.AddOns,
+            siteId: state.siteId,            
+            source: "online",
           };
-          const textMessageRequest = {
-            method: "POST",
+          const putDynamo = {
+            method: "PUT",
             headers: {
               "Content-type": "application/json; charset=UTF-8",
-              siteid: state.siteId,
-              locationid: state.locationId,
             },
-            body: JSON.stringify(smsPayload),
+            body: JSON.stringify(dynamoPayload),
           };
-
-          const textMessageResponse = await fetch(
-            `${process.env.REACT_APP_API_URL}/api/services/sendSms/booking`,
-            textMessageRequest
+          const dynamoResponse = await fetch(
+            `${process.env.REACT_APP_API_URL}/api/dynamoDB/appointments`,
+            putDynamo
           );
+          const dynamoData = await dynamoResponse.json();
+          if (dynamoResponse.ok) {
+            const smsPayload = {
+              clientName: clientState.firstName + " " + clientState.lastName,
+              service: clientState.sessionTypeName,
+              date: moment(state.block.blockDate).format("MM-DD-YYYY").toString(),
+              time: moment(state.block.blockDate).format("hh:mm A").toString(),
+              address: removeTags(state.address),
+              arrive: removeTags(state.howtoarrive),
+              locationPhone: state.phone,
+              clientMobilePhone: clientState.phone,
+              locationName: "Little Bellies - " + state.city,
+            };
+            const textMessageRequest = {
+              method: "POST",
+              headers: {
+                "Content-type": "application/json; charset=UTF-8",
+                siteid: state.siteId,
+                locationid: state.locationId,
+              },
+              body: JSON.stringify(smsPayload),
+            };
 
-          const textMessageData = await textMessageResponse.json();
-          if (textMessageResponse.ok) {
-            // console.log(textMessageData);
-            googleTrackBooking();
-            if (leadState.leadRegistered) {
-              const leadPayload = {
-                partititonKey: leadState.partititonKey,
-                orderKey: leadState.orderKey,
-              };
-              const leadRequest = {
-                method: "DELETE",
-                headers: {
-                  "Content-type": "application/json; charset=UTF-8",
-                  authorization: state.authorization,
-                  siteid: state.siteId,
-                },
-                body: JSON.stringify(leadPayload),
-              };
-              const leadResponse = await fetch(
-                `${process.env.REACT_APP_API_URL}/api/book/clients`,
-                leadRequest
-              );
-              const leadData = await leadResponse.json();
-              if (leadResponse.ok) {
-                setLeadState((leadState) => ({
-                  ...leadState,
-                  leadDeleted: true,
-                }));
-                setState((state) => ({
-                  ...state,
-                  appointmentRequestStatus: "BOOK-APPOINTMENT-OK",
-                }));
-              } else {
-                setState((state) => ({
-                  ...state,
-                  appointmentRequestStatus: "BOOK-APPOINTMENT-OK",
-                }));
-                setLeadState((leadState) => ({
-                  ...leadState,
-                  leadDeleted: false,
-                }));
-                console.log("Error deleting lead");
-                console.error(leadData);
+            const textMessageResponse = await fetch(
+              `${process.env.REACT_APP_API_URL}/api/services/sendSms/booking`,
+              textMessageRequest
+            );
+
+            const textMessageData = await textMessageResponse.json();
+            if (textMessageResponse.ok) {
+              // console.log(textMessageData);
+              googleTrackBooking();
+              if (leadState.leadRegistered) {
+                const leadPayload = {
+                  partititonKey: leadState.partititonKey,
+                  orderKey: leadState.orderKey,
+                };
+                const leadRequest = {
+                  method: "DELETE",
+                  headers: {
+                    "Content-type": "application/json; charset=UTF-8",
+                    authorization: state.authorization,
+                    siteid: state.siteId,
+                  },
+                  body: JSON.stringify(leadPayload),
+                };
+                const leadResponse = await fetch(
+                  `${process.env.REACT_APP_API_URL}/api/book/clients`,
+                  leadRequest
+                );
+                const leadData = await leadResponse.json();
+                if (leadResponse.ok) {
+                  setLeadState((leadState) => ({
+                    ...leadState,
+                    leadDeleted: true,
+                  }));
+                  setState((state) => ({
+                    ...state,
+                    appointmentRequestStatus: "BOOK-APPOINTMENT-OK",
+                  }));
+                } else {
+                  setState((state) => ({
+                    ...state,
+                    appointmentRequestStatus: "BOOK-APPOINTMENT-OK",
+                  }));
+                  setLeadState((leadState) => ({
+                    ...leadState,
+                    leadDeleted: false,
+                  }));
+                  console.log("Error deleting lead");
+                  console.error(leadData);
+                }
               }
+            } else {
+              setState((state) => ({
+                ...state,
+                textMessageStatus: "TEXT-FAIL",
+                textMessage: JSON.stringify(textMessageData),
+              }));
             }
           } else {
             setState((state) => ({
               ...state,
-              textMessageStatus: "TEXT-FAIL",
-              textMessage: JSON.stringify(textMessageData),
+              appointmentRequestStatus: "BOOK-APPOINTMENT-FAIL",
+              message: JSON.stringify(dynamoData),
             }));
           }
         } else {
