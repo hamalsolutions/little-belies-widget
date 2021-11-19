@@ -1472,13 +1472,13 @@ function App() {
             
             {state.displayTerms && (
               <div className="lb-modal-overlay" onClick={hideTerms}>
-               <button
-                  className="closeAddonsButton btn btn-link m-0 p-0"
-                  onClick={hideTerms}
-                >
-                  <FontAwesomeIcon className="white-icon" size="lg" icon={faTimesCircle} />
-                </button>
                <div className="lb-modal rounded">
+                <button
+                    className="closeTermsButton btn btn-link m-0 p-0"
+                    onClick={hideTerms}
+                  >
+                    <FontAwesomeIcon className="white-icon" size="lg" icon={faTimesCircle} />
+                  </button>
                  <div className="lb-modal-body py-3 px-4 text-justify ">
                    <div className="row px-2 pb-2">
                      <div className="col ">
@@ -1514,7 +1514,7 @@ function App() {
                  </div>
                  <div className="lb-modal-footer lb-text-center ">
                    <button className="btn btn-cta-active rounded-pill px-3 mx-auto">
-                     Accept
+                     Close
                    </button>
                  </div>
                </div>
