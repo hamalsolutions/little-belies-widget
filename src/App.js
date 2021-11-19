@@ -207,6 +207,7 @@ function App() {
     //showbabyGrowth: false,
     //addBabysGrowth: false,
     //addHeartbeatBuddies: false,
+    displayTerms: false,
   });
   const [clientState, setClientState] = useState({
     firstName: "",
@@ -1305,6 +1306,20 @@ function App() {
   // console.log("availableBlocks");
   // console.log(availableBlocks);
   // console.log(state.locationId);
+
+  const showTerms = () => {
+    setState((state) => ({
+      ...state,
+      displayTerms: true,
+    }));
+  };
+  const hideTerms = () => {
+    setState((state) => ({
+      ...state,
+      displayTerms: false,
+    }));
+  };
+
   return (
     <div className="container">
       {state.step === "registerForm" && (
@@ -1435,6 +1450,78 @@ function App() {
                 />
               </div>
             </div>
+
+            <div className="row mb-2">
+              <div className="col text-left">
+              <Controller
+                name="temsCheckbox"
+                control={control}
+                rules={{ required: true }}
+                render={({ field }) =>
+                  <div className="form-check">
+                    <input className={"form-check-input" + (errors.temsCheckbox ? " is-select-invalid" : "")} {...field} type="checkbox"/>
+                    <label className={"form-check-label mx-2 " + (errors.temsCheckbox ? " text-danger" : "")}>
+                      { (errors.temsCheckbox && <>You have to agree to <button type="button" className="btn btn-link pt-0 px-0 mx-0 mt-0" onClick={showTerms}> terms and conditions</button></>)}
+                      { (!errors.temsCheckbox && <>Agree to <button type="button" className="btn btn-link pt-0 px-0 mx-0 mt-0" onClick={showTerms}> terms and conditions</button></>)}
+                    </label>
+                  </div>
+                }
+              />
+              </div>
+            </div>
+            
+            {state.displayTerms && (
+              <div className="lb-modal-overlay" onClick={hideTerms}>
+               <button
+                  className="closeAddonsButton btn btn-link m-0 p-0"
+                  onClick={hideTerms}
+                >
+                  <FontAwesomeIcon className="white-icon" size="lg" icon={faTimesCircle} />
+                </button>
+               <div className="lb-modal rounded">
+                 <div className="lb-modal-body py-3 px-4 text-justify ">
+                   <div className="row px-2 pb-2">
+                     <div className="col ">
+                       <h3>Little Bellies Terms of services.</h3>
+                     </div>
+                   </div>
+                    <>
+                      <p className="px-3 pt-3">
+                        I am receiving ongoing prenatal care. <br />
+                        <br />
+                        I have undergone a medical diagnostic ultrasound
+                        prescribed by my OB provider in regard to this
+                        pregnancy. <br />
+                        <br />I understand that my OB provider ultimately will
+                        confirm my due date, screen for fetal abnormalities
+                        and/or any issues/concerns related to my pregnancy.{" "}
+                        <br />
+                        <br /> Little Bellies is not a medical provider and will
+                        not do any of the foregoing. <br />
+                        <br />I understand that this ultrasound may not last
+                        more than 25 minutes and will focus on my pelvic area.{" "}
+                        <br />
+                        <br />
+                        I understand that this is a limited non-medical
+                        ultrasound and does not replace any diagnostic
+                        ultrasound ordered by my OB provider. <br />
+                        <br />
+                        I understand that there is a possibility that the wrong
+                        gender may be assigned to my baby. <br />
+                        <br />
+                      </p>
+                    </>
+                 </div>
+                 <div className="lb-modal-footer lb-text-center ">
+                   <button className="btn btn-cta-active rounded-pill px-3 mx-auto">
+                     Accept
+                   </button>
+                 </div>
+               </div>
+             </div>
+            )}
+
+
 
             <div className="row my-3">
               <div className="col text-center">
@@ -1690,7 +1777,7 @@ function App() {
                 {(addHeartbeatBuddies || addBabysGrowth) && (
                   <button
                     type="button"
-                    class="btn btn-selected-block btn-sm rounded-pill px-3 m-2"
+                    className="btn btn-selected-block btn-sm rounded-pill px-3 m-2"
                     onClick={stepToAvailability}
                   >
                     Check availability
@@ -1699,7 +1786,7 @@ function App() {
                 {!addHeartbeatBuddies && !addBabysGrowth && (
                   <button
                     type="button"
-                    class="btn btn-outline-secondary rounded-pill btn-sm px-3 m-2"
+                    className="btn btn-outline-secondary rounded-pill btn-sm px-3 m-2"
                     onClick={stepToAvailability}
                   >
                     No thanks, maybe later
