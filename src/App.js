@@ -1085,6 +1085,7 @@ function App() {
       return;
     }
     try {
+      let clientId = "n/a"
       setClientState((clientState) => ({
         ...clientState,
         clientRequestStatus: "loading",
@@ -1115,6 +1116,7 @@ function App() {
             clientObject: searchClientsData.clients[0],
             searchResults: searchClientsData.clients,
           }));
+          clientId = searchClientsData.clients[0].clientId;
         } else {
           setClientState((clientState) => ({
             ...clientState,
@@ -1122,6 +1124,7 @@ function App() {
             clientObject: searchClientsData.clients[0],
             searchResults: searchClientsData.clients,
           }));
+          clientId = searchClientsData.clients[0].clientId;
           setLeadState((leadState) => ({
             ...leadState,
             clientFound: false,
@@ -1144,6 +1147,7 @@ function App() {
         mobilePhone: data.phone,
         email: data.email,
         service: sessionTypeName,
+        clientId: clientId === undefined ? "n/a" : clientId,
       };
       const leadRequest = {
         method: "POST",
@@ -1433,7 +1437,8 @@ function App() {
                     <Select
                       {...field}
                       options={services}
-                      placeholder="Select a service"
+                      placeholder={services.length > 0 ? "Select a service" : "Loading services"}
+                      isDisabled={!services.length > 0}
                       className={
                         "dropdown w-100 mb-3" +
                         (errors.service ? " is-select-invalid" : "")
