@@ -1418,6 +1418,7 @@ function App() {
                       {...field}
                       options={weeks}
                       placeholder="Select Pregnancy Weeks"
+                      isSearchable = {false}
                       className={
                         "dropdown w-100 mb-3" +
                         (errors.weeks ? " is-select-invalid" : "")
@@ -1445,6 +1446,7 @@ function App() {
                       }
                       formatGroupLabel={formatGroupLabel}
                       styles={selectStyles}
+                      isSearchable = {false}
                       onChange={(service) => {
                         //console.log({service})
                         onChangeServices(service);
