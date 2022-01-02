@@ -468,43 +468,43 @@ function App() {
               services: [
                 {
                   sessionTypeId: getServiceId(
-                    "Early Pregnancy - $59",
+                    "Early Pregnancy - $69",
                     ultrasoundsData.services
                   ),
-                  name: "Early Pregnancy - $59",
-                  price: 59,
+                  name: "Early Pregnancy - $69",
+                  price: 69,
                 },
                 {
                   sessionTypeId: getServiceId(
-                    "Gender Determination - $79",
+                    "Gender Determination - $89",
                     ultrasoundsData.services
                   ),
-                  name: "Gender Determination - $79",
-                  price: 79,
+                  name: "Gender Determination - $89",
+                  price: 89,
                 },
                 {
                   sessionTypeId: getServiceId(
-                    "Meet Your Baby - 15 Min 5D/HD - $99",
+                    "Meet Your Baby - 15 Min 5D/HD - $109",
                     ultrasoundsData.services
                   ),
-                  name: "Meet Your Baby - 15 Min 5D/HD - $99",
-                  price: 99,
+                  name: "Meet Your Baby - 15 Min 5D/HD - $109",
+                  price: 109,
                 },
                 {
                   sessionTypeId: getServiceId(
-                    "Meet Your Baby - 25 min 5D/HD - $139",
+                    "Meet Your Baby - 25 min 5D/HD - $149",
                     ultrasoundsData.services
                   ),
-                  name: "Meet Your Baby - 25 min 5D/HD - $139",
-                  price: 139,
+                  name: "Meet Your Baby - 25 min 5D/HD - $149",
+                  price: 149,
                 },
                 {
                   sessionTypeId: getServiceId(
-                    "Special Promotion 25 min 5D/HD Ultrasound - $219",
+                    "Special Promotion 25 min 5D/HD Ultrasound - $229",
                     ultrasoundsData.services
                   ),
-                  name: "Special Promotion 25 min 5D/HD Ultrasound - $219",
-                  price: 219,
+                  name: "Special Promotion 25 min 5D/HD Ultrasound - $229",
+                  price: 229,
                 },
               ],
             };
@@ -1241,27 +1241,27 @@ function App() {
     let newSessionTypeId = clientState.sessionTypeId;
     let newSessionTypeName = clientState.sessionTypeName;
 
-    // Changes the service in case of adding Babys Growth
-    if (clientState.sessionTypeId === ultrasounds[3].value && addBabysGrowth) {
+     // Changes the service in case of adding Babys Growth
+     if (clientState.sessionTypeId === ultrasounds[3].value && addBabysGrowth) {
       newSessionTypeId = getBGCombo(
-        "Meet Your Baby - 25 Min 5D/HD + Baby's Growth $168",
+        "Meet Your Baby - 25 Min 5D/HD + Baby's Growth $178",
         consultedUltrasounds
       );
-      newSessionTypeName = "Meet Your Baby - 25 Min 5D/HD + Baby's Growth $168";
+      newSessionTypeName = "Meet Your Baby - 25 Min 5D/HD + Baby's Growth $178";
     }
     if (clientState.sessionTypeId === ultrasounds[2].value && addBabysGrowth) {
       newSessionTypeId = getBGCombo(
-        "Meet Your Baby - 15 Min 5D/HD + Baby's Growth $128",
+        "Meet Your Baby - 15 Min 5D/HD + Baby's Growth $138",
         consultedUltrasounds
       );
-      newSessionTypeName = "Meet Your Baby - 15 Min 5D/HD + Baby's Growth $128";
+      newSessionTypeName = "Meet Your Baby - 15 Min 5D/HD + Baby's Growth $138";
     }
     if (clientState.sessionTypeId === ultrasounds[1].value && addBabysGrowth) {
       newSessionTypeId = getBGCombo(
-        "Gender Determination  + Baby's Growth - $108",
+        "Gender Determination  + Baby's Growth - $118",
         consultedUltrasounds
       );
-      newSessionTypeName = "Gender Determination  + Baby's Growth - $108";
+      newSessionTypeName = "Gender Determination  + Baby's Growth - $118";
     }
     setClientState((clientState) => ({
       ...clientState,
