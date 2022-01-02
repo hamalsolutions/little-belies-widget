@@ -469,43 +469,43 @@ function App() {
               services: [
                 {
                   sessionTypeId: getServiceId(
-                    "Early Pregnancy - $59",
+                    "Early Pregnancy - $69",
                     ultrasoundsData.services
                   ),
-                  name: "Early Pregnancy - $59",
-                  price: 59,
+                  name: "Early Pregnancy - $69",
+                  price: 69,
                 },
                 {
                   sessionTypeId: getServiceId(
-                    "Gender Determination - $79",
+                    "Gender Determination - $89",
                     ultrasoundsData.services
                   ),
-                  name: "Gender Determination - $79",
-                  price: 79,
+                  name: "Gender Determination - $89",
+                  price: 89,
                 },
                 {
                   sessionTypeId: getServiceId(
-                    "Meet Your Baby - 15 Min 5D/HD - $99",
+                    "Meet Your Baby - 15 Min 5D/HD - $109",
                     ultrasoundsData.services
                   ),
-                  name: "Meet Your Baby - 15 Min 5D/HD - $99",
-                  price: 99,
+                  name: "Meet Your Baby - 15 Min 5D/HD - $109",
+                  price: 109,
                 },
                 {
                   sessionTypeId: getServiceId(
-                    "Meet Your Baby - 25 min 5D/HD - $139",
+                    "Meet Your Baby - 25 min 5D/HD - $149",
                     ultrasoundsData.services
                   ),
-                  name: "Meet Your Baby - 25 min 5D/HD - $139",
-                  price: 139,
+                  name: "Meet Your Baby - 25 min 5D/HD - $149",
+                  price: 149,
                 },
                 {
                   sessionTypeId: getServiceId(
-                    "Special Promotion 25 min 5D/HD Ultrasound - $219",
+                    "Special Promotion 25 min 5D/HD Ultrasound - $229",
                     ultrasoundsData.services
                   ),
-                  name: "Special Promotion 25 min 5D/HD Ultrasound - $219",
-                  price: 219,
+                  name: "Special Promotion 25 min 5D/HD Ultrasound - $229",
+                  price: 229,
                 },
               ],
             };
