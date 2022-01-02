@@ -465,6 +465,7 @@ function App() {
             const ultrasounds = [];
             const massages = [];
             // console.log( hasBabyGrowth("Meet Your Baby - 15 Min 5D/HD - $99", ultrasoundsData.services ) );
+            console.log(ultrasoundsData);
             const ultrasoundServices = {
               services: [
                 {
@@ -527,6 +528,7 @@ function App() {
               };
               massages.push(mutableItem);
             });
+            console.log(ultrasounds);
             const displayableServices = [
               {
                 label: "Ultrasounds",
@@ -1323,7 +1325,7 @@ function App() {
       displayTerms: false,
     }));
   };
-
+  console.log("services: ", services);
   return (
     <div className="container">
       {state.step === "registerForm" && (
