@@ -16,7 +16,6 @@ import {
   faChevronDown,
   faTimesCircle,
 } from "@fortawesome/free-solid-svg-icons";
-import ReCAPTCHA from "react-google-recaptcha";
 import "./App.css";
 
 const blocks = [
@@ -179,6 +178,7 @@ function App() {
   const [showDetailsHB, setShowDetailsHB] = useState(false);
   const [addHeartbeatBuddies, setAddHeartbeatBuddies] = useState(false);
   const [addBabysGrowth, setAddBabysGrowth] = useState(false);
+  const [bgCombo, setBgCombo] = useState(null);
   const [state, setState] = useState({
     step: "registerForm",
     status: "IDLE",
@@ -199,14 +199,10 @@ function App() {
     block: {
       id: "",
     },
-    //captchaReady: bypass,
-    captchaReady: true, /// DISABLE CAPTCHA
+    captchaReady: true, // DISABLE CAPTCHA
     showAddons: false,
     textMessageStatus: "IDLE",
     textMessage: "",
-    //showbabyGrowth: false,
-    //addBabysGrowth: false,
-    //addHeartbeatBuddies: false,
     displayTerms: false,
   });
   const [clientState, setClientState] = useState({
@@ -235,9 +231,7 @@ function App() {
     formState: { errors },
     handleSubmit,
   } = useForm();
-  const watchFields = watch(["service"]); // you can also target specific fields by their names
-  //const watchFields = [undefined]
-  const formUrl = `https://dashboard.panzitas.net/appointments/${params.get(
+    const formUrl = `https://dashboard.panzitas.net/appointments/${params.get(
     "id"
   )}`;
   const [width, setWindowWidth] = useState(0);
@@ -250,12 +244,6 @@ function App() {
   });
 
   const onChangeServices = (service) => {
-    // console.log({service});
-    // setState({
-    //   ...state,
-    //   showbabyGrowth: false,
-    //   addBabysGrowth: false,
-    // })
     setAddBabysGrowth(false);
     setAddHeartbeatBuddies(false);
     if (service !== undefined) {
@@ -263,14 +251,15 @@ function App() {
     } else {
       setShowHB(false);
     }
-    if (
-      service &&
-      (service.value === ultrasounds[1].value ||
-        service.value === ultrasounds[2].value ||
-        service.value === ultrasounds[3].value)
-    ) {
+    
+    const purgedLabel = removePrice(service.label).toLowerCase();
+    let combo = consultedUltrasounds.filter(item => item.name.toLowerCase().includes(purgedLabel) && item.name.toLowerCase().includes("baby's growth"));
+    
+    if (combo.length === 1) {
+      setBgCombo(combo[0]);
       setShowBG(true);
     } else {
+      setBgCombo(null);
       setShowBG(false);
     }
   };
@@ -286,29 +275,12 @@ function App() {
     const width = window.innerWidth;
     setWindowWidth(width);
   };
-  const servicesToRemoveitem = [
-    "Meet Your Baby - 25 Min 5D/HD + Baby's Growth $168",
-    "Meet Your Baby - 15 Min 5D/HD + Baby's Growth $128",
-    "Come back for free",
-    "Special Promo Ultrasound (G)",
-    "Membership + Visit  - $198",
-    "Membership Ultrasound -$30",
-    "Gender Determination  + Baby's Growth - $108  ",
-    "Gender Determination  + Baby's Growth - $108",
-    "CBFF + Baby's Growth",
-    "Special Promo 50 min (G)",
-    "Membership - $169",
-    "Early Pregnancy + Baby's Growth",
-  ];
-  const filterServices = (services) => {
-    return services.filter((item) => {
-      return !servicesToRemoveitem.includes(item.label);
-    });
-  };
-
+  
+  // Removes price from service name or label
   const removePrice = (service) => {
     return service.substring(0, service.lastIndexOf("-")).trim();
   };
+  
   // const parent_origin = 'https://test.littlebelliesspa.com'
   const parent_origin = "https://www.littlebelliesspa.com";
   const scrollParenTop = () => {
@@ -319,18 +291,12 @@ function App() {
     console.log("sending task to parent");
     window.parent.postMessage({ task: "google_track_booking" }, parent_origin);
   };
-
-  const hasBabyGrowth = (service, services) => {
-    return services.find((item) => {
-      return (
-        item.name.indexOf(removePrice(service)) >= 0 &&
-        item.name.indexOf("Baby's Growth") >= 0
-      );
-    });
-  };
+  
   const getPrice = (service) => {
     return parseInt(service.split("$")[1]);
   };
+
+  // Orders a given array of services
   const orderServices = (services) => {
     return services.sort(function (a, b) {
       // console.log(a.label.split('$')[1])
@@ -342,41 +308,8 @@ function App() {
       }
       return 0;
     });
-  };
-
-  const getServiceId = (serviceName, servicesArray) => {
-    const sessionTypeName = serviceName;
-    let purifiedServiceName = "";
-    let remaining = "";
-    let serviceId = "";
-    const regex = /[-.()+\s]/g;
-
-    if (sessionTypeName.toLowerCase().includes("$")) {
-      const indexPrice = sessionTypeName.toLowerCase().indexOf("$");
-      remaining = sessionTypeName.toLowerCase().slice(0, indexPrice);
-    } else {
-      remaining = serviceName;
-    }
-    purifiedServiceName = remaining.replace(regex, "");
-
-    servicesArray.forEach((serviceItem) => {
-      let purifiedServiceArray = "";
-      let remainingService = "";
-
-      if (serviceItem.name.toLowerCase().includes("$")) {
-        const indexPrice = serviceItem.name.toLowerCase().indexOf("$");
-        remainingService = serviceItem.name.toLowerCase().slice(0, indexPrice);
-      } else {
-        remainingService = serviceItem.name;
-      }
-      purifiedServiceArray = remainingService.replace(regex, "");
-      if (purifiedServiceArray === purifiedServiceName) {
-        serviceId = serviceItem.sessionTypeId;
-      }
-    });
-    // console.log("ServiceId: " + serviceId);
-    return serviceId;
-  };
+  };  
+  
   const getBGCombo = (serviceName, servicesArray) => {
     const sessionTypeName = serviceName;
     let purifiedServiceName = "";
@@ -443,7 +376,7 @@ function App() {
             },
           };
           const ultrasoundResponse = await fetch(
-            `${process.env.REACT_APP_API_URL}/api/sessionTypes/2`,
+            `${process.env.REACT_APP_API_URL}/api/book/sessionTypes/2`,
             ultrasoundsRequest
           );
           const ultrasoundsData = await ultrasoundResponse.json();
@@ -458,60 +391,45 @@ function App() {
               },
             };
             const massageResponse = await fetch(
-              `${process.env.REACT_APP_API_URL}/api/sessionTypes/3`,
+              `${process.env.REACT_APP_API_URL}/api/book/sessionTypes/3`,
               massageRequest
             );
             const massageData = await massageResponse.json();
             const ultrasounds = [];
             const massages = [];
-            // console.log( hasBabyGrowth("Meet Your Baby - 15 Min 5D/HD - $99", ultrasoundsData.services ) );
-            console.log(ultrasoundsData);
-            const ultrasoundServices = {
-              services: [
-                {
-                  sessionTypeId: getServiceId(
-                    "Early Pregnancy - $69",
-                    ultrasoundsData.services
-                  ),
-                  name: "Early Pregnancy - $69",
-                  price: 69,
-                },
-                {
-                  sessionTypeId: getServiceId(
-                    "Gender Determination - $89",
-                    ultrasoundsData.services
-                  ),
-                  name: "Gender Determination - $89",
-                  price: 89,
-                },
-                {
-                  sessionTypeId: getServiceId(
-                    "Meet Your Baby - 15 Min 5D/HD - $109",
-                    ultrasoundsData.services
-                  ),
-                  name: "Meet Your Baby - 15 Min 5D/HD - $109",
-                  price: 109,
-                },
-                {
-                  sessionTypeId: getServiceId(
-                    "Meet Your Baby - 25 min 5D/HD - $149",
-                    ultrasoundsData.services
-                  ),
-                  name: "Meet Your Baby - 25 min 5D/HD - $149",
-                  price: 149,
-                },
-                {
-                  sessionTypeId: getServiceId(
-                    "Special Promotion 25 min 5D/HD Ultrasound - $229",
-                    ultrasoundsData.services
-                  ),
-                  name: "Special Promotion 25 min 5D/HD Ultrasound - $229",
-                  price: 229,
-                },
-              ],
-            };
 
-            ultrasoundServices.services.forEach((item) => {
+            // BORRAR
+              console.log("ULTRASOUNDS!");
+              console.log(ultrasoundsData.services);
+              console.log("ULTRASOUNDS!");
+              console.log("==============");            
+              console.log("FILTERED ULTRASOUNDS!");
+              console.log(ultrasoundsData.services.filter(service => service.SellOnline)); // Todos los de vender online
+              console.log("FILTERED ULTRASOUNDS!");
+              console.log("==============");            
+              console.log("SHOWING ULTRASOUNDS!");
+              console.log(ultrasoundsData.services.filter(service => service.SellOnline && !service.name.toLowerCase().includes("baby's growth"))); // Pa mostrar
+              console.log("SHOWING ULTRASOUNDS!");
+              console.log("==============");            
+              console.log("COMBO ULTRASOUNDS!");
+              console.log(ultrasoundsData.services.filter(service => service.SellOnline && service.name.toLowerCase().includes("baby's growth"))); // Combos
+              console.log("COMBO ULTRASOUNDS!");
+              console.log("==============");      
+              console.log("==============");      
+              console.log("==============");      
+              console.log("==============");      
+              console.log("MASSAGES!");
+              console.log(massageData.services);
+              console.log("MASSAGES!");
+              console.log("==============");            
+              console.log("FILTERED MASSAGES!");
+              console.log(massageData.services.filter(service => service.SellOnline));
+              console.log("FILTERED MASSAGES!");
+            // BORRAR
+
+            const ultrasoundServices = ultrasoundsData.services.filter(service => service.SellOnline && !service.name.toLowerCase().includes("baby's growth"));
+
+            ultrasoundServices.forEach((item) => {
               const mutableItem = {
                 value: item.sessionTypeId,
                 label: item.name,
@@ -519,16 +437,16 @@ function App() {
               ultrasounds.push(mutableItem);
             });
             setUltrasounds(ultrasounds);
-            setConsultedUltrasounds(ultrasoundsData.services);
+            setConsultedUltrasounds(ultrasoundsData.services.filter(service => service.SellOnline));
 
-            massageData.services.forEach((item) => {
+            massageData.services.filter(service => service.SellOnline).forEach((item) => {
               const mutableItem = {
                 value: item.sessionTypeId,
                 label: item.name,
               };
               massages.push(mutableItem);
             });
-            console.log(ultrasounds);
+            
             const displayableServices = [
               {
                 label: "Ultrasounds",
@@ -536,7 +454,7 @@ function App() {
               },
               {
                 label: "Massages",
-                options: orderServices(filterServices(massages)),
+                options: orderServices(massages),
               },
             ];
             setServices(displayableServices);
@@ -561,6 +479,7 @@ function App() {
     }
     setWeeks(arrayOfWeeks);
   }, []);
+
   // Gets the availability when the date changes
   useEffect(() => {
     if (state.authorization === "") {
@@ -781,6 +700,7 @@ function App() {
     clientState.sessionTypeId,
   ]);
 
+  // Removes HTML tags from a string
   const removeTags = (str) => {
     if (str === null || str === "") return false;
     else str = str.toString();
@@ -804,6 +724,7 @@ function App() {
       startDate: moment(val).format("MM/DD/YYYY").toString(),
     }));
   };
+
   // Search availabilities until found available space
   useEffect(() => {
     const nextDay = moment(state.startDate)
@@ -816,6 +737,7 @@ function App() {
       }, 500);
     }
   }, [availableBlocks]);
+
   // Saves the selected available block into a state
   const handleAvailabilityBlockSelect = (block) => {
     setState((state) => ({
@@ -823,6 +745,7 @@ function App() {
       block: block,
     }));
   };
+
   // Handle the booking of the appointment and creation of the client if necesary
   const bookAppointment = async () => {
     if (state.appointmentRequestStatus === "loading") {
@@ -1061,6 +984,7 @@ function App() {
       }));
     }
   };
+
   // Search the client to see if it exist in MindBody
   const onFormSubmit = async (data) => {
     scrollParenTop();
@@ -1190,6 +1114,7 @@ function App() {
       }));
     }
   };
+
   // Takes the app to the previous step of booking
   const previousStep = (currentStep) => {
     switch (currentStep) {
@@ -1219,21 +1144,17 @@ function App() {
         break;
     }
   };
-  // Activates the book button by setting the reCaptcha validation
-  function onChange(value) {
-    setState((state) => ({
-      ...state,
-      captchaReady: true,
-    }));
-  }
+  
   // Stores the selection of babys growth into a state
   const handleAddBabysGrowth = () => {
     setAddBabysGrowth(!addBabysGrowth);
   };
+
   // Stores the selection of heartbeat buddies into a state
   const handleAddHeartbeatBuddies = () => {
     setAddHeartbeatBuddies(!addHeartbeatBuddies);
   };
+
   // Takes the app to the summary step of booking
   const blockSelected = () => {
     scrollParenTop();
@@ -1242,6 +1163,7 @@ function App() {
       step: "summary",
     }));
   };
+
   // Takes the app to the availability step of booking
   const stepToAvailability = () => {
     scrollParenTop();
@@ -1249,27 +1171,12 @@ function App() {
     let newSessionTypeName = clientState.sessionTypeName;
 
     // Changes the service in case of adding Babys Growth
-    if (clientState.sessionTypeId === ultrasounds[3].value && addBabysGrowth) {
-      newSessionTypeId = getBGCombo(
-        "Meet Your Baby - 25 Min 5D/HD + Baby's Growth $178",
-        consultedUltrasounds
-      );
-      newSessionTypeName = "Meet Your Baby - 25 Min 5D/HD + Baby's Growth $178";
+
+    if(addBabysGrowth){
+      newSessionTypeId = bgCombo.sessionTypeId;
+      newSessionTypeName = bgCombo.name;
     }
-    if (clientState.sessionTypeId === ultrasounds[2].value && addBabysGrowth) {
-      newSessionTypeId = getBGCombo(
-        "Meet Your Baby - 15 Min 5D/HD + Baby's Growth $138",
-        consultedUltrasounds
-      );
-      newSessionTypeName = "Meet Your Baby - 15 Min 5D/HD + Baby's Growth $138";
-    }
-    if (clientState.sessionTypeId === ultrasounds[1].value && addBabysGrowth) {
-      newSessionTypeId = getBGCombo(
-        "Gender Determination  + Baby's Growth - $118",
-        consultedUltrasounds
-      );
-      newSessionTypeName = "Gender Determination  + Baby's Growth - $118";
-    }
+
     setClientState((clientState) => ({
       ...clientState,
       sessionTypeId: newSessionTypeId,
@@ -1325,7 +1232,7 @@ function App() {
       displayTerms: false,
     }));
   };
-  console.log("services: ", services);
+  // console.log("services: ", services);
   return (
     <div className="container">
       {state.step === "registerForm" && (
