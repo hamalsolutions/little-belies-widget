@@ -1496,28 +1496,11 @@ function App() {
                    </div>
                     <>
                       <p className="px-3 pt-3">
-                        I am receiving ongoing prenatal care. <br />
-                        <br />
-                        I have undergone a medical diagnostic ultrasound
-                        prescribed by my OB provider in regard to this
-                        pregnancy. <br />
-                        <br />I understand that my OB provider ultimately will
-                        confirm my due date, screen for fetal abnormalities
-                        and/or any issues/concerns related to my pregnancy.{" "}
-                        <br />
-                        <br /> Little Bellies is not a medical provider and will
-                        not do any of the foregoing. <br />
-                        <br />I understand that this ultrasound may not last
-                        more than 25 minutes and will focus on my pelvic area.{" "}
-                        <br />
-                        <br />
-                        I understand that this is a limited non-medical
-                        ultrasound and does not replace any diagnostic
-                        ultrasound ordered by my OB provider. <br />
-                        <br />
-                        I understand that there is a possibility that the wrong
-                        gender may be assigned to my baby. <br />
-                        <br />
+                        I understand that all the images and video clips taken  during my session can be used for promotional purposes by Little Bellies.<br /><br />
+                        I agree to receive E-mail and SMS from Little Bellies, as well as surveys, promotional offers and marketing.<br /><br />
+                        I accept to receive the images and videos  of my session in my E-mail and Smartphone.<br /><br />
+                        As evidenced by my signature below, I understand that factors beyond Little Bellies control may also affect the ability to accurately determine the gender of the fetus, and that Little Bellies can provide no warranty or guaranty as to the accuracy of any such determination.<br /><br />
+                        I further understand and accept the risk that, while ultrasound is believed  to have no harmful effect on the mother or the fetus, future research or other information may disclose harmful  or adverse effects that are presently unknown.<br /><br />
                       </p>
                     </>
                  </div>
