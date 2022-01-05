@@ -186,7 +186,7 @@ function App() {
     appointmentRequestStatus: "IDLE",
     city: params.get("city"),
     message: "",
-    siteId: params.get("id") || "549974",
+    siteId: params.get("id") || "743289",
     latitude: params.get("latitude") || "0",
     longitude: params.get("longitude") || "0",
     language: languageList[params.get("lang")] || "English",
@@ -231,7 +231,7 @@ function App() {
     formState: { errors },
     handleSubmit,
   } = useForm();
-    const formUrl = `https://dashboard.panzitas.net/appointments/${params.get(
+  const formUrl = `https://dashboard.panzitas.net/appointments/${params.get(
     "id"
   )}`;
   const [width, setWindowWidth] = useState(0);
@@ -252,8 +252,10 @@ function App() {
       setShowHB(false);
     }
     
-    const purgedLabel = removePrice(service.label).toLowerCase();
-    let combo = consultedUltrasounds.filter(item => item.name.toLowerCase().includes(purgedLabel) && item.name.toLowerCase().includes("baby's growth"));
+    const purgedLabel = service.label.includes("$") ? removePrice(service.label).toLowerCase() : service.label;
+    const compareLabel = purgedLabel.includes("2d/3d/4d") ? "meet your baby - 15 min 5d/hd" : purgedLabel;
+    let combo = consultedUltrasounds.filter(item => item.name.toLowerCase().includes(compareLabel) && item.name.toLowerCase().includes("baby's growth"));
+    console.log(combo[0]);
     
     if (combo.length === 1) {
       setBgCombo(combo[0]);
@@ -398,15 +400,7 @@ function App() {
             const ultrasounds = [];
             const massages = [];
 
-            // BORRAR
-              console.log("ULTRASOUNDS!");
-              console.log(ultrasoundsData.services);
-              console.log("ULTRASOUNDS!");
-              console.log("==============");            
-              console.log("FILTERED ULTRASOUNDS!");
-              console.log(ultrasoundsData.services.filter(service => service.SellOnline)); // Todos los de vender online
-              console.log("FILTERED ULTRASOUNDS!");
-              console.log("==============");            
+            // BORRAR         
               console.log("SHOWING ULTRASOUNDS!");
               console.log(ultrasoundsData.services.filter(service => service.SellOnline && !service.name.toLowerCase().includes("baby's growth"))); // Pa mostrar
               console.log("SHOWING ULTRASOUNDS!");
@@ -414,17 +408,6 @@ function App() {
               console.log("COMBO ULTRASOUNDS!");
               console.log(ultrasoundsData.services.filter(service => service.SellOnline && service.name.toLowerCase().includes("baby's growth"))); // Combos
               console.log("COMBO ULTRASOUNDS!");
-              console.log("==============");      
-              console.log("==============");      
-              console.log("==============");      
-              console.log("==============");      
-              console.log("MASSAGES!");
-              console.log(massageData.services);
-              console.log("MASSAGES!");
-              console.log("==============");            
-              console.log("FILTERED MASSAGES!");
-              console.log(massageData.services.filter(service => service.SellOnline));
-              console.log("FILTERED MASSAGES!");
             // BORRAR
 
             const ultrasoundServices = ultrasoundsData.services.filter(service => service.SellOnline && !service.name.toLowerCase().includes("baby's growth"));
@@ -1403,28 +1386,11 @@ function App() {
                    </div>
                     <>
                       <p className="px-3 pt-3">
-                        I am receiving ongoing prenatal care. <br />
-                        <br />
-                        I have undergone a medical diagnostic ultrasound
-                        prescribed by my OB provider in regard to this
-                        pregnancy. <br />
-                        <br />I understand that my OB provider ultimately will
-                        confirm my due date, screen for fetal abnormalities
-                        and/or any issues/concerns related to my pregnancy.{" "}
-                        <br />
-                        <br /> Little Bellies is not a medical provider and will
-                        not do any of the foregoing. <br />
-                        <br />I understand that this ultrasound may not last
-                        more than 25 minutes and will focus on my pelvic area.{" "}
-                        <br />
-                        <br />
-                        I understand that this is a limited non-medical
-                        ultrasound and does not replace any diagnostic
-                        ultrasound ordered by my OB provider. <br />
-                        <br />
-                        I understand that there is a possibility that the wrong
-                        gender may be assigned to my baby. <br />
-                        <br />
+                        I understand that all the images and video clips taken  during my session can be used for promotional purposes by Little Bellies.<br /><br />
+                        I agree to receive E-mail and SMS from Little Bellies, as well as surveys, promotional offers and marketing.<br /><br />
+                        I accept to receive the images and videos  of my session in my E-mail and Smartphone.<br /><br />
+                        As evidenced by my signature below, I understand that factors beyond Little Bellies control may also affect the ability to accurately determine the gender of the fetus, and that Little Bellies can provide no warranty or guaranty as to the accuracy of any such determination.<br /><br />
+                        I further understand and accept the risk that, while ultrasound is believed  to have no harmful effect on the mother or the fetus, future research or other information may disclose harmful  or adverse effects that are presently unknown.<br /><br />
                       </p>
                     </>
                  </div>
