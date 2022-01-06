@@ -207,6 +207,7 @@ function App() {
     //showbabyGrowth: false,
     //addBabysGrowth: false,
     //addHeartbeatBuddies: false,
+    displayTerms: false,
   });
   const [clientState, setClientState] = useState({
     firstName: "",
@@ -464,6 +465,7 @@ function App() {
             const ultrasounds = [];
             const massages = [];
             // console.log( hasBabyGrowth("Meet Your Baby - 15 Min 5D/HD - $99", ultrasoundsData.services ) );
+            console.log(ultrasoundsData);
             const ultrasoundServices = {
               services: [
                 {
@@ -526,6 +528,7 @@ function App() {
               };
               massages.push(mutableItem);
             });
+            console.log(ultrasounds);
             const displayableServices = [
               {
                 label: "Ultrasounds",
@@ -1084,6 +1087,7 @@ function App() {
       return;
     }
     try {
+      let clientId = "n/a"
       setClientState((clientState) => ({
         ...clientState,
         clientRequestStatus: "loading",
@@ -1114,6 +1118,7 @@ function App() {
             clientObject: searchClientsData.clients[0],
             searchResults: searchClientsData.clients,
           }));
+          clientId = searchClientsData.clients[0].clientId;
         } else {
           setClientState((clientState) => ({
             ...clientState,
@@ -1121,6 +1126,7 @@ function App() {
             clientObject: searchClientsData.clients[0],
             searchResults: searchClientsData.clients,
           }));
+          clientId = searchClientsData.clients[0].clientId;
           setLeadState((leadState) => ({
             ...leadState,
             clientFound: false,
@@ -1143,6 +1149,7 @@ function App() {
         mobilePhone: data.phone,
         email: data.email,
         service: sessionTypeName,
+        clientId: clientId === undefined ? "n/a" : clientId,
       };
       const leadRequest = {
         method: "POST",
@@ -1305,6 +1312,20 @@ function App() {
   // console.log("availableBlocks");
   // console.log(availableBlocks);
   // console.log(state.locationId);
+
+  const showTerms = () => {
+    setState((state) => ({
+      ...state,
+      displayTerms: true,
+    }));
+  };
+  const hideTerms = () => {
+    setState((state) => ({
+      ...state,
+      displayTerms: false,
+    }));
+  };
+  console.log("services: ", services);
   return (
     <div className="container">
       {state.step === "registerForm" && (
@@ -1399,6 +1420,7 @@ function App() {
                       {...field}
                       options={weeks}
                       placeholder="Select Pregnancy Weeks"
+                      isSearchable = {false}
                       className={
                         "dropdown w-100 mb-3" +
                         (errors.weeks ? " is-select-invalid" : "")
@@ -1418,13 +1440,15 @@ function App() {
                     <Select
                       {...field}
                       options={services}
-                      placeholder="Select a service"
+                      placeholder={services.length > 0 ? "Select a service" : "Loading services"}
+                      isDisabled={!services.length > 0}
                       className={
                         "dropdown w-100 mb-3" +
                         (errors.service ? " is-select-invalid" : "")
                       }
                       formatGroupLabel={formatGroupLabel}
                       styles={selectStyles}
+                      isSearchable = {false}
                       onChange={(service) => {
                         //console.log({service})
                         onChangeServices(service);
@@ -1435,6 +1459,61 @@ function App() {
                 />
               </div>
             </div>
+
+            <div className="row mb-2">
+              <div className="col text-left">
+              <Controller
+                name="temsCheckbox"
+                control={control}
+                rules={{ required: true }}
+                render={({ field }) =>
+                  <div className="form-check">
+                    <input className={"form-check-input" + (errors.temsCheckbox ? " is-select-invalid" : "")} {...field} type="checkbox"/>
+                    <label className={"form-check-label mx-2 " + (errors.temsCheckbox ? " text-danger" : "")}>
+                      { (errors.temsCheckbox && <>You have to agree to <button type="button" className="btn btn-link pt-0 px-0 mx-0 mt-0" onClick={showTerms}> terms and conditions</button></>)}
+                      { (!errors.temsCheckbox && <>Agree to <button type="button" className="btn btn-link pt-0 px-0 mx-0 mt-0" onClick={showTerms}> terms and conditions</button></>)}
+                    </label>
+                  </div>
+                }
+              />
+              </div>
+            </div>
+            
+            {state.displayTerms && (
+              <div className="lb-modal-overlay" onClick={hideTerms}>
+               <div className="lb-modal rounded">
+                <button
+                    className="closeTermsButton btn btn-link m-0 p-0"
+                    onClick={hideTerms}
+                  >
+                    <FontAwesomeIcon className="white-icon" size="lg" icon={faTimesCircle} />
+                  </button>
+                 <div className="lb-modal-body py-3 px-4 text-justify ">
+                   <div className="row px-2 pb-2">
+                     <div className="col ">
+                       <h3>Little Bellies Terms of services.</h3>
+                     </div>
+                   </div>
+                    <>
+                      <p className="px-3 pt-3">
+                        I understand that all the images and video clips taken  during my session can be used for promotional purposes by Little Bellies.<br /><br />
+                        I agree to receive E-mail and SMS from Little Bellies, as well as surveys, promotional offers and marketing.<br /><br />
+                        I accept to receive the images and videos  of my session in my E-mail and Smartphone.<br /><br />
+                        As evidenced by my signature below, I understand that factors beyond Little Bellies control may also affect the ability to accurately determine the gender of the fetus, and that Little Bellies can provide no warranty or guaranty as to the accuracy of any such determination.<br /><br />
+                        I further understand and accept the risk that, while ultrasound is believed  to have no harmful effect on the mother or the fetus, future research or other information may disclose harmful  or adverse effects that are presently unknown.<br /><br />
+                      </p>
+                    </>
+                 </div>
+                 <div className="lb-modal-footer lb-text-center ">
+                   <button className="btn btn-cta-active rounded-pill px-3 mx-auto">
+                     Close
+                   </button>
+                 </div>
+               </div>
+             </div>
+            )}
+
+
 
             <div className="row my-3">
               <div className="col text-center">
@@ -1690,7 +1769,7 @@ function App() {
                 {(addHeartbeatBuddies || addBabysGrowth) && (
                   <button
                     type="button"
-                    class="btn btn-selected-block btn-sm rounded-pill px-3 m-2"
+                    className="btn btn-selected-block btn-sm rounded-pill px-3 m-2"
                     onClick={stepToAvailability}
                   >
                     Check availability
@@ -1699,7 +1778,7 @@ function App() {
                 {!addHeartbeatBuddies && !addBabysGrowth && (
                   <button
                     type="button"
-                    class="btn btn-outline-secondary rounded-pill btn-sm px-3 m-2"
+                    className="btn btn-outline-secondary rounded-pill btn-sm px-3 m-2"
                     onClick={stepToAvailability}
                   >
                     No thanks, maybe later
