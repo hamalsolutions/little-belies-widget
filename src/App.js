@@ -944,6 +944,7 @@ function App() {
             status: bookAppointmentData.Appointment.Status,
             firstAppointment: bookAppointmentData.Appointment.FirstAppointment,
             addOns: addHeartbeatBuddies ? "HeartBeat Buddies" : bookAppointmentData.Appointment.AddOns,
+            bookDate: moment().format("YYYY-MM-DDTHH:mm:ss"),
             siteId: state.siteId,            
             source: "online",
           };
