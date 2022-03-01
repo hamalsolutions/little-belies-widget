@@ -949,6 +949,7 @@ function App() {
             bookDate: moment().format("MM/DD/YYYY"),
             siteId: state.siteId,
             source: "online",
+            cbff: false,
           };
           const putDynamo = {
             method: "PUT",
