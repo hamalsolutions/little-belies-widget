@@ -1349,7 +1349,7 @@ function App() {
                 <h3 className="h6 fw-normal">
                   {" "}
                   In order to book an appointment please provide the following
-                  information
+                  information xxx
                 </h3>
               </div>
             </div>
