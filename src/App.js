@@ -992,18 +992,10 @@ function App() {
               `${process.env.REACT_APP_API_URL}/api/services/sendSms/booking`,
               textMessageRequest
             );
-
             const textMessageData = await textMessageResponse.json();
             if (textMessageResponse.ok) {
               // console.log(textMessageData);
-              googleTrackBooking({
-                name: clientState.firstName + " " + clientState.lastName,
-                service: clientState.sessionTypeName,
-                date: moment(state.block.blockDate)
-                  .format("MM-DD-YYYY")
-                  .toString(),
-                time: moment(state.block.blockDate).format("hh:mm A").toString()
-              });
+
               if (leadState.leadRegistered) {
                 const leadPayload = {
                   partititonKey: leadState.partititonKey,
@@ -1052,6 +1044,14 @@ function App() {
                 textMessage: JSON.stringify(textMessageData),
               }));
             }
+            googleTrackBooking({
+              name: clientState.firstName + " " + clientState.lastName,
+              service: clientState.sessionTypeName,
+              date: moment(state.block.blockDate)
+                .format("MM-DD-YYYY")
+                .toString(),
+              time: moment(state.block.blockDate).format("hh:mm A").toString()
+            });
           } else {
             setState((state) => ({
               ...state,
