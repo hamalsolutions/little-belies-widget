@@ -315,9 +315,9 @@ function App() {
     window.parent.postMessage({ task: "scroll_top" }, parent_origin);
   };
 
-  const googleTrackBooking = () => {
+  const googleTrackBooking = ({name, service, date, time}) => {
     console.log("sending task to parent");
-    window.parent.postMessage({ task: "google_track_booking" }, parent_origin);
+    window.parent.postMessage({ task: "google_track_booking", name, service, date, time }, parent_origin);
   };
 
   const hasBabyGrowth = (service, services) => {
@@ -831,7 +831,7 @@ function App() {
     try {
       /// BYPASS BOOKING
       if (bypass) {
-        googleTrackBooking();
+        googleTrackBooking({name: "name", service: "service", date: "date", time: "time"});
         setState((state) => ({
           ...state,
           appointmentRequestStatus: "BOOK-APPOINTMENT-OK",
@@ -996,7 +996,14 @@ function App() {
             const textMessageData = await textMessageResponse.json();
             if (textMessageResponse.ok) {
               // console.log(textMessageData);
-              googleTrackBooking();
+              googleTrackBooking({
+                clientName: clientState.firstName + " " + clientState.lastName,
+                service: clientState.sessionTypeName,
+                date: moment(state.block.blockDate)
+                  .format("MM-DD-YYYY")
+                  .toString(),
+                time: moment(state.block.blockDate).format("hh:mm A").toString()
+              });
               if (leadState.leadRegistered) {
                 const leadPayload = {
                   partititonKey: leadState.partititonKey,
@@ -2098,7 +2105,7 @@ function App() {
                   </div>
                 </div>
               )}
-            {state.availabilityRequestStatus === "loading" && (
+            {state.availabilityRequestStatus === "loading" || state.availabilityRequestStatus === "BOOK-APPOINTMENT-OK" && (
               <div className="row">
                 <div className="col text-center">
                   <h1 className="h1 m-auto">
@@ -2152,14 +2159,14 @@ function App() {
                       <span> {state.textMessage} </span>
                     </div>
                   )}
-                  {state.appointmentRequestStatus === "BOOK-APPOINTMENT-OK" && (
+                  {/* {state.appointmentRequestStatus === "BOOK-APPOINTMENT-OK" && (
                     <div className="d-block alert alert-success text-uppercase text-center fw-bold">
                       <span>
                         {" "}
                         Hooray! Your appointment has been successfuly booked!{" "}
                       </span>
                     </div>
-                  )}
+                  )} */}
                   {state.appointmentRequestStatus === "CLIENT-ERROR" && (
                     <div className="d-block alert alert-danger">
                       <span> {state.message} </span>
@@ -2169,6 +2176,7 @@ function App() {
               </div>
             )}
           </div>
+          
           <div className="row w-50 mb-3 bg-light-container mx-auto p-4 justify-content-center">
             <div>
               <div className="row my-3">
@@ -2254,7 +2262,7 @@ function App() {
                 </div>
               </div>
             )} */}
-              {state.appointmentRequestStatus === "BOOK-APPOINTMENT-OK" && (
+              {/* {state.appointmentRequestStatus === "BOOK-APPOINTMENT-OK" && (
                 <div className="row mb-2">
                   <div className="col">
                     <div>
@@ -2265,7 +2273,7 @@ function App() {
                     </div>
                   </div>
                 </div>
-              )}
+              )} */}
 
               {state.appointmentRequestStatus !== "BOOK-APPOINTMENT-OK" && (
                 <>
@@ -2306,7 +2314,7 @@ function App() {
                 </>
               )}
             </div>
-            {state.appointmentRequestStatus === "BOOK-APPOINTMENT-OK" && (
+            {/* {state.appointmentRequestStatus === "BOOK-APPOINTMENT-OK" && (
               <div className="video-responsive">
                 <iframe
                   src={"https://www.youtube.com/embed/uspIXX4uU9c"}
@@ -2316,7 +2324,7 @@ function App() {
                   title="Embedded youtube"
                 />
               </div>
-            )}
+            )} */}
           </div>
         </div>
       )}
