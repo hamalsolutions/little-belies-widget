@@ -167,7 +167,7 @@ const translations = {
 function App() {
   const params = new URLSearchParams(window.location.search);
   const languageList = { en: "English", es: "Spanish" };
-  const bypass = true;
+  const bypass = false;
   const [firstLoad, setFirstLoad] = useState(true);
   const translate = (text) => {
     const trans = translations[params.get("lang") || "en"];
@@ -1356,7 +1356,7 @@ function App() {
                 <h3 className="h6 fw-normal">
                   {" "}
                   In order to book an appointment please provide the following
-                  information xxx
+                  information
                 </h3>
               </div>
             </div>
@@ -2105,7 +2105,7 @@ function App() {
                   </div>
                 </div>
               )}
-            {state.availabilityRequestStatus === "loading" || state.availabilityRequestStatus === "BOOK-APPOINTMENT-OK" && (
+            {(state.availabilityRequestStatus === "loading" || state.availabilityRequestStatus == "BOOK-APPOINTMENT-OK") && (
               <div className="row">
                 <div className="col text-center">
                   <h1 className="h1 m-auto">
@@ -2179,6 +2179,8 @@ function App() {
           
           <div className="row w-50 mb-3 bg-light-container mx-auto p-4 justify-content-center">
             <div>
+            { bypass && (
+              <>
               <div className="row my-3">
                 <div className="col">
                   <div>
@@ -2274,6 +2276,8 @@ function App() {
                   </div>
                 </div>
               )} */}
+              </>
+            )}
 
               {state.appointmentRequestStatus !== "BOOK-APPOINTMENT-OK" && (
                 <>
