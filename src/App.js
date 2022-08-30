@@ -2179,7 +2179,7 @@ function App() {
           
           <div className="row w-50 mb-3 bg-light-container mx-auto p-4 justify-content-center">
             <div>
-            { bypass && (
+            { (
               <>
               <div className="row my-3">
                 <div className="col">
