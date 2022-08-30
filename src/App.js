@@ -997,7 +997,7 @@ function App() {
             if (textMessageResponse.ok) {
               // console.log(textMessageData);
               googleTrackBooking({
-                clientName: clientState.firstName + " " + clientState.lastName,
+                name: clientState.firstName + " " + clientState.lastName,
                 service: clientState.sessionTypeName,
                 date: moment(state.block.blockDate)
                   .format("MM-DD-YYYY")
