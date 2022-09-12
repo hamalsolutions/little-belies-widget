@@ -167,7 +167,7 @@ const translations = {
 function App() {
   const params = new URLSearchParams(window.location.search);
   const languageList = { en: "English", es: "Spanish" };
-  const bypass = true;
+  const bypass = false;
   const [firstLoad, setFirstLoad] = useState(true);
   const translate = (text) => {
     const trans = translations[params.get("lang") || "en"];
