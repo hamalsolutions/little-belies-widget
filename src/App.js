@@ -1072,7 +1072,8 @@ function App() {
     }));
     setState((state) => ({
       ...state,
-      step: "addons",
+      // step: "addons",
+      step: "availability",
     }));
 
     if (clientState.clientRequestStatus === "loading") {
