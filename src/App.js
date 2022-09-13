@@ -886,8 +886,13 @@ function App() {
           setClientState((clientState) => ({
             ...clientState,
             createClientRequestStatus: "ERROR",
+            appointmentRequestStatus: "BOOK-APPOINTMENT-FAIL",
             message:
               "Create request Error: " + JSON.stringify(createClientData),
+          }));
+          setState((state) => ({
+            ...state,
+            appointmentRequestStatus: "IDLE",
           }));
           createAppointment = false;
         }
