@@ -186,7 +186,7 @@ function App() {
     appointmentRequestStatus: "IDLE",
     city: params.get("city"),
     message: "",
-    siteId: params.get("id") || "549974",
+    siteId: params.get("id") || "557418",
     latitude: params.get("latitude") || "0",
     longitude: params.get("longitude") || "0",
     language: languageList[params.get("lang")] || "English",
@@ -849,46 +849,69 @@ function App() {
       let clientObject = { ...clientState.clientObject };
 
       if (clientState.clientRequestStatus === "CLIENT-NOT-FOUND") {
-        const payload = {
-          firstName: clientState.firstName,
-          lastName: clientState.lastName,
-          mobilePhone: clientState.phone,
-          email: clientState.email,
-        };
-        const createClientRequest = {
-          method: "POST",
-          headers: {
-            "Content-type": "application/json; charset=UTF-8",
-            authorization: state.authorization,
-            siteid: state.siteId,
-          },
-          body: JSON.stringify(payload),
-        };
-        const createClientResponse = await fetch(
-          `${process.env.REACT_APP_API_URL}/api/clients`,
-          createClientRequest
-        );
-        const createClientData = await createClientResponse.json();
-        if (createClientResponse.ok) {
-          const createdClient = {
-            clientId: createClientData.clientId,
-            name: createClientData.name,
-            phone: createClientData.phone,
-            email: createClientData.email,
+        try{
+          const payload = {
+            firstName: clientState.firstName,
+            lastName: clientState.lastName,
+            mobilePhone: clientState.phone,
+            email: clientState.email,
           };
-          setClientState((clientState) => ({
-            ...clientState,
-            createClientRequestStatus: "CREATED",
-            clientObject: createdClient,
-          }));
-          createAppointment = true;
-          clientObject = { ...createdClient };
-        } else {
+          const createClientRequest = {
+            method: "POST",
+            headers: {
+              "Content-type": "application/json; charset=UTF-8",
+              authorization: state.authorization,
+              siteid: state.siteId,
+            },
+            body: JSON.stringify(payload),
+          };
+          const createClientResponse = await fetch(
+            `${process.env.REACT_APP_API_URL}/api/clients`,
+            createClientRequest
+          );
+          const createClientData = await createClientResponse.json();
+          if (createClientResponse.ok) {
+            const createdClient = {
+              clientId: createClientData.clientId,
+              name: createClientData.name,
+              phone: createClientData.phone,
+              email: createClientData.email,
+            };
+            setClientState((clientState) => ({
+              ...clientState,
+              createClientRequestStatus: "CREATED",
+              clientObject: createdClient,
+            }));
+            createAppointment = true;
+            clientObject = { ...createdClient };
+          } else {
+            setClientState((clientState) => ({
+              ...clientState,
+              createClientRequestStatus: "ERROR",
+              appointmentRequestStatus: "BOOK-APPOINTMENT-FAIL",
+              message:
+                "Create request Error: " + JSON.stringify(createClientData),
+            }));
+            setState((state) => ({
+              ...state,
+              appointmentRequestStatus: "IDLE",
+            }));
+            createAppointment = false;
+          }
+        }
+        catch(e){
           setClientState((clientState) => ({
             ...clientState,
             createClientRequestStatus: "ERROR",
+            appointmentRequestStatus: "BOOK-APPOINTMENT-FAIL",
             message:
-              "Create request Error: " + JSON.stringify(createClientData),
+              "Create request Error: " + JSON.stringify(e),
+          }));
+          setState((state) => ({
+            ...state,
+            appointmentRequestStatus: "BOOK-APPOINTMENT-FAIL",
+            status: "BOOK-APPOINTMENT-FAIL",
+            message: "Client request Error: " + JSON.stringify(e.message),
           }));
           createAppointment = false;
         }
@@ -1057,7 +1080,8 @@ function App() {
     }));
     setState((state) => ({
       ...state,
-      step: "addons",
+      // step: "addons",
+      step: "availability",
     }));
 
     if (clientState.clientRequestStatus === "loading") {
