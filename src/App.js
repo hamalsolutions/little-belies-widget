@@ -186,7 +186,7 @@ function App() {
     appointmentRequestStatus: "IDLE",
     city: params.get("city"),
     message: "",
-    siteId: params.get("id") || "557418",
+    siteId: params.get("id") || "490100",
     latitude: params.get("latitude") || "0",
     longitude: params.get("longitude") || "0",
     language: languageList[params.get("lang")] || "English",
@@ -447,21 +447,24 @@ function App() {
             ultrasoundsRequest
           );
           const ultrasoundsData = await ultrasoundResponse.json();
+          let massageData = {};
           if (ultrasoundResponse.ok) {
-            const massageRequest = {
-              method: "GET",
-              headers: {
-                "Content-type": "application/json; charset=UTF-8",
-                siteid: state.siteId,
-                authorization: authData.accesssToken,
-                locationid: state.locationId,
-              },
-            };
-            const massageResponse = await fetch(
-              `${process.env.REACT_APP_API_URL}/api/sessionTypes/3`,
-              massageRequest
-            );
-            const massageData = await massageResponse.json();
+            if(state.siteId === "557418" || state.siteId === "902886"){
+              const massageRequest = {
+                method: "GET",
+                headers: {
+                  "Content-type": "application/json; charset=UTF-8",
+                  siteid: state.siteId,
+                  authorization: authData.accesssToken,
+                  locationid: state.locationId,
+                },
+              };
+              const massageResponse = await fetch(
+                `${process.env.REACT_APP_API_URL}/api/sessionTypes/3`,
+                massageRequest
+              );
+              massageData = await massageResponse.json();
+            }
             const ultrasounds = [];
             const massages = [];
             // console.log( hasBabyGrowth("Meet Your Baby - 15 Min 5D/HD - $99", ultrasoundsData.services ) );
@@ -521,13 +524,15 @@ function App() {
             setUltrasounds(ultrasounds);
             setConsultedUltrasounds(ultrasoundsData.services);
 
-            massageData.services.forEach((item) => {
-              const mutableItem = {
-                value: item.sessionTypeId,
-                label: item.name,
-              };
-              massages.push(mutableItem);
-            });
+            if(state.siteId === "557418" || state.siteId === "902886"){
+              massageData.services.forEach((item) => {
+                const mutableItem = {
+                  value: item.sessionTypeId,
+                  label: item.name,
+                };
+                massages.push(mutableItem);
+              });
+            }
             console.log(ultrasounds);
             const displayableServices = [
               {
