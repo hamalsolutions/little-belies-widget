@@ -469,49 +469,31 @@ function App() {
             const massages = [];
             // console.log( hasBabyGrowth("Meet Your Baby - 15 Min 5D/HD - $99", ultrasoundsData.services ) );
             console.log(ultrasoundsData);
+
+            const searchUltrasounds = [
+              "Early Pregnancy - $69",
+              "Gender Determination - $89",
+              "Meet Your Baby - 15 Min 5D/HD - $109",
+              "Meet Your Baby - 25 min 5D/HD - $149",
+              "Special Promotion 25 min 5D/HD Ultrasound - $229",
+            ];
+            const existingServices = [];
+
+            searchUltrasounds.forEach((service) => {
+              const serviceTypeId = getServiceId(service, ultrasoundsData.services);
+              if(serviceTypeId !== ""){
+                const servicePrice = getPrice(service);
+                const serviceObject = {
+                  sessionTypeId: serviceTypeId,
+                  name: service,
+                  price: servicePrice,
+                }
+                existingServices.push(serviceObject);
+              }
+            });
+            
             const ultrasoundServices = {
-              services: [
-                {
-                  sessionTypeId: getServiceId(
-                    "Early Pregnancy - $69",
-                    ultrasoundsData.services
-                  ),
-                  name: "Early Pregnancy - $69",
-                  price: 69,
-                },
-                {
-                  sessionTypeId: getServiceId(
-                    "Gender Determination - $89",
-                    ultrasoundsData.services
-                  ),
-                  name: "Gender Determination - $89",
-                  price: 89,
-                },
-                {
-                  sessionTypeId: getServiceId(
-                    "Meet Your Baby - 15 Min 5D/HD - $109",
-                    ultrasoundsData.services
-                  ),
-                  name: "Meet Your Baby - 15 Min 5D/HD - $109",
-                  price: 109,
-                },
-                {
-                  sessionTypeId: getServiceId(
-                    "Meet Your Baby - 25 min 5D/HD - $149",
-                    ultrasoundsData.services
-                  ),
-                  name: "Meet Your Baby - 25 min 5D/HD - $149",
-                  price: 149,
-                },
-                {
-                  sessionTypeId: getServiceId(
-                    "Special Promotion 25 min 5D/HD Ultrasound - $229",
-                    ultrasoundsData.services
-                  ),
-                  name: "Special Promotion 25 min 5D/HD Ultrasound - $229",
-                  price: 229,
-                },
-              ],
+              services: existingServices,
             };
 
             ultrasoundServices.services.forEach((item) => {
