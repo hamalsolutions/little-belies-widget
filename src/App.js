@@ -165,7 +165,6 @@ const translations = {
 };
 
 function App() {
-  const actionDate = moment().format("YYYY-MM-DD[T]HH:mm:ss").toString();
   const params = new URLSearchParams(window.location.search);
   const languageList = { en: "English", es: "Spanish" };
   const bypass = false;
@@ -174,6 +173,7 @@ function App() {
     const trans = translations[params.get("lang") || "en"];
     return trans[text] || text;
   };
+  const [selectedBlock, setSelectBlock] = useState(null);
   const [showBG, setShowBG] = useState(false);
   const [showHB, setShowHB] = useState(false);
   const [showDetailsBG, setShowDetailsBG] = useState(false);
@@ -813,44 +813,47 @@ function App() {
       block: block,
     }));
 
-    if (leadState.leadRegistered) {
+    setSelectBlock(block.startDateTime);
 
-      const leadPayload = {
-        partititonKey: leadState.partititonKey,
-        orderKey: leadState.orderKey,
-        dateTimeSeleted: actionDate,
+    try {
+      if (leadState.leadRegistered) {
+        const leadPayload = {
+          partitionKey: leadState.partititonKey,
+          orderKey: leadState.orderKey,
+          dateTimeSeleted: block.startDateTime,
+          stepTwo: 2,
+        };
+        const leadRequest = {
+          method: "PUT",
+          headers: {
+            "Content-type": "application/json; charset=UTF-8",
+            authorization: state.authorization,
+            siteid: state.siteId,
+          },
+          body: JSON.stringify(leadPayload),
+        };
+        const leadResponse = await fetch(
+          `${process.env.REACT_APP_API_URL}/api/book/clients`,
+          leadRequest
+        );
+        const leadData = await leadResponse.json();
+        if (leadResponse.ok) {
+          setLeadState((leadState) => ({
+            ...leadState,
+            leadUpdate: true,
+          }));
+        } else {
+          setLeadState((leadState) => ({
+            ...leadState,
+            leadUpdate: true,
+          }));
+          console.error(leadData);
+        }
       };
-      const leadRequest = {
-        method: "PUT",
-        headers: {
-          "Content-type": "application/json; charset=UTF-8",
-          authorization: state.authorization,
-          siteid: state.siteId,
-        },
-        body: JSON.stringify(leadPayload),
-      };
-
-      const leadResponse = await fetch(
-        `${process.env.REACT_APP_API_URL}/api/book/clients`,
-        leadRequest
-      );
-
-      const leadData = await leadResponse.json();
-      if (leadResponse.ok) {
-        setLeadState((leadState) => ({
-          ...leadState,
-          leadUpdate: true,
-        }));
-      } else {
-        setLeadState((leadState) => ({
-          ...leadState,
-          leadUpdate: true,
-        }));
-        console.error(leadData);
-      }
-
-
-    };
+      
+    } catch (error) {
+      console.error(error);
+    }
 
   };
 
@@ -1182,7 +1185,8 @@ function App() {
         email: data.email,
         service: sessionTypeName,
         clientId: clientId === undefined ? "n/a" : clientId,
-        dateTime: actionDate
+        dateTime: moment().format("YYYY-MM-DD[T]HH:mm:ss").toString(),
+        stepTwo: 1,
       };
       const leadRequest = {
         method: "POST",
@@ -1277,9 +1281,10 @@ function App() {
 
     if (leadState.leadRegistered) {
       const leadPayload = {
-        partititonKey: leadState.partititonKey,
+        partitionKey: leadState.partititonKey,
         orderKey: leadState.orderKey,
-        dateTimeToBook: actionDate,
+        dateTimeToBook: selectedBlock,
+        stepTwo: 3,
       };
       const leadRequest = {
         method: "PUT",
@@ -1379,9 +1384,6 @@ function App() {
       "https://maps.google.com?q=" + state.latitude + "," + state.longitude
     );
   };
-  // console.log("availableBlocks");
-  // console.log(availableBlocks);
-  // console.log(state.locationId);
 
   const showTerms = () => {
     setState((state) => ({
