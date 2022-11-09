@@ -850,7 +850,7 @@ function App() {
           console.error(leadData);
         }
       };
-      
+
     } catch (error) {
       console.error(error);
     }
@@ -1279,43 +1279,49 @@ function App() {
       step: "summary",
     }));
 
-    if (leadState.leadRegistered) {
-      const leadPayload = {
-        partitionKey: leadState.partititonKey,
-        orderKey: leadState.orderKey,
-        dateTimeToBook: selectedBlock,
-        stepTwo: 3,
+    try {
+      if (leadState.leadRegistered) {
+        const leadPayload = {
+          partitionKey: leadState.partititonKey,
+          orderKey: leadState.orderKey,
+          dateTimeToBook: selectedBlock,
+          stepTwo: 3,
+        };
+        const leadRequest = {
+          method: "PUT",
+          headers: {
+            "Content-type": "application/json; charset=UTF-8",
+            authorization: state.authorization,
+            siteid: state.siteId,
+          },
+          body: JSON.stringify(leadPayload),
+        };
+
+        const leadResponse = await fetch(
+          `${process.env.REACT_APP_API_URL}/api/book/clients`,
+          leadRequest
+        );
+
+        const leadData = await leadResponse.json();
+        if (leadResponse.ok) {
+          setLeadState((leadState) => ({
+            ...leadState,
+            leadUpdate: true,
+          }));
+        } else {
+          setLeadState((leadState) => ({
+            ...leadState,
+            leadUpdate: true,
+          }));
+          console.error(leadData);
+        }
+
       };
-      const leadRequest = {
-        method: "PUT",
-        headers: {
-          "Content-type": "application/json; charset=UTF-8",
-          authorization: state.authorization,
-          siteid: state.siteId,
-        },
-        body: JSON.stringify(leadPayload),
-      };
 
-      const leadResponse = await fetch(
-        `${process.env.REACT_APP_API_URL}/api/book/clients`,
-        leadRequest
-      );
+    } catch (error) {
+      console.error(error);
+    }
 
-      const leadData = await leadResponse.json();
-      if (leadResponse.ok) {
-        setLeadState((leadState) => ({
-          ...leadState,
-          leadUpdate: true,
-        }));
-      } else {
-        setLeadState((leadState) => ({
-          ...leadState,
-          leadUpdate: true,
-        }));
-        console.error(leadData);
-      }
-
-    };
   };
   // Takes the app to the availability step of booking
   const stepToAvailability = () => {
