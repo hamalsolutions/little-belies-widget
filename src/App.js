@@ -250,7 +250,7 @@ function App() {
   });
 
   const onChangeServices = (service) => {
-    // console.log({service});
+    console.log({service});
     // setState({
     //   ...state,
     //   showbabyGrowth: false,
@@ -276,7 +276,6 @@ function App() {
   };
 
   useEffect(() => {
-    console.log("started");
     updateDimensions();
 
     window.addEventListener("resize", updateDimensions);
