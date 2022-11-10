@@ -276,6 +276,7 @@ function App() {
   };
 
   useEffect(() => {
+    console.log("started");
     updateDimensions();
 
     window.addEventListener("resize", updateDimensions);
