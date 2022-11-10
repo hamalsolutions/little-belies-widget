@@ -173,6 +173,7 @@ function App() {
     const trans = translations[params.get("lang") || "en"];
     return trans[text] || text;
   };
+  const [selectedBlock, setSelectBlock] = useState(null);
   const [showBG, setShowBG] = useState(false);
   const [showHB, setShowHB] = useState(false);
   const [showDetailsBG, setShowDetailsBG] = useState(false);
@@ -245,6 +246,7 @@ function App() {
     clientFound: false,
     leadRegistered: false,
     leadDeleted: false,
+    leadUpdate: false,
     partititonKey: "",
     orderKey: "",
   });
@@ -315,7 +317,7 @@ function App() {
     window.parent.postMessage({ task: "scroll_top" }, parent_origin);
   };
 
-  const googleTrackBooking = ({name, service, date, time}) => {
+  const googleTrackBooking = ({ name, service, date, time }) => {
     console.log("sending task to parent");
     window.parent.postMessage({ task: "google_track_booking", name, service, date, time }, parent_origin);
   };
@@ -449,7 +451,7 @@ function App() {
           const ultrasoundsData = await ultrasoundResponse.json();
           let massageData = {};
           if (ultrasoundResponse.ok) {
-            if(state.siteId === "557418" || state.siteId === "902886"){
+            if (state.siteId === "557418" || state.siteId === "902886") {
               const massageRequest = {
                 method: "GET",
                 headers: {
@@ -481,7 +483,7 @@ function App() {
 
             searchUltrasounds.forEach((service) => {
               const serviceTypeId = getServiceId(service, ultrasoundsData.services);
-              if(serviceTypeId !== ""){
+              if (serviceTypeId !== "") {
                 const servicePrice = getPrice(service);
                 const serviceObject = {
                   sessionTypeId: serviceTypeId,
@@ -491,7 +493,7 @@ function App() {
                 existingServices.push(serviceObject);
               }
             });
-            
+
             const ultrasoundServices = {
               services: existingServices,
             };
@@ -506,7 +508,7 @@ function App() {
             setUltrasounds(ultrasounds);
             setConsultedUltrasounds(ultrasoundsData.services);
 
-            if(state.siteId === "557418" || state.siteId === "902886"){
+            if (state.siteId === "557418" || state.siteId === "902886") {
               massageData.services.forEach((item) => {
                 const mutableItem = {
                   value: item.sessionTypeId,
@@ -732,8 +734,8 @@ function App() {
             a.startDateTime > b.startDateTime
               ? 1
               : b.startDateTime > a.startDateTime
-              ? -1
-              : 0
+                ? -1
+                : 0
           );
 
           setFirstLoad(false);
@@ -804,12 +806,57 @@ function App() {
     }
   }, [availableBlocks]);
   // Saves the selected available block into a state
-  const handleAvailabilityBlockSelect = (block) => {
+  const handleAvailabilityBlockSelect = async (block) => {
+
     setState((state) => ({
       ...state,
       block: block,
     }));
+
+    setSelectBlock(block.startDateTime);
+
+    try {
+      if (leadState.leadRegistered) {
+        const leadPayload = {
+          partitionKey: leadState.partititonKey,
+          orderKey: leadState.orderKey,
+          dateTimeSeleted: block.startDateTime,
+          stepTwo: 2,
+        };
+        const leadRequest = {
+          method: "PUT",
+          headers: {
+            "Content-type": "application/json; charset=UTF-8",
+            authorization: state.authorization,
+            siteid: state.siteId,
+          },
+          body: JSON.stringify(leadPayload),
+        };
+        const leadResponse = await fetch(
+          `${process.env.REACT_APP_API_URL}/api/book/clients`,
+          leadRequest
+        );
+        const leadData = await leadResponse.json();
+        if (leadResponse.ok) {
+          setLeadState((leadState) => ({
+            ...leadState,
+            leadUpdate: true,
+          }));
+        } else {
+          setLeadState((leadState) => ({
+            ...leadState,
+            leadUpdate: true,
+          }));
+          console.error(leadData);
+        }
+      };
+
+    } catch (error) {
+      console.error(error);
+    }
+
   };
+
   // Handle the booking of the appointment and creation of the client if necesary
   const bookAppointment = async () => {
     if (state.appointmentRequestStatus === "loading") {
@@ -818,7 +865,7 @@ function App() {
     try {
       /// BYPASS BOOKING
       if (bypass) {
-        googleTrackBooking({name: "name", service: "service", date: "date", time: "time"});
+        googleTrackBooking({ name: "name", service: "service", date: "date", time: "time" });
         setState((state) => ({
           ...state,
           appointmentRequestStatus: "BOOK-APPOINTMENT-OK",
@@ -836,7 +883,7 @@ function App() {
       let clientObject = { ...clientState.clientObject };
 
       if (clientState.clientRequestStatus === "CLIENT-NOT-FOUND") {
-        try{
+        try {
           const payload = {
             firstName: clientState.firstName,
             lastName: clientState.lastName,
@@ -886,7 +933,7 @@ function App() {
             createAppointment = false;
           }
         }
-        catch(e){
+        catch (e) {
           setClientState((clientState) => ({
             ...clientState,
             createClientRequestStatus: "ERROR",
@@ -1096,7 +1143,7 @@ function App() {
       if (searchClientsResponse.ok) {
         if (
           data.firstName + " " + data.lastName ===
-            searchClientsData.clients[0].name &&
+          searchClientsData.clients[0].name &&
           searchClientsData.clients[0].email === data.email &&
           searchClientsData.clients[0].phone === data.phone
         ) {
@@ -1138,6 +1185,8 @@ function App() {
         email: data.email,
         service: sessionTypeName,
         clientId: clientId === undefined ? "n/a" : clientId,
+        dateTime: moment().format("YYYY-MM-DD[T]HH:mm:ss").toString(),
+        stepTwo: 1,
       };
       const leadRequest = {
         method: "POST",
@@ -1223,12 +1272,56 @@ function App() {
     setAddHeartbeatBuddies(!addHeartbeatBuddies);
   };
   // Takes the app to the summary step of booking
-  const blockSelected = () => {
+  const blockSelected = async () => {
     scrollParenTop();
     setState((state) => ({
       ...state,
       step: "summary",
     }));
+
+    try {
+      if (leadState.leadRegistered) {
+        const leadPayload = {
+          partitionKey: leadState.partititonKey,
+          orderKey: leadState.orderKey,
+          dateTimeToBook: selectedBlock,
+          stepTwo: 3,
+        };
+        const leadRequest = {
+          method: "PUT",
+          headers: {
+            "Content-type": "application/json; charset=UTF-8",
+            authorization: state.authorization,
+            siteid: state.siteId,
+          },
+          body: JSON.stringify(leadPayload),
+        };
+
+        const leadResponse = await fetch(
+          `${process.env.REACT_APP_API_URL}/api/book/clients`,
+          leadRequest
+        );
+
+        const leadData = await leadResponse.json();
+        if (leadResponse.ok) {
+          setLeadState((leadState) => ({
+            ...leadState,
+            leadUpdate: true,
+          }));
+        } else {
+          setLeadState((leadState) => ({
+            ...leadState,
+            leadUpdate: true,
+          }));
+          console.error(leadData);
+        }
+
+      };
+
+    } catch (error) {
+      console.error(error);
+    }
+
   };
   // Takes the app to the availability step of booking
   const stepToAvailability = () => {
@@ -1297,9 +1390,6 @@ function App() {
       "https://maps.google.com?q=" + state.latitude + "," + state.longitude
     );
   };
-  // console.log("availableBlocks");
-  // console.log(availableBlocks);
-  // console.log(state.locationId);
 
   const showTerms = () => {
     setState((state) => ({
@@ -2090,8 +2180,8 @@ function App() {
             )}
             {(state.availabilityRequestStatus === "error" ||
               state.availabilityRequestStatus === "no-data-found") && (
-              <h1 className="h1">Error: {state.message}</h1>
-            )}
+                <h1 className="h1">Error: {state.message}</h1>
+              )}
           </div>
         </div>
       )}
@@ -2118,16 +2208,16 @@ function App() {
                 <div className="col text-center">
                   {state.appointmentRequestStatus ===
                     "BOOK-APPOINTMENT-FAIL" && (
-                    <div className="d-block alert alert-danger text-center">
-                      <span>
-                        {" "}
-                        There has been an error booking your appointment, please
-                        try again, if the error persist please call this number:{" "}
-                        <a href={`tel:${state.phone}`}>{state.phone}</a> and we
-                        will get you sorted out{" "}
-                      </span>
-                    </div>
-                  )}
+                      <div className="d-block alert alert-danger text-center">
+                        <span>
+                          {" "}
+                          There has been an error booking your appointment, please
+                          try again, if the error persist please call this number:{" "}
+                          <a href={`tel:${state.phone}`}>{state.phone}</a> and we
+                          will get you sorted out{" "}
+                        </span>
+                      </div>
+                    )}
                   {state.textMessageStatus === "TEXT-FAIL" && (
                     <div className="d-block alert alert-warning">
                       <span> {state.textMessage} </span>
@@ -2150,20 +2240,20 @@ function App() {
               </div>
             )}
           </div>
-          
+
           <div className="row w-50 mb-3 bg-light-container mx-auto p-4 justify-content-center">
             <div>
-            { (
-              <>
-              <div className="row my-3">
-                <div className="col">
-                  <div>
-                    <b>Full Name:</b>{" "}
-                    {clientState.firstName + " " + clientState.lastName}
+              {(
+                <>
+                  <div className="row my-3">
+                    <div className="col">
+                      <div>
+                        <b>Full Name:</b>{" "}
+                        {clientState.firstName + " " + clientState.lastName}
+                      </div>
+                    </div>
                   </div>
-                </div>
-              </div>
-              {/* <div className="row mb-2">
+                  {/* <div className="row mb-2">
               <div className="col">
                 <div>Email: <b>{clientState.email}</b></div>
               </div>
@@ -2173,72 +2263,72 @@ function App() {
                 <div>Phone: <b>{clientState.phone}</b></div>
               </div>
             </div> */}
-              <div className="row mb-3">
-                <div className="col">
-                  <div>
-                    <b>Service: </b>
-                    {clientState.sessionTypeName}
+                  <div className="row mb-3">
+                    <div className="col">
+                      <div>
+                        <b>Service: </b>
+                        {clientState.sessionTypeName}
+                      </div>
+                    </div>
                   </div>
-                </div>
-              </div>
-              {/* 
+                  {/* 
             <div className="row mb-2">
               <div className="col">
                 <div>Weeks: <b>{clientState.weeks}</b></div>
               </div>
             </div>
             */}
-              <div className="row mb-3">
-                <div className="col-auto">
-                  <div>
-                    <b>Date: </b>
-                    {moment(state.block.blockDate)
-                      .format("MM-DD-YYYY")
-                      .toString()}
+                  <div className="row mb-3">
+                    <div className="col-auto">
+                      <div>
+                        <b>Date: </b>
+                        {moment(state.block.blockDate)
+                          .format("MM-DD-YYYY")
+                          .toString()}
+                      </div>
+                    </div>
+                    <div className="col-auto">
+                      <div>
+                        <b>Time: </b>
+                        {moment(state.block.blockDate).format("hh:mm A").toString()}
+                      </div>
+                    </div>
                   </div>
-                </div>
-                <div className="col-auto">
-                  <div>
-                    <b>Time: </b>
-                    {moment(state.block.blockDate).format("hh:mm A").toString()}
-                  </div>
-                </div>
-              </div>
-              <div className="row mb-3">
-                <div className="col">
-                  <div className="col">
-                    <b>Location Address: </b>
-                    {removeTags(state.address)}
-                    {/* <span className="link-primary" style={{cursor: "pointer"}}  onClick={showInMapClicked}>
+                  <div className="row mb-3">
+                    <div className="col">
+                      <div className="col">
+                        <b>Location Address: </b>
+                        {removeTags(state.address)}
+                        {/* <span className="link-primary" style={{cursor: "pointer"}}  onClick={showInMapClicked}>
                     {removeTags(state.address)}
                     </span> */}
+                      </div>
+                    </div>
                   </div>
-                </div>
-              </div>
-              <div className="row mb-3">
-                <div className="col">
-                  <div>
-                    <b>How to Arrive: </b>
-                    {removeTags(state.howtoarrive)}
+                  <div className="row mb-3">
+                    <div className="col">
+                      <div>
+                        <b>How to Arrive: </b>
+                        {removeTags(state.howtoarrive)}
+                      </div>
+                    </div>
                   </div>
-                </div>
-              </div>
-              <div className="row mb-3">
-                <div className="col">
-                  <div>
-                    <b>Location Phone: </b>
-                    <a href={`tel:${state.phone}`}>{state.phone}</a>
+                  <div className="row mb-3">
+                    <div className="col">
+                      <div>
+                        <b>Location Phone: </b>
+                        <a href={`tel:${state.phone}`}>{state.phone}</a>
+                      </div>
+                    </div>
                   </div>
-                </div>
-              </div>
-              {/* { state.language !== 'English' && (
+                  {/* { state.language !== 'English' && (
               <div className="row mb-2">
                 <div className="col">
                   <div>Language: <b>{state.language}</b></div>
                 </div>
               </div>
             )} */}
-              {/* {state.appointmentRequestStatus === "BOOK-APPOINTMENT-OK" && (
+                  {/* {state.appointmentRequestStatus === "BOOK-APPOINTMENT-OK" && (
                 <div className="row mb-2">
                   <div className="col">
                     <div>
@@ -2250,8 +2340,8 @@ function App() {
                   </div>
                 </div>
               )} */}
-              </>
-            )}
+                </>
+              )}
 
               {state.appointmentRequestStatus !== "BOOK-APPOINTMENT-OK" && (
                 <>
