@@ -186,7 +186,7 @@ function App() {
     appointmentRequestStatus: "IDLE",
     city: params.get("city"),
     message: "",
-    siteId: params.get("id") || "549974",
+    siteId: params.get("id") || "490100",
     latitude: params.get("latitude") || "0",
     longitude: params.get("longitude") || "0",
     language: languageList[params.get("lang")] || "English",
@@ -447,68 +447,53 @@ function App() {
             ultrasoundsRequest
           );
           const ultrasoundsData = await ultrasoundResponse.json();
+          let massageData = {};
           if (ultrasoundResponse.ok) {
-            const massageRequest = {
-              method: "GET",
-              headers: {
-                "Content-type": "application/json; charset=UTF-8",
-                siteid: state.siteId,
-                authorization: authData.accesssToken,
-                locationid: state.locationId,
-              },
-            };
-            const massageResponse = await fetch(
-              `${process.env.REACT_APP_API_URL}/api/sessionTypes/3`,
-              massageRequest
-            );
-            const massageData = await massageResponse.json();
+            if(state.siteId === "557418" || state.siteId === "902886"){
+              const massageRequest = {
+                method: "GET",
+                headers: {
+                  "Content-type": "application/json; charset=UTF-8",
+                  siteid: state.siteId,
+                  authorization: authData.accesssToken,
+                  locationid: state.locationId,
+                },
+              };
+              const massageResponse = await fetch(
+                `${process.env.REACT_APP_API_URL}/api/sessionTypes/3`,
+                massageRequest
+              );
+              massageData = await massageResponse.json();
+            }
             const ultrasounds = [];
             const massages = [];
             // console.log( hasBabyGrowth("Meet Your Baby - 15 Min 5D/HD - $99", ultrasoundsData.services ) );
             console.log(ultrasoundsData);
+
+            const searchUltrasounds = [
+              "Early Pregnancy - $69",
+              "Gender Determination - $89",
+              "Meet Your Baby - 15 Min 5D/HD - $109",
+              "Meet Your Baby - 25 min 5D/HD - $149",
+              "Special Promotion 25 min 5D/HD Ultrasound - $229",
+            ];
+            const existingServices = [];
+
+            searchUltrasounds.forEach((service) => {
+              const serviceTypeId = getServiceId(service, ultrasoundsData.services);
+              if(serviceTypeId !== ""){
+                const servicePrice = getPrice(service);
+                const serviceObject = {
+                  sessionTypeId: serviceTypeId,
+                  name: service,
+                  price: servicePrice,
+                }
+                existingServices.push(serviceObject);
+              }
+            });
+            
             const ultrasoundServices = {
-              services: [
-                {
-                  sessionTypeId: getServiceId(
-                    "Early Pregnancy - $69",
-                    ultrasoundsData.services
-                  ),
-                  name: "Early Pregnancy - $69",
-                  price: 69,
-                },
-                {
-                  sessionTypeId: getServiceId(
-                    "Gender Determination - $89",
-                    ultrasoundsData.services
-                  ),
-                  name: "Gender Determination - $89",
-                  price: 89,
-                },
-                {
-                  sessionTypeId: getServiceId(
-                    "Meet Your Baby - 15 Min 5D/HD - $109",
-                    ultrasoundsData.services
-                  ),
-                  name: "Meet Your Baby - 15 Min 5D/HD - $109",
-                  price: 109,
-                },
-                {
-                  sessionTypeId: getServiceId(
-                    "Meet Your Baby - 25 min 5D/HD - $149",
-                    ultrasoundsData.services
-                  ),
-                  name: "Meet Your Baby - 25 min 5D/HD - $149",
-                  price: 149,
-                },
-                {
-                  sessionTypeId: getServiceId(
-                    "Special Promotion 25 min 5D/HD Ultrasound - $229",
-                    ultrasoundsData.services
-                  ),
-                  name: "Special Promotion 25 min 5D/HD Ultrasound - $229",
-                  price: 229,
-                },
-              ],
+              services: existingServices,
             };
 
             ultrasoundServices.services.forEach((item) => {
@@ -521,13 +506,15 @@ function App() {
             setUltrasounds(ultrasounds);
             setConsultedUltrasounds(ultrasoundsData.services);
 
-            massageData.services.forEach((item) => {
-              const mutableItem = {
-                value: item.sessionTypeId,
-                label: item.name,
-              };
-              massages.push(mutableItem);
-            });
+            if(state.siteId === "557418" || state.siteId === "902886"){
+              massageData.services.forEach((item) => {
+                const mutableItem = {
+                  value: item.sessionTypeId,
+                  label: item.name,
+                };
+                massages.push(mutableItem);
+              });
+            }
             console.log(ultrasounds);
             const displayableServices = [
               {
@@ -849,46 +836,69 @@ function App() {
       let clientObject = { ...clientState.clientObject };
 
       if (clientState.clientRequestStatus === "CLIENT-NOT-FOUND") {
-        const payload = {
-          firstName: clientState.firstName,
-          lastName: clientState.lastName,
-          mobilePhone: clientState.phone,
-          email: clientState.email,
-        };
-        const createClientRequest = {
-          method: "POST",
-          headers: {
-            "Content-type": "application/json; charset=UTF-8",
-            authorization: state.authorization,
-            siteid: state.siteId,
-          },
-          body: JSON.stringify(payload),
-        };
-        const createClientResponse = await fetch(
-          `${process.env.REACT_APP_API_URL}/api/clients`,
-          createClientRequest
-        );
-        const createClientData = await createClientResponse.json();
-        if (createClientResponse.ok) {
-          const createdClient = {
-            clientId: createClientData.clientId,
-            name: createClientData.name,
-            phone: createClientData.phone,
-            email: createClientData.email,
+        try{
+          const payload = {
+            firstName: clientState.firstName,
+            lastName: clientState.lastName,
+            mobilePhone: clientState.phone,
+            email: clientState.email,
           };
-          setClientState((clientState) => ({
-            ...clientState,
-            createClientRequestStatus: "CREATED",
-            clientObject: createdClient,
-          }));
-          createAppointment = true;
-          clientObject = { ...createdClient };
-        } else {
+          const createClientRequest = {
+            method: "POST",
+            headers: {
+              "Content-type": "application/json; charset=UTF-8",
+              authorization: state.authorization,
+              siteid: state.siteId,
+            },
+            body: JSON.stringify(payload),
+          };
+          const createClientResponse = await fetch(
+            `${process.env.REACT_APP_API_URL}/api/clients`,
+            createClientRequest
+          );
+          const createClientData = await createClientResponse.json();
+          if (createClientResponse.ok) {
+            const createdClient = {
+              clientId: createClientData.clientId,
+              name: createClientData.name,
+              phone: createClientData.phone,
+              email: createClientData.email,
+            };
+            setClientState((clientState) => ({
+              ...clientState,
+              createClientRequestStatus: "CREATED",
+              clientObject: createdClient,
+            }));
+            createAppointment = true;
+            clientObject = { ...createdClient };
+          } else {
+            setClientState((clientState) => ({
+              ...clientState,
+              createClientRequestStatus: "ERROR",
+              appointmentRequestStatus: "BOOK-APPOINTMENT-FAIL",
+              message:
+                "Create request Error: " + JSON.stringify(createClientData),
+            }));
+            setState((state) => ({
+              ...state,
+              appointmentRequestStatus: "IDLE",
+            }));
+            createAppointment = false;
+          }
+        }
+        catch(e){
           setClientState((clientState) => ({
             ...clientState,
             createClientRequestStatus: "ERROR",
+            appointmentRequestStatus: "BOOK-APPOINTMENT-FAIL",
             message:
-              "Create request Error: " + JSON.stringify(createClientData),
+              "Create request Error: " + JSON.stringify(e),
+          }));
+          setState((state) => ({
+            ...state,
+            appointmentRequestStatus: "BOOK-APPOINTMENT-FAIL",
+            status: "BOOK-APPOINTMENT-FAIL",
+            message: "Client request Error: " + JSON.stringify(e.message),
           }));
           createAppointment = false;
         }
@@ -1057,7 +1067,8 @@ function App() {
     }));
     setState((state) => ({
       ...state,
-      step: "addons",
+      // step: "addons",
+      step: "availability",
     }));
 
     if (clientState.clientRequestStatus === "loading") {
