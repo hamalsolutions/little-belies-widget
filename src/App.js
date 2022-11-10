@@ -821,7 +821,7 @@ function App() {
           partitionKey: leadState.partititonKey,
           orderKey: leadState.orderKey,
           dateTimeSeleted: block.startDateTime,
-          stepTwo: 2,
+          step: 2,
         };
         const leadRequest = {
           method: "PUT",
@@ -1186,7 +1186,7 @@ function App() {
         service: sessionTypeName,
         clientId: clientId === undefined ? "n/a" : clientId,
         dateTime: moment().format("YYYY-MM-DD[T]HH:mm:ss").toString(),
-        stepTwo: 1,
+        step: 1,
       };
       const leadRequest = {
         method: "POST",
@@ -1285,7 +1285,7 @@ function App() {
           partitionKey: leadState.partititonKey,
           orderKey: leadState.orderKey,
           dateTimeToBook: selectedBlock,
-          stepTwo: 3,
+          step: 3,
         };
         const leadRequest = {
           method: "PUT",
