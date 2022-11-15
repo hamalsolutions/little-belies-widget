@@ -187,7 +187,7 @@ function App() {
     appointmentRequestStatus: "IDLE",
     city: params.get("city"),
     message: "",
-    siteId: params.get("id") || "490100",
+    siteId: params.get("id") || "557418",
     latitude: params.get("latitude") || "0",
     longitude: params.get("longitude") || "0",
     language: languageList[params.get("lang")] || "English",
@@ -1136,7 +1136,7 @@ function App() {
         },
       };
       const searchClientsResponse = await fetch(
-        `${process.env.REACT_APP_API_URL}/api/clients/clients?searchText=${data.email}`,
+        `${process.env.REACT_APP_API_URL}/api/clients/clients?searchText=${data.phone}`,
         searchClientsRequest
       );
       const searchClientsData = await searchClientsResponse.json();
@@ -1284,7 +1284,7 @@ function App() {
         const leadPayload = {
           partitionKey: leadState.partititonKey,
           orderKey: leadState.orderKey,
-          dateTimeToBook: selectedBlock,
+          dateTimeSeleted: selectedBlock,
           step: 3,
         };
         const leadRequest = {
