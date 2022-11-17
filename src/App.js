@@ -187,7 +187,7 @@ function App() {
     appointmentRequestStatus: "IDLE",
     city: params.get("city"),
     message: "",
-    siteId: params.get("id") || "557418",
+    siteId: params.get("id") || "490100",
     latitude: params.get("latitude") || "0",
     longitude: params.get("longitude") || "0",
     language: languageList[params.get("lang")] || "English",
@@ -252,7 +252,7 @@ function App() {
   });
 
   const onChangeServices = (service) => {
-    // console.log({service});
+    console.log({service});
     // setState({
     //   ...state,
     //   showbabyGrowth: false,
@@ -887,7 +887,7 @@ function App() {
           const payload = {
             firstName: clientState.firstName,
             lastName: clientState.lastName,
-            mobilePhone: clientState.phone,
+            mobilePhone: clientState.phone.replace(/[^0-9]/gi, ''),
             email: clientState.email,
           };
           const createClientRequest = {
@@ -908,7 +908,7 @@ function App() {
             const createdClient = {
               clientId: createClientData.clientId,
               name: createClientData.name,
-              phone: createClientData.phone,
+              phone: createClientData.phone.replace(/[^0-9]/gi, ''),
               email: createClientData.email,
             };
             setClientState((clientState) => ({
@@ -1106,7 +1106,7 @@ function App() {
       firstName: data.firstName,
       lastName: data.lastName,
       email: data.email,
-      phone: data.phone,
+      phone: data.phone.replace(/[^0-9]/gi, ''),
       weeks: data.weeks.label,
       sessionTypeId: sessionTypeId,
       sessionTypeName: sessionTypeName,
@@ -1136,7 +1136,7 @@ function App() {
         },
       };
       const searchClientsResponse = await fetch(
-        `${process.env.REACT_APP_API_URL}/api/clients/clients?searchText=${data.phone}`,
+        `${process.env.REACT_APP_API_URL}/api/clients/clients?searchText=${data.phone.replace(/[^0-9]/gi, '')}`,
         searchClientsRequest
       );
       const searchClientsData = await searchClientsResponse.json();
@@ -1145,7 +1145,7 @@ function App() {
           data.firstName + " " + data.lastName ===
           searchClientsData.clients[0].name &&
           searchClientsData.clients[0].email === data.email &&
-          searchClientsData.clients[0].phone === data.phone
+          searchClientsData.clients[0].phone.replace(/[^0-9]/gi, '') === data.phone.replace(/[^0-9]/gi, '')
         ) {
           setClientState((clientState) => ({
             ...clientState,
@@ -1181,7 +1181,7 @@ function App() {
       const leadPayload = {
         siteId: state.siteId,
         name: data.firstName + " " + data.lastName,
-        mobilePhone: data.phone,
+        mobilePhone: data.phone.replace(/[^0-9]/gi, ''),
         email: data.email,
         service: sessionTypeName,
         clientId: clientId === undefined ? "n/a" : clientId,
