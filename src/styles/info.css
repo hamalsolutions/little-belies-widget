@@ -1,0 +1,33 @@
+
+.lb-preview-info-card-visible {
+  visibility: visible;
+  width: 20%;
+  background-color: rgba(223, 222, 222, 0.781);
+  color: #000;
+  text-align: center;
+  border-radius: 6px;
+  padding: 10px 0;
+  position: absolute;
+  z-index: 1;
+  bottom: 25%;
+  right: 15%;
+  opacity: 1;
+  transition: opacity 2s;
+}
+
+.lb-preview-info-card-visible::after {
+  content: "";
+  position: absolute;
+  top: 25%;
+  left: 0%;
+  margin-top: -5px;
+  border-width: 5px;
+  border-style: solid;
+  border-color: transparent transparent transparent transparent;
+}
+
+.lb-preview-card {
+  visibility: hidden;
+  opacity: 0;
+  z-index: -1;
+}

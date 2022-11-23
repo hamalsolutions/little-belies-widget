@@ -15,9 +15,14 @@ import {
   faChevronUp,
   faChevronDown,
   faTimesCircle,
+  faInfo,
+  faClosedCaptioning,
+  faXRay
 } from "@fortawesome/free-solid-svg-icons";
 import ReCAPTCHA from "react-google-recaptcha";
 import "./App.css";
+import "./styles/info.css";
+
 
 const blocks = [
   {
@@ -226,6 +231,50 @@ function App() {
   });
   const [availableBlocks, setAvailableBlocks] = useState([]);
   const [services, setServices] = useState([]);
+  const [selectedOptionAddons, setSelectedOptionAddons] = useState(null);
+  const [hoverIndexBabys, setHoverIndexBabys] = useState(false);
+  const [hoverIndexHearthbeat, setHoverIndexHearthbeat] = useState(false);
+
+  // aqui3
+
+  const addonsAvility = [
+    {
+      value: "Hearthbeat Buddies",
+      label: (
+        <div className="d-flex col-12"
+        onMouseOver={() => setHoverIndexHearthbeat(true)}
+        onMouseLeave={() => setHoverIndexHearthbeat(false)}
+        style={{ cursor: "pointer" }}
+        >
+          <div className="col-11">
+            <span>Hearthbeat Buddies</span>
+          </div>
+          <div className="col-1"
+          >
+            <FontAwesomeIcon icon={faInfo} />
+          </div>
+        </div>
+      )
+    },
+    {
+      value: "Baby's Growth",
+      label: (
+        <div className="col-12 d-flex"
+        onMouseOver={() => setHoverIndexBabys(true)}
+        onMouseLeave={() => setHoverIndexBabys(false)}
+        style={{ cursor: "pointer" }}
+        >
+          <div className="col-11">
+            <span>Baby's Growth</span>
+          </div>
+          <div className="col-1">
+            <FontAwesomeIcon icon={faInfo} />
+          </div>
+        </div>
+      )
+    }];
+
+  const [addOns, setAddOns] = useState(addonsAvility);
   const [ultrasounds, setUltrasounds] = useState([]);
   const [consultedUltrasounds, setConsultedUltrasounds] = useState([]);
   const [weeks, setWeeks] = useState([]);
@@ -250,16 +299,17 @@ function App() {
     partititonKey: "",
     orderKey: "",
   });
+  const [seletedService, setSeletedService] = useState(null)
+  const [sendForm, setSendForm] = useState(false)
 
+  // aqui4
   const onChangeServices = (service) => {
-    console.log({service});
-    // setState({
-    //   ...state,
-    //   showbabyGrowth: false,
-    //   addBabysGrowth: false,
-    // })
+
+    setSeletedService(service)
+
     setAddBabysGrowth(false);
     setAddHeartbeatBuddies(false);
+
     if (service !== undefined) {
       setShowHB(true);
     } else {
@@ -271,9 +321,29 @@ function App() {
         service.value === ultrasounds[2].value ||
         service.value === ultrasounds[3].value)
     ) {
+      setAddOns(addonsAvility)
       setShowBG(true);
+
     } else {
+
+      const addonsOnly = addOns.filter((i) => { return i.value !== "Baby's Growth" });
+      setAddOns(addonsOnly)
       setShowBG(false);
+
+      if (selectedOptionAddons !== null && selectedOptionAddons.length > 0) {
+
+        if (selectedOptionAddons[0] && selectedOptionAddons[0].value === "Baby's Growth") {
+          const formattingSelectedOptionAddons = selectedOptionAddons.filter((i) => { return i.value !== "Baby's Growth" })
+          setSelectedOptionAddons(formattingSelectedOptionAddons)
+        }
+
+        if (selectedOptionAddons[1] && selectedOptionAddons[1].value === "Baby's Growth") {
+          const formattingSelectedOptionAddons = selectedOptionAddons.filter((i) => { return i.value !== "Baby's Growth" })
+          setSelectedOptionAddons(formattingSelectedOptionAddons)
+        }
+
+      }
+
     }
   };
 
@@ -330,6 +400,7 @@ function App() {
       );
     });
   };
+
   const getPrice = (service) => {
     return parseInt(service.split("$")[1]);
   };
@@ -470,7 +541,7 @@ function App() {
             const ultrasounds = [];
             const massages = [];
             // console.log( hasBabyGrowth("Meet Your Baby - 15 Min 5D/HD - $99", ultrasoundsData.services ) );
-            console.log(ultrasoundsData);
+            // console.log(ultrasoundsData);
 
             const searchUltrasounds = [
               "Early Pregnancy - $69",
@@ -517,7 +588,7 @@ function App() {
                 massages.push(mutableItem);
               });
             }
-            console.log(ultrasounds);
+            // console.log(ultrasounds);
             const displayableServices = [
               {
                 label: "Ultrasounds",
@@ -555,7 +626,7 @@ function App() {
     if (state.authorization === "") {
       return;
     }
-    console.log("Started working");
+    // console.log("Started working");
     const getAvailability = async () => {
       setState((state) => ({
         ...state,
@@ -1096,6 +1167,7 @@ function App() {
     }
   };
   // Search the client to see if it exist in MindBody
+  //aqui8
   const onFormSubmit = async (data) => {
     scrollParenTop();
     let sessionTypeId = data.service.value;
@@ -1114,6 +1186,7 @@ function App() {
     }));
     setState((state) => ({
       ...state,
+      // aqui2
       // step: "addons",
       step: "availability",
     }));
@@ -1141,6 +1214,10 @@ function App() {
       );
       const searchClientsData = await searchClientsResponse.json();
       if (searchClientsResponse.ok) {
+        //aqui9
+
+        setSendForm(true)
+
         if (
           data.firstName + " " + data.lastName ===
           searchClientsData.clients[0].name &&
@@ -1264,6 +1341,7 @@ function App() {
     }));
   }
   // Stores the selection of babys growth into a state
+  // aqui6
   const handleAddBabysGrowth = () => {
     setAddBabysGrowth(!addBabysGrowth);
   };
@@ -1324,6 +1402,7 @@ function App() {
 
   };
   // Takes the app to the availability step of booking
+  // aqui7
   const stepToAvailability = () => {
     scrollParenTop();
     let newSessionTypeId = clientState.sessionTypeId;
@@ -1403,7 +1482,64 @@ function App() {
       displayTerms: false,
     }));
   };
-  console.log("services: ", services);
+
+  // aqui5 
+  const handleAddonsSelected = (e) => {
+    const addons = e;
+    setSelectedOptionAddons(addons);
+    setHoverIndexBabys(false)
+    setHoverIndexHearthbeat(false)
+  }
+
+  useEffect(() => {
+    if (selectedOptionAddons !== null) {
+      const babyGrow = selectedOptionAddons.find(i => i.value === "Baby's Growth");
+      const hearthbeat = selectedOptionAddons.find(i => i.value === "Hearthbeat Buddies");
+
+      babyGrow === undefined ? setAddBabysGrowth(false) : setAddBabysGrowth(true);
+      hearthbeat === undefined ? setAddHeartbeatBuddies(false) : setAddHeartbeatBuddies(true);
+    }
+  }, [selectedOptionAddons])
+
+  useEffect(() => {
+    seletedService === null ? setAddOns([]) : setAddOns(addonsAvility);
+  },[seletedService])
+
+  useEffect(() => {
+    let newSessionTypeId = clientState.sessionTypeId;
+    let newSessionTypeName = clientState.sessionTypeName;
+
+    if(ultrasounds.length > 0){
+
+    if (clientState.sessionTypeId === ultrasounds[3].value && addBabysGrowth) {
+      newSessionTypeId = getBGCombo(
+        "Meet Your Baby - 25 Min 5D/HD + Baby's Growth $178",
+        consultedUltrasounds
+      );
+      newSessionTypeName = "Meet Your Baby - 25 Min 5D/HD + Baby's Growth $178";
+    }
+    if (clientState.sessionTypeId === ultrasounds[2].value && addBabysGrowth) {
+      newSessionTypeId = getBGCombo(
+        "Meet Your Baby - 15 Min 5D/HD + Baby's Growth $138",
+        consultedUltrasounds
+      );
+      newSessionTypeName = "Meet Your Baby - 15 Min 5D/HD + Baby's Growth $138";
+    }
+    if (clientState.sessionTypeId === ultrasounds[1].value && addBabysGrowth) {
+      newSessionTypeId = getBGCombo(
+        "Gender Determination  + Baby's Growth - $118",
+        consultedUltrasounds
+      );
+      newSessionTypeName = "Gender Determination  + Baby's Growth - $118";
+    }
+    setClientState((clientState) => ({
+      ...clientState,
+      sessionTypeId: newSessionTypeId,
+      sessionTypeName: newSessionTypeName,
+    }));
+  }
+  },[sendForm])
+
   return (
     <div className="container">
       {state.step === "registerForm" && (
@@ -1487,6 +1623,7 @@ function App() {
                 />
               </div>
             </div>
+
             <div className="row">
               <div className="col">
                 <Controller
@@ -1542,6 +1679,38 @@ function App() {
               </div>
             </div>
 
+            {/* aqui1 */}
+            <div className="row">
+              <div className="col">
+                <Controller
+                  name="service"
+                  control={control}
+                  rules={{ required: true }}
+                  render={({ field }) => (
+                    <Select
+                      // {...field}
+                      isDisabled={!services.length > 0}
+                      value={selectedOptionAddons}
+                      isSearchable={false}
+                      options={addOns}
+                      placeholder={
+                        services.length > 0
+                          ? "Checkout out our amazing addons"
+                          : "Loading addons"
+                      }
+                      className={
+                        "dropdown w-100 mb-3" +
+                        (errors.service ? " is-select-invalid" : "")
+                      }
+                      isMulti
+                      onChange={(e) => { handleAddonsSelected(e) }}
+                    />
+                  )}
+                />
+              </div>
+            </div>
+            {/* here */}
+
             <div className="row mb-2">
               <div className="col text-left">
                 <Controller
@@ -1596,6 +1765,34 @@ function App() {
                 />
               </div>
             </div>
+         
+              {/* aqui11 */}
+          {hoverIndexBabys && (
+          <div
+            className={
+              hoverIndexBabys
+                ? "lb-preview-info-card-visible col-3"
+                : "lb-preview-card"
+            }
+            style={{ fontSize: 13 }}
+          >
+            info baby
+          </div>
+            )}
+
+        {hoverIndexHearthbeat && (
+          <div
+            className={
+              hoverIndexHearthbeat
+                ? "lb-preview-info-card-visible col-3"
+                : "lb-preview-card"
+            }
+            style={{ fontSize: 13 }}
+          >
+            info hh
+          </div>
+          )}
+
 
             {state.displayTerms && (
               <div className="lb-modal-overlay" onClick={hideTerms}>
