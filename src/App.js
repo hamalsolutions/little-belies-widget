@@ -5,6 +5,7 @@ import moment from "moment";
 import Select from "react-select";
 import { useForm, Controller, useFormState } from "react-hook-form";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import "rsuite/dist/rsuite.css";
 import {
   faSpinner,
   faBaby,
@@ -205,14 +206,10 @@ function App() {
     block: {
       id: "",
     },
-    //captchaReady: bypass,
     captchaReady: true, /// DISABLE CAPTCHA
     showAddons: false,
     textMessageStatus: "IDLE",
     textMessage: "",
-    //showbabyGrowth: false,
-    //addBabysGrowth: false,
-    //addHeartbeatBuddies: false,
     displayTerms: false,
   });
   const [clientState, setClientState] = useState({
@@ -231,27 +228,23 @@ function App() {
   });
   const [availableBlocks, setAvailableBlocks] = useState([]);
   const [services, setServices] = useState([]);
-  const [selectedOptionAddons, setSelectedOptionAddons] = useState(null);
-  const [hoverIndexBabys, setHoverIndexBabys] = useState(false);
-  const [hoverIndexHearthbeat, setHoverIndexHearthbeat] = useState(false);
-
-  // aqui3
-
   const addonsAvility = [
     {
       value: "Hearthbeat Buddies",
       label: (
         <div className="d-flex col-12"
-        onMouseOver={() => setHoverIndexHearthbeat(true)}
-        onMouseLeave={() => setHoverIndexHearthbeat(false)}
-        style={{ cursor: "pointer" }}
         >
           <div className="col-11">
             <span>Hearthbeat Buddies</span>
           </div>
           <div className="col-1"
+            onMouseOver={() => setHoverIndexHearthbeat(true)}
+            onMouseLeave={() => setHoverIndexHearthbeat(false)}
+            style={{ cursor: "pointer" }}
           >
-            <FontAwesomeIcon icon={faInfo} />
+            <FontAwesomeIcon icon={faInfo}
+              onClick={(e) => setModalHearthbeat(true)}
+            />
           </div>
         </div>
       )
@@ -259,22 +252,57 @@ function App() {
     {
       value: "Baby's Growth",
       label: (
-        <div className="col-12 d-flex"
-        onMouseOver={() => setHoverIndexBabys(true)}
-        onMouseLeave={() => setHoverIndexBabys(false)}
-        style={{ cursor: "pointer" }}
-        >
+        <div className="col-12 d-flex">
           <div className="col-11">
             <span>Baby's Growth</span>
           </div>
-          <div className="col-1">
-            <FontAwesomeIcon icon={faInfo} />
+          <div className="col-1"
+           onMouseOver={() => setHoverIndexBabyGrow(true)}
+           onMouseLeave={() => setHoverIndexBabyGrow(false)}
+           style={{ cursor: "pointer" }}
+          >
+            <FontAwesomeIcon icon={faInfo}
+              onClick={(e) => setModalBabyGrow(true)}
+            />
           </div>
         </div>
       )
     }];
+    const addonsOnly = [
+      {
+        value: "Hearthbeat Buddies",
+        label: (
+          <div className="d-flex col-12"
+          >
+            <div className="col-11">
+              <span>Hearthbeat Buddies</span>
+            </div>
+            <div className="col-1"
+              onMouseOver={() => setHoverIndexHearthbeat(true)}
+              onMouseLeave={() => setHoverIndexHearthbeat(false)}
+              style={{ cursor: "pointer" }}
+            >
+              <FontAwesomeIcon icon={faInfo}
+                onClick={(e) => setModalHearthbeat(true)}
+              />
+            </div>
+          </div>
+        )
+      }];
+  const [selectedOptionAddons, setSelectedOptionAddons] = useState(null);
+  const [hoverIndexBabyGrow, setHoverIndexBabyGrow] = useState(false);
+  const [hoverIndexHearthbeat, setHoverIndexHearthbeat] = useState(false);
+  const [stepOne, setStepOne] = useState("default");
+  const [stepTwo, setStepTwo] = useState("default");
+  const [stepThree, setStepThree] = useState("default");
+  const [clickButtonForm, setClickButtonForm] = useState(false);
+  const [modalBabyGrow, setModalBabyGrow] = useState(false);
+  const [modalHearthbeat, setModalHearthbeat] = useState(false);
+  const [seletedService, setSeletedService] = useState(null)
+  const [sendForm, setSendForm] = useState(false)
+  const [addOns, setAddOns] = useState();
 
-  const [addOns, setAddOns] = useState(addonsAvility);
+
   const [ultrasounds, setUltrasounds] = useState([]);
   const [consultedUltrasounds, setConsultedUltrasounds] = useState([]);
   const [weeks, setWeeks] = useState([]);
@@ -299,53 +327,14 @@ function App() {
     partititonKey: "",
     orderKey: "",
   });
-  const [seletedService, setSeletedService] = useState(null)
-  const [sendForm, setSendForm] = useState(false)
 
-  // aqui4
+
   const onChangeServices = (service) => {
-
     setSeletedService(service)
-
     setAddBabysGrowth(false);
     setAddHeartbeatBuddies(false);
-
-    if (service !== undefined) {
-      setShowHB(true);
-    } else {
-      setShowHB(false);
-    }
-    if (
-      service &&
-      (service.value === ultrasounds[1].value ||
-        service.value === ultrasounds[2].value ||
-        service.value === ultrasounds[3].value)
-    ) {
-      setAddOns(addonsAvility)
-      setShowBG(true);
-
-    } else {
-
-      const addonsOnly = addOns.filter((i) => { return i.value !== "Baby's Growth" });
-      setAddOns(addonsOnly)
-      setShowBG(false);
-
-      if (selectedOptionAddons !== null && selectedOptionAddons.length > 0) {
-
-        if (selectedOptionAddons[0] && selectedOptionAddons[0].value === "Baby's Growth") {
-          const formattingSelectedOptionAddons = selectedOptionAddons.filter((i) => { return i.value !== "Baby's Growth" })
-          setSelectedOptionAddons(formattingSelectedOptionAddons)
-        }
-
-        if (selectedOptionAddons[1] && selectedOptionAddons[1].value === "Baby's Growth") {
-          const formattingSelectedOptionAddons = selectedOptionAddons.filter((i) => { return i.value !== "Baby's Growth" })
-          setSelectedOptionAddons(formattingSelectedOptionAddons)
-        }
-
-      }
-
-    }
   };
+
 
   useEffect(() => {
     updateDimensions();
@@ -853,6 +842,7 @@ function App() {
 
   // Handles the date change
   const onSelectedDay = (val) => {
+    setStepTwo("default")
     if (
       moment(val).format("MM/DD/YYYY").toString() ===
       moment(state.startDate).format("MM/DD/YYYY").toString()
@@ -930,6 +920,8 @@ function App() {
 
   // Handle the booking of the appointment and creation of the client if necesary
   const bookAppointment = async () => {
+    setStepThree("success");
+
     if (state.appointmentRequestStatus === "loading") {
       return;
     }
@@ -1167,7 +1159,6 @@ function App() {
     }
   };
   // Search the client to see if it exist in MindBody
-  //aqui8
   const onFormSubmit = async (data) => {
     scrollParenTop();
     let sessionTypeId = data.service.value;
@@ -1186,7 +1177,6 @@ function App() {
     }));
     setState((state) => ({
       ...state,
-      // aqui2
       // step: "addons",
       step: "availability",
     }));
@@ -1214,7 +1204,6 @@ function App() {
       );
       const searchClientsData = await searchClientsResponse.json();
       if (searchClientsResponse.ok) {
-        //aqui9
 
         setSendForm(true)
 
@@ -1341,7 +1330,6 @@ function App() {
     }));
   }
   // Stores the selection of babys growth into a state
-  // aqui6
   const handleAddBabysGrowth = () => {
     setAddBabysGrowth(!addBabysGrowth);
   };
@@ -1352,6 +1340,9 @@ function App() {
   // Takes the app to the summary step of booking
   const blockSelected = async () => {
     scrollParenTop();
+
+    setStepTwo("success")
+
     setState((state) => ({
       ...state,
       step: "summary",
@@ -1402,7 +1393,6 @@ function App() {
 
   };
   // Takes the app to the availability step of booking
-  // aqui7
   const stepToAvailability = () => {
     scrollParenTop();
     let newSessionTypeId = clientState.sessionTypeId;
@@ -1483,65 +1473,239 @@ function App() {
     }));
   };
 
-  // aqui5 
   const handleAddonsSelected = (e) => {
     const addons = e;
     setSelectedOptionAddons(addons);
-    setHoverIndexBabys(false)
+    setHoverIndexBabyGrow(false)
     setHoverIndexHearthbeat(false)
   }
 
   useEffect(() => {
+  if(selectedOptionAddons){
+      const formattingSelectedOptionAddons = selectedOptionAddons.filter((i) => { return i.value !== "Baby's Growth" })
+      setSelectedOptionAddons(formattingSelectedOptionAddons)
+    }
+  }, [seletedService])
+
+  useEffect(() => {
+    if (seletedService !== null) {
+      if (seletedService.value === ultrasounds[1].value ||
+        seletedService.value === ultrasounds[2].value ||
+        seletedService.value === ultrasounds[3].value) {
+        setAddOns(addonsAvility)
+      } else {
+        setAddOns(addonsOnly)
+      }
+    }
+  }, [seletedService,addOns])
+
+
+  useEffect(() => {
     if (selectedOptionAddons !== null) {
+
       const babyGrow = selectedOptionAddons.find(i => i.value === "Baby's Growth");
       const hearthbeat = selectedOptionAddons.find(i => i.value === "Hearthbeat Buddies");
 
-      babyGrow === undefined ? setAddBabysGrowth(false) : setAddBabysGrowth(true);
-      hearthbeat === undefined ? setAddHeartbeatBuddies(false) : setAddHeartbeatBuddies(true);
-    }
-  }, [selectedOptionAddons])
+      if (babyGrow === undefined) {
+        setAddBabysGrowth(false)
 
-  useEffect(() => {
-    seletedService === null ? setAddOns([]) : setAddOns(addonsAvility);
-  },[seletedService])
+        addonsAvility[1].label =
+          <div className="col-12 d-flex">
+            <div className="col-11">
+              <span>Baby's Growth</span>
+            </div>
+            <div className="col-1"
+             onMouseOver={() => setHoverIndexBabyGrow(true)}
+             onMouseLeave={() => setHoverIndexBabyGrow(false)}
+             style={{ cursor: "pointer" }}
+            >
+              <FontAwesomeIcon icon={faInfo}
+                onClick={(e) => setModalBabyGrow(true)}
+              />
+            </div>
+          </div>;
+
+        setAddOns(addonsAvility)
+
+      } else {
+        setAddBabysGrowth(true)
+        babyGrow.label = <span>Baby's Growth</span>;
+      }
+
+      if (hearthbeat === undefined) {
+        setAddHeartbeatBuddies(false)
+
+        addonsAvility[0].label =
+          <div className="d-flex col-12">
+            <div className="col-11">
+              <span>Hearthbeat Buddies</span>
+            </div>
+            <div className="col-1"
+             onMouseOver={() => setHoverIndexHearthbeat(true)}
+             onMouseLeave={() => setHoverIndexHearthbeat(false)}
+             style={{ cursor: "pointer" }}
+            >
+              <FontAwesomeIcon icon={faInfo}
+                onClick={(e) => setModalHearthbeat(true)}
+              />
+            </div>
+          </div>;
+
+        setAddOns(addonsAvility)
+
+      } else {
+        setAddHeartbeatBuddies(true);
+        hearthbeat.label = <span>Hearthbeat Buddies</span>;
+      }
+    }
+
+  }, [selectedOptionAddons])
 
   useEffect(() => {
     let newSessionTypeId = clientState.sessionTypeId;
     let newSessionTypeName = clientState.sessionTypeName;
 
-    if(ultrasounds.length > 0){
+    if (ultrasounds.length > 0) {
 
-    if (clientState.sessionTypeId === ultrasounds[3].value && addBabysGrowth) {
-      newSessionTypeId = getBGCombo(
-        "Meet Your Baby - 25 Min 5D/HD + Baby's Growth $178",
-        consultedUltrasounds
-      );
-      newSessionTypeName = "Meet Your Baby - 25 Min 5D/HD + Baby's Growth $178";
+      if (clientState.sessionTypeId === ultrasounds[3].value && addBabysGrowth) {
+        newSessionTypeId = getBGCombo(
+          "Meet Your Baby - 25 Min 5D/HD + Baby's Growth $178",
+          consultedUltrasounds
+        );
+        newSessionTypeName = "Meet Your Baby - 25 Min 5D/HD + Baby's Growth $178";
+      }
+      if (clientState.sessionTypeId === ultrasounds[2].value && addBabysGrowth) {
+        newSessionTypeId = getBGCombo(
+          "Meet Your Baby - 15 Min 5D/HD + Baby's Growth $138",
+          consultedUltrasounds
+        );
+        newSessionTypeName = "Meet Your Baby - 15 Min 5D/HD + Baby's Growth $138";
+      }
+      if (clientState.sessionTypeId === ultrasounds[1].value && addBabysGrowth) {
+        newSessionTypeId = getBGCombo(
+          "Gender Determination  + Baby's Growth - $118",
+          consultedUltrasounds
+        );
+        newSessionTypeName = "Gender Determination  + Baby's Growth - $118";
+      }
+      setClientState((clientState) => ({
+        ...clientState,
+        sessionTypeId: newSessionTypeId,
+        sessionTypeName: newSessionTypeName,
+      }));
     }
-    if (clientState.sessionTypeId === ultrasounds[2].value && addBabysGrowth) {
-      newSessionTypeId = getBGCombo(
-        "Meet Your Baby - 15 Min 5D/HD + Baby's Growth $138",
-        consultedUltrasounds
-      );
-      newSessionTypeName = "Meet Your Baby - 15 Min 5D/HD + Baby's Growth $138";
-    }
-    if (clientState.sessionTypeId === ultrasounds[1].value && addBabysGrowth) {
-      newSessionTypeId = getBGCombo(
-        "Gender Determination  + Baby's Growth - $118",
-        consultedUltrasounds
-      );
-      newSessionTypeName = "Gender Determination  + Baby's Growth - $118";
-    }
-    setClientState((clientState) => ({
-      ...clientState,
-      sessionTypeId: newSessionTypeId,
-      sessionTypeName: newSessionTypeName,
-    }));
+  }, [sendForm]);
+
+  const styles = {
+    default: {
+      borderRight: "none",
+      borderBottom: "none",
+      borderLeft: "none",
+      borderTop: "4px dotted black"
+    },
+    error: {
+      borderRight: "none",
+      borderBottom: "none",
+      borderLeft: "none",
+      borderTop: "4px dotted #dc3545"
+    },
+    success: {
+      borderRight: "none",
+      borderBottom: "none",
+      borderLeft: "none",
+      borderTop: "4px dotted #AE678C ",
+    },
   }
-  },[sendForm])
+
+  useEffect(() => {
+    let val = false;
+    if (errors.firstName) {
+      val = true;
+    }
+    if (errors.lastName) {
+      val = true;
+    }
+    if (errors.email) {
+      val = true;
+    }
+    if (errors.phone) {
+      val = true;
+    }
+    if (errors.weeks) {
+      val = true;
+    }
+    if (errors.service) {
+      val = true;
+    }
+    if (errors.addons) {
+      val = true;
+    }
+    if (errors.temsCheckbox) {
+      val = true;
+    }
+
+    if (clickButtonForm) {
+      if (val) {
+        setStepOne("invalid")
+      } else {
+        setStepOne("success");
+      }
+    }
+
+  }, [
+    errors.firstName,
+    errors.lastName,
+    errors.email,
+    errors.phone,
+    errors.weeks,
+    errors.service,
+    errors.addons,
+    errors.temsCheckbox,
+    clickButtonForm])
 
   return (
     <div className="container">
+
+      <div className="row mt-5 mx-auto align-items-center justify-content-center">
+
+        <div className="col-md-6 d-flex">
+
+          <div className={stepOne === "success" ? "btn btn-cta-active rounded-circle" :
+            stepOne === "invalid" ? "btn rounded-circle btn-cta-invalid" :
+              "text-dark btn rounded-circle btn-cta-default bg-white"}>
+            {stepOne === "success" ? "✔" : stepOne === "invalid" ? "X" : "1"}
+          </div>
+
+          <div style={stepOne === "success" ? styles.success :
+            stepOne === "invalid" ? styles.error : styles.default}
+            className="col mt-3" />
+
+          <div className={stepTwo === "success" ? "btn btn-cta-active rounded-circle" :
+            "text-dark btn rounded-circle btn-cta-default bg-white"}>
+            {stepTwo === "success" ? "✔" : "2"}
+          </div>
+
+          <div style={stepTwo === "success" ? styles.success : styles.default}
+            className="col mt-3" />
+
+          <div className={stepThree === "success" ? "btn btn-cta-active rounded-circle" :
+            "text-dark btn rounded-circle btn-cta-default bg-white"}>
+            {stepThree === "success" ? "✔" : "3"}
+          </div>
+
+        </div>
+
+      </div>
+      <div className="row mx-auto align-items-center justify-content-center">
+        <div className="col-md-6 d-flex">
+          <span>Information</span>
+          <div className="col" />
+          <span>Schedule</span>
+          <div className="col" />
+          <span >Summary</span>
+        </div>
+      </div>
+
       {state.step === "registerForm" && (
         <>
           <form
@@ -1669,7 +1833,6 @@ function App() {
                       styles={selectStyles}
                       isSearchable={false}
                       onChange={(service) => {
-                        //console.log({service})
                         onChangeServices(service);
                         field.onChange(service);
                       }}
@@ -1679,16 +1842,15 @@ function App() {
               </div>
             </div>
 
-            {/* aqui1 */}
             <div className="row">
               <div className="col">
                 <Controller
-                  name="service"
+                  name="addons"
                   control={control}
                   rules={{ required: true }}
                   render={({ field }) => (
                     <Select
-                      // {...field}
+                      {...field}
                       isDisabled={!services.length > 0}
                       value={selectedOptionAddons}
                       isSearchable={false}
@@ -1700,10 +1862,10 @@ function App() {
                       }
                       className={
                         "dropdown w-100 mb-3" +
-                        (errors.service ? " is-select-invalid" : "")
+                        (errors.addons ? " is-select-invalid" : "")
                       }
                       isMulti
-                      onChange={(e) => { handleAddonsSelected(e) }}
+                      onChange={(e) => { handleAddonsSelected(e); field.onChange(e) }}
                     />
                   )}
                 />
@@ -1765,34 +1927,114 @@ function App() {
                 />
               </div>
             </div>
-         
-              {/* aqui11 */}
-          {hoverIndexBabys && (
-          <div
-            className={
-              hoverIndexBabys
-                ? "lb-preview-info-card-visible col-3"
-                : "lb-preview-card"
-            }
-            style={{ fontSize: 13 }}
-          >
-            info baby
-          </div>
+
+            {hoverIndexBabyGrow && (
+              <div
+                className={
+                  hoverIndexBabyGrow
+                    ? "lb-preview-info-card-visible-baby-grow col-3"
+                    : "lb-preview-card"
+                }
+                style={{ fontSize: 13 }}
+              >
+                <div className="row mt-2">
+                  <div className="col-12 m-0 text-start">
+                    <ul className="fa-ul mb-1 mb-md-3">
+                      <li className="text-sm text-lg text-xl mb-4 mt-2">
+                        <span className="fa-li">
+                          <FontAwesomeIcon icon={faCheck} />
+                        </span>
+                        Baby's measurements{" "}
+                      </li>
+                      <li className="text-sm text-lg text-xl mb-4">
+                        <span className="fa-li">
+                          <FontAwesomeIcon icon={faCheck} />
+                        </span>
+                        Baby's position in uterus
+                      </li>
+                      <li className="text-sm text-lg text-xl mb-4">
+                        <span className="fa-li">
+                          <FontAwesomeIcon icon={faCheck} />
+                        </span>
+                        Baby's weight
+                      </li>
+                      <li className="text-sm text-lg text-xl mb-4">
+                        <span className="fa-li">
+                          <FontAwesomeIcon icon={faCheck} />
+                        </span>
+                        Baby's heart activity
+                      </li>
+                      <li className="text-sm text-lg text-xl mb-4">
+                        <span className="fa-li">
+                          <FontAwesomeIcon icon={faCheck} />
+                        </span>
+                        Weeks of Pregnancy
+                      </li>
+                      <li className="text-sm text-lg text-xl mb-4">
+                        <span className="fa-li">
+                          <FontAwesomeIcon icon={faCheck} />
+                        </span>
+                        Estimated due date
+                      </li>
+                      <li className="text-sm text-lg text-xl mb-4">
+                        <span className="fa-li">
+                          <FontAwesomeIcon icon={faCheck} />
+                        </span>
+                        Estimated due date
+                      </li>
+                      <li className="text-sm text-lg text-xl">
+                        <span className="fa-li">
+                          <FontAwesomeIcon icon={faCheck} />
+                        </span>
+                        Amniotic fluid
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
             )}
 
-        {hoverIndexHearthbeat && (
-          <div
-            className={
-              hoverIndexHearthbeat
-                ? "lb-preview-info-card-visible col-3"
-                : "lb-preview-card"
-            }
-            style={{ fontSize: 13 }}
-          >
-            info hh
-          </div>
-          )}
-
+            {hoverIndexHearthbeat && (
+              <div
+                className={
+                  hoverIndexHearthbeat
+                    ? "lb-preview-info-card-visible-hearthbeat col-3"
+                    : "lb-preview-card"
+                }
+                style={{ fontSize: 13 }}
+              >
+                <div className="row mt-2">
+                  <div className="col-12 m-0 text-start">
+                    <ul className="fa-ul mb-1 mb-md-3">
+                      <li className="text-sm text-lg text-xl mt-2 mb-4">
+                        <span className="fa-li">
+                          <FontAwesomeIcon icon={faCheck} />
+                        </span>
+                        Beautiful high-quality stuffed animal{" "}
+                      </li>
+                      <li className="text-sm text-lg text-xl mb-4">
+                        <span className="fa-li">
+                          <FontAwesomeIcon icon={faCheck} />
+                        </span>
+                        Recording of baby's heartbeat{" "}
+                      </li>
+                      <li className="text-sm text-lg text-xl mb-4">
+                        <span className="fa-li">
+                          <FontAwesomeIcon icon={faCheck} />
+                        </span>
+                        Cherished forever{" "}
+                      </li>
+                      <li className="text-sm text-lg text-xl">
+                        <span className="fa-li">
+                          <FontAwesomeIcon icon={faCheck} />
+                        </span>
+                        Build connection an strenghtens bond with baby
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            )}
 
             {state.displayTerms && (
               <div className="lb-modal-overlay" onClick={hideTerms}>
@@ -2013,11 +2255,139 @@ function App() {
               </div>
             )}
 
+            {modalHearthbeat && (
+              <div className="lb-modal-overlay-addons" >
+                <div className="lb-modal-addons rounded-3">
+                  <button
+                    className="closeTermsButton btn btn-link m-0 p-0"
+                    onClick={(e) => setModalHearthbeat(false)}
+                    style={{ cursor: "pointer" }}
+                  >
+                    <FontAwesomeIcon
+                      className="white-icon"
+                      size="lg"
+                      icon={faTimesCircle}
+                    />
+                  </button>
+                  <div className="lb-modal-body-addons py-2 px-4 text-justify ">
+                    <>
+                      <div className="row mt-2">
+                        <div className="col-12 m-0 text-start">
+                          <ul className="fa-ul mb-1 mb-md-3">
+                            <li className="fs-6 mb-4 mt-4">
+                              <span className="fa-li">
+                                <FontAwesomeIcon icon={faCheck} />
+                              </span>
+                              Beautiful high-quality stuffed animal{" "}
+                            </li>
+                            <li className="fs-6 mb-4">
+                              <span className="fa-li">
+                                <FontAwesomeIcon icon={faCheck} />
+                              </span>
+                              Recording of baby's heartbeat{" "}
+                            </li>
+                            <li className="fs-6 mb-4">
+                              <span className="fa-li">
+                                <FontAwesomeIcon icon={faCheck} />
+                              </span>
+                              Cherished forever{" "}
+                            </li>
+                            <li className="fs-6 mb-4">
+                              <span className="fa-li">
+                                <FontAwesomeIcon icon={faCheck} />
+                              </span>
+                              Build connection an strenghtens bond with baby
+                            </li>
+                          </ul>
+                        </div>
+                      </div>
+                    </>
+                  </div>
+                </div>
+              </div>
+            )}
+            {modalBabyGrow && (
+              <div className="lb-modal-overlay-addons" >
+                <div className="lb-modal-addons rounded-3">
+                  <button
+                    className="closeTermsButton btn btn-link m-0 p-0"
+                    onClick={(e) => setModalBabyGrow(false)}
+                    style={{ cursor: "pointer" }}
+                  >
+                    <FontAwesomeIcon
+                      className="white-icon"
+                      size="lg"
+                      icon={faTimesCircle}
+                    />
+                  </button>
+                  <div className="lb-modal-body-addons py-2 px-4 text-justify ">
+                    <>
+                      <div className="row mt-2">
+                        <div className="col-12 m-0 text-start">
+                          <ul className="fa-ul mb-1 mb-md-3">
+                            <li className="fs-6 mb-4">
+                              <span className="fa-li">
+                                <FontAwesomeIcon icon={faCheck} />
+                              </span>
+                              Baby's measurements{" "}
+                            </li>
+                            <li className="fs-6 mb-4">
+                              <span className="fa-li">
+                                <FontAwesomeIcon icon={faCheck} />
+                              </span>
+                              Baby's position in uterus
+                            </li>
+                            <li className="fs-6 mb-4">
+                              <span className="fa-li">
+                                <FontAwesomeIcon icon={faCheck} />
+                              </span>
+                              Baby's weight
+                            </li>
+                            <li className="fs-6 mb-4">
+                              <span className="fa-li">
+                                <FontAwesomeIcon icon={faCheck} />
+                              </span>
+                              Baby's heart activity
+                            </li>
+                            <li className="fs-6 mb-4">
+                              <span className="fa-li">
+                                <FontAwesomeIcon icon={faCheck} />
+                              </span>
+                              Weeks of Pregnancy
+                            </li>
+                            <li className="fs-6 mb-4">
+                              <span className="fa-li">
+                                <FontAwesomeIcon icon={faCheck} />
+                              </span>
+                              Estimated due date
+                            </li>
+                            <li className="fs-6 mb-4">
+                              <span className="fa-li">
+                                <FontAwesomeIcon icon={faCheck} />
+                              </span>
+                              Estimated due date
+                            </li>
+                            <li className="fs-6 mb-4">
+                              <span className="fa-li">
+                                <FontAwesomeIcon icon={faCheck} />
+                              </span>
+                              Amniotic fluid
+                            </li>
+                          </ul>
+                        </div>
+                      </div>
+                    </>
+                  </div>
+                </div>
+              </div>
+            )}
+
             <div className="row my-3">
               <div className="col text-center">
                 <button
                   type="submit"
                   className="btn btn-cta-active rounded-pill px-3 mx-auto"
+                  onClick={() => setClickButtonForm(true)}
                 >
                   Check availabilities
                 </button>
@@ -2296,7 +2666,7 @@ function App() {
                 <h1 className="h1"> </h1>
                 <button
                   className="btn btn-cta rounded-pill btn-sm px-3 m-2"
-                  onClick={() => previousStep("availability")}
+                  onClick={() => { setStepTwo("default"); previousStep("availability"); }}
                 >
                   BACK
                 </button>
