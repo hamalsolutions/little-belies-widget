@@ -257,9 +257,9 @@ function App() {
             <span>Baby's Growth</span>
           </div>
           <div className="col-1"
-           onMouseOver={() => setHoverIndexBabyGrow(true)}
-           onMouseLeave={() => setHoverIndexBabyGrow(false)}
-           style={{ cursor: "pointer" }}
+            onMouseOver={() => setHoverIndexBabyGrow(true)}
+            onMouseLeave={() => setHoverIndexBabyGrow(false)}
+            style={{ cursor: "pointer" }}
           >
             <FontAwesomeIcon icon={faInfo}
               onClick={(e) => setModalBabyGrow(true)}
@@ -268,27 +268,27 @@ function App() {
         </div>
       )
     }];
-    const addonsOnly = [
-      {
-        value: "Hearthbeat Buddies",
-        label: (
-          <div className="d-flex col-12"
-          >
-            <div className="col-11">
-              <span>Hearthbeat Buddies</span>
-            </div>
-            <div className="col-1"
-              onMouseOver={() => setHoverIndexHearthbeat(true)}
-              onMouseLeave={() => setHoverIndexHearthbeat(false)}
-              style={{ cursor: "pointer" }}
-            >
-              <FontAwesomeIcon icon={faInfo}
-                onClick={(e) => setModalHearthbeat(true)}
-              />
-            </div>
+  const addonsOnly = [
+    {
+      value: "Hearthbeat Buddies",
+      label: (
+        <div className="d-flex col-12"
+        >
+          <div className="col-11">
+            <span>Hearthbeat Buddies</span>
           </div>
-        )
-      }];
+          <div className="col-1"
+            onMouseOver={() => setHoverIndexHearthbeat(true)}
+            onMouseLeave={() => setHoverIndexHearthbeat(false)}
+            style={{ cursor: "pointer" }}
+          >
+            <FontAwesomeIcon icon={faInfo}
+              onClick={(e) => setModalHearthbeat(true)}
+            />
+          </div>
+        </div>
+      )
+    }];
   const [selectedOptionAddons, setSelectedOptionAddons] = useState(null);
   const [hoverIndexBabyGrow, setHoverIndexBabyGrow] = useState(false);
   const [hoverIndexHearthbeat, setHoverIndexHearthbeat] = useState(false);
@@ -1481,7 +1481,7 @@ function App() {
   }
 
   useEffect(() => {
-  if(selectedOptionAddons){
+    if (selectedOptionAddons) {
       const formattingSelectedOptionAddons = selectedOptionAddons.filter((i) => { return i.value !== "Baby's Growth" })
       setSelectedOptionAddons(formattingSelectedOptionAddons)
     }
@@ -1497,7 +1497,7 @@ function App() {
         setAddOns(addonsOnly)
       }
     }
-  }, [seletedService,addOns])
+  }, [seletedService, addOns])
 
 
   useEffect(() => {
@@ -1515,9 +1515,9 @@ function App() {
               <span>Baby's Growth</span>
             </div>
             <div className="col-1"
-             onMouseOver={() => setHoverIndexBabyGrow(true)}
-             onMouseLeave={() => setHoverIndexBabyGrow(false)}
-             style={{ cursor: "pointer" }}
+              onMouseOver={() => setHoverIndexBabyGrow(true)}
+              onMouseLeave={() => setHoverIndexBabyGrow(false)}
+              style={{ cursor: "pointer" }}
             >
               <FontAwesomeIcon icon={faInfo}
                 onClick={(e) => setModalBabyGrow(true)}
@@ -1541,9 +1541,9 @@ function App() {
               <span>Hearthbeat Buddies</span>
             </div>
             <div className="col-1"
-             onMouseOver={() => setHoverIndexHearthbeat(true)}
-             onMouseLeave={() => setHoverIndexHearthbeat(false)}
-             style={{ cursor: "pointer" }}
+              onMouseOver={() => setHoverIndexHearthbeat(true)}
+              onMouseLeave={() => setHoverIndexHearthbeat(false)}
+              style={{ cursor: "pointer" }}
             >
               <FontAwesomeIcon icon={faInfo}
                 onClick={(e) => setModalHearthbeat(true)}
@@ -1601,7 +1601,7 @@ function App() {
       borderRight: "none",
       borderBottom: "none",
       borderLeft: "none",
-      borderTop: "4px dotted black"
+      borderTop: "4px dotted #a9a9a9"
     },
     error: {
       borderRight: "none",
@@ -1670,26 +1670,29 @@ function App() {
 
         <div className="col-md-6 d-flex">
 
-          <div className={stepOne === "success" ? "btn btn-cta-active rounded-circle" :
-            stepOne === "invalid" ? "btn rounded-circle btn-cta-invalid" :
-              "text-dark btn rounded-circle btn-cta-default bg-white"}>
-            {stepOne === "success" ? "✔" : stepOne === "invalid" ? "X" : "1"}
+          <div className={
+            stepOne === "success" ? "btn btn-cta-active rounded-circle" :
+              stepOne === "invalid" ? "btn rounded-circle btn-cta-invalid" :
+                "text-dark btn rounded-circle btn-cta-default bg-white"}>
+            {stepOne === "success" ? "✔" :
+              stepOne === "invalid" ? "X" : "1"}
           </div>
 
-          <div style={stepOne === "success" ? styles.success :
-            stepOne === "invalid" ? styles.error : styles.default}
-            className="col mt-3" />
+          <div className="col mt-3" style={
+            stepOne === "success" ? styles.success :
+              stepOne === "invalid" ? styles.error : styles.default} />
 
-          <div className={stepTwo === "success" ? "btn btn-cta-active rounded-circle" :
-            "text-dark btn rounded-circle btn-cta-default bg-white"}>
+          <div className={
+            stepTwo === "success" ? "btn btn-cta-active rounded-circle" :
+              "text-dark btn rounded-circle btn-cta-default bg-white"}>
             {stepTwo === "success" ? "✔" : "2"}
           </div>
 
-          <div style={stepTwo === "success" ? styles.success : styles.default}
-            className="col mt-3" />
+          <div className="col mt-3" style={stepTwo === "success" ? styles.success : styles.default} />
 
-          <div className={stepThree === "success" ? "btn btn-cta-active rounded-circle" :
-            "text-dark btn rounded-circle btn-cta-default bg-white"}>
+          <div className={
+            stepThree === "success" ? "btn btn-cta-active rounded-circle" :
+              "text-dark btn rounded-circle btn-cta-default bg-white"}>
             {stepThree === "success" ? "✔" : "3"}
           </div>
 
@@ -1698,11 +1701,11 @@ function App() {
       </div>
       <div className="row mx-auto align-items-center justify-content-center">
         <div className="col-md-6 d-flex">
-          <span>Information</span>
+          <span className="col col-sm-5 col-md-5 col-lg-6 col-xl-6">Information</span>
           <div className="col" />
-          <span>Schedule</span>
+          <span className="col col-sm-5 col-md-5 col-lg-6 col-xl-6">Schedule</span>
           <div className="col" />
-          <span >Summary</span>
+          <span className="col col-sm-1 col-lg-1 col-xl-1">Summary</span>
         </div>
       </div>
 
