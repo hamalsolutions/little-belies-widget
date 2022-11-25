@@ -243,7 +243,7 @@ function App() {
             style={{ cursor: "pointer" }}
           >
             <FontAwesomeIcon icon={faInfo}
-              onClick={(e) => setModalHearthbeat(true)}
+              onClick={(e) => { setModalHearthbeat(true) }}
             />
           </div>
         </div>
@@ -1488,19 +1488,6 @@ function App() {
   }, [seletedService])
 
   useEffect(() => {
-    if (seletedService !== null) {
-      if (seletedService.value === ultrasounds[1].value ||
-        seletedService.value === ultrasounds[2].value ||
-        seletedService.value === ultrasounds[3].value) {
-        setAddOns(addonsAvility)
-      } else {
-        setAddOns(addonsOnly)
-      }
-    }
-  }, [seletedService, addOns])
-
-
-  useEffect(() => {
     if (selectedOptionAddons !== null) {
 
       const babyGrow = selectedOptionAddons.find(i => i.value === "Baby's Growth");
@@ -1560,6 +1547,35 @@ function App() {
     }
 
   }, [selectedOptionAddons])
+
+  useEffect(() => {
+
+    if (modalBabyGrow) {
+      const formattingSelectedOptionAddons = selectedOptionAddons.filter((i) => { return i.value !== "Baby's Growth" })
+      setSelectedOptionAddons(formattingSelectedOptionAddons)
+      setAddBabysGrowth(false)
+    }
+    if (modalHearthbeat) {
+      const formattingSelectedOptionAddons = selectedOptionAddons.filter((i) => { return i.value !== "Hearthbeat Buddies" })
+      setSelectedOptionAddons(formattingSelectedOptionAddons)
+      setAddHeartbeatBuddies(false)
+    }
+  }, [modalBabyGrow, modalHearthbeat])
+
+
+  useEffect(() => {
+    if (seletedService !== null) {
+      if (
+        seletedService.value === ultrasounds[1].value ||
+        seletedService.value === ultrasounds[2].value ||
+        seletedService.value === ultrasounds[3].value) {
+        setAddOns(addonsAvility)
+      } else {
+        setAddOns(addonsOnly)
+      }
+    }
+  }, [seletedService, selectedOptionAddons])
+
 
   useEffect(() => {
     let newSessionTypeId = clientState.sessionTypeId;
@@ -1637,9 +1653,6 @@ function App() {
     if (errors.service) {
       val = true;
     }
-    if (errors.addons) {
-      val = true;
-    }
     if (errors.temsCheckbox) {
       val = true;
     }
@@ -1659,9 +1672,10 @@ function App() {
     errors.phone,
     errors.weeks,
     errors.service,
-    errors.addons,
+    // errors.addons,
     errors.temsCheckbox,
     clickButtonForm])
+
 
   return (
     <div className="container">
@@ -1850,7 +1864,6 @@ function App() {
                 <Controller
                   name="addons"
                   control={control}
-                  rules={{ required: true }}
                   render={({ field }) => (
                     <Select
                       {...field}
@@ -1863,10 +1876,7 @@ function App() {
                           ? "Checkout out our amazing addons"
                           : "Loading addons"
                       }
-                      className={
-                        "dropdown w-100 mb-3" +
-                        (errors.addons ? " is-select-invalid" : "")
-                      }
+                      className="dropdown w-100 mb-3"
                       isMulti
                       onChange={(e) => { handleAddonsSelected(e); field.onChange(e) }}
                     />
@@ -1874,7 +1884,6 @@ function App() {
                 />
               </div>
             </div>
-            {/* here */}
 
             <div className="row mb-2">
               <div className="col text-left">
@@ -2277,25 +2286,25 @@ function App() {
                       <div className="row mt-2">
                         <div className="col-12 m-0 text-start">
                           <ul className="fa-ul mb-1 mb-md-3">
-                            <li className="fs-6 mb-4 mt-4">
+                            <li className="fs-5 mb-4 mt-4">
                               <span className="fa-li">
                                 <FontAwesomeIcon icon={faCheck} />
                               </span>
                               Beautiful high-quality stuffed animal{" "}
                             </li>
-                            <li className="fs-6 mb-4">
+                            <li className="fs-5 mb-4">
                               <span className="fa-li">
                                 <FontAwesomeIcon icon={faCheck} />
                               </span>
                               Recording of baby's heartbeat{" "}
                             </li>
-                            <li className="fs-6 mb-4">
+                            <li className="fs-5 mb-4">
                               <span className="fa-li">
                                 <FontAwesomeIcon icon={faCheck} />
                               </span>
                               Cherished forever{" "}
                             </li>
-                            <li className="fs-6 mb-4">
+                            <li className="fs-5 mb-4">
                               <span className="fa-li">
                                 <FontAwesomeIcon icon={faCheck} />
                               </span>
@@ -2323,54 +2332,54 @@ function App() {
                       icon={faTimesCircle}
                     />
                   </button>
-                  <div className="lb-modal-body-addons py-2 px-4 text-justify ">
+                  <div className="lb-modal-body-addons py-2 px-4 text-justify">
                     <>
                       <div className="row mt-2">
                         <div className="col-12 m-0 text-start">
                           <ul className="fa-ul mb-1 mb-md-3">
-                            <li className="fs-6 mb-4">
+                            <li className="fs-5 mb-4">
                               <span className="fa-li">
                                 <FontAwesomeIcon icon={faCheck} />
                               </span>
                               Baby's measurements{" "}
                             </li>
-                            <li className="fs-6 mb-4">
+                            <li className="fs-5 mb-4">
                               <span className="fa-li">
                                 <FontAwesomeIcon icon={faCheck} />
                               </span>
                               Baby's position in uterus
                             </li>
-                            <li className="fs-6 mb-4">
+                            <li className="fs-5 mb-4">
                               <span className="fa-li">
                                 <FontAwesomeIcon icon={faCheck} />
                               </span>
                               Baby's weight
                             </li>
-                            <li className="fs-6 mb-4">
+                            <li className="fs-5 mb-4">
                               <span className="fa-li">
                                 <FontAwesomeIcon icon={faCheck} />
                               </span>
                               Baby's heart activity
                             </li>
-                            <li className="fs-6 mb-4">
+                            <li className="fs-5 mb-4">
                               <span className="fa-li">
                                 <FontAwesomeIcon icon={faCheck} />
                               </span>
                               Weeks of Pregnancy
                             </li>
-                            <li className="fs-6 mb-4">
+                            <li className="fs-5 mb-4">
                               <span className="fa-li">
                                 <FontAwesomeIcon icon={faCheck} />
                               </span>
                               Estimated due date
                             </li>
-                            <li className="fs-6 mb-4">
+                            <li className="fs-5 mb-4">
                               <span className="fa-li">
                                 <FontAwesomeIcon icon={faCheck} />
                               </span>
                               Estimated due date
                             </li>
-                            <li className="fs-6 mb-4">
+                            <li className="fs-5 mb-4">
                               <span className="fa-li">
                                 <FontAwesomeIcon icon={faCheck} />
                               </span>
