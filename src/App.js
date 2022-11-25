@@ -998,7 +998,7 @@ function App() {
             locationPhone: state.phone,
             locationAddress: removeTags(state.address),
             howArrive: removeTags(state.howtoarrive),
-            appointmetId: bookAppointmentData.Appointment.Id,
+            appointmentId: bookAppointmentData.Appointment.Id,
             clientName: clientState.firstName + " " + clientState.lastName,
             clientEmail: clientState.email,
             serviceName: clientState.sessionTypeName,
