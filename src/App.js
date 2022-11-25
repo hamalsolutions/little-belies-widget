@@ -185,7 +185,7 @@ function App() {
     status: "IDLE",
     availabilityRequestStatus: "IDLE",
     appointmentRequestStatus: "IDLE",
-    city: params.get("city"),
+    city: params.get("city") || "N/A",
     message: "",
     siteId: params.get("id") || "490100",
     latitude: params.get("latitude") || "0",
@@ -991,6 +991,37 @@ function App() {
         );
         const bookAppointmentData = await bookAppointmentResponse.json();
         if (bookAppointmentResponse.ok) {
+
+          const mailBody = {
+            locationName: `Little Bellies Pregnancy Spa - ${state.city}`,
+            web: "www.littlebelliesspa.com/en/home/",
+            locationPhone: state.phone,
+            locationAddress: removeTags(state.address),
+            howArrive: removeTags(state.howtoarrive),
+            appointmetId: bookAppointmentData.Appointment.Id,
+            clientName: clientState.firstName + " " + clientState.lastName,
+            clientEmail: clientState.email,
+            serviceName: clientState.sessionTypeName,
+            startDateTime: moment(state.block.blockDate)
+              .format("YYYY-MM-DD[T]HH:mm:ss")
+              .toString(),
+          }
+          const postMail = {
+            method: "POST",
+            headers: {
+              "Content-type": "application/json; charset=UTF-8",
+            },
+            body: JSON.stringify(mailBody),
+          };
+          const mailResponse = await fetch(
+            `${process.env.REACT_APP_API_URL}/api/book/sendMail`,
+            postMail
+          );
+
+          if(!mailResponse.ok){
+            console.error(mailResponse)
+          }
+          
           const dynamoPayload = {
             id: "" + bookAppointmentData.Appointment.Id,
             sessionTypeId: "" + bookAppointmentData.Appointment.SessionTypeId,
