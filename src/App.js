@@ -1682,7 +1682,7 @@ function App() {
 
       <div className="row mt-5 mx-auto align-items-center justify-content-center">
 
-        <div className="col-md-6 d-flex">
+        <div className="col-md-5 d-flex">
 
           <div className={
             stepOne === "success" ? "btn btn-cta-active rounded-circle" :
@@ -1714,12 +1714,14 @@ function App() {
 
       </div>
       <div className="row mx-auto align-items-center justify-content-center">
-        <div className="col-md-6 d-flex">
-          <span className="col col-sm-5 col-md-5 col-lg-6 col-xl-6">Information</span>
-          <div className="col" />
-          <span className="col col-sm-5 col-md-5 col-lg-6 col-xl-6">Schedule</span>
-          <div className="col" />
-          <span className="col col-sm-1 col-lg-1 col-xl-1">Summary</span>
+        <div className="col-md-5 d-flex">
+
+          <span className="col col-md-3 col-lg-4 col-xl-4">Information</span>
+          <div className="col"/>
+          <span className="col col-md-5 col-lg-5 col-xl-5 text-center">Schedule</span>
+          <div className="col"/>
+          <span className="col col-md-3 col-lg-4 col-xl-4 text-end">Summary</span>
+
         </div>
       </div>
 
