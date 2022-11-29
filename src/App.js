@@ -5,7 +5,6 @@ import moment from "moment";
 import Select from "react-select";
 import { useForm, Controller, useFormState } from "react-hook-form";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import "rsuite/dist/rsuite.css";
 import {
   faSpinner,
   faBaby,
