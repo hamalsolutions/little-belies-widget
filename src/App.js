@@ -1702,7 +1702,6 @@ function App() {
     errors.phone,
     errors.weeks,
     errors.service,
-    // errors.addons,
     errors.temsCheckbox,
     clickButtonForm])
 
