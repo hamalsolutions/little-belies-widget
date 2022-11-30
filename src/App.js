@@ -920,7 +920,7 @@ function App() {
   // Handle the booking of the appointment and creation of the client if necesary 
   const bookAppointment = async () => {
     setStepThree("success");
-    
+
     if (state.appointmentRequestStatus === "loading") {
       return;
     }
@@ -1080,10 +1080,10 @@ function App() {
             postMail
           );
 
-          if(!mailResponse.ok){
+          if (!mailResponse.ok) {
             console.error(mailResponse)
           }
-          const nameListAddons = selectedOptionAddons.map((i) => {return i.value});
+          const nameListAddons = selectedOptionAddons.map((i) => { return i.value });
           const dynamoPayload = {
             id: "" + bookAppointmentData.Appointment.Id,
             sessionTypeId: "" + bookAppointmentData.Appointment.SessionTypeId,
@@ -1591,10 +1591,10 @@ function App() {
         seletedService.value === ultrasounds[1].value ||
         seletedService.value === ultrasounds[2].value ||
         seletedService.value === ultrasounds[3].value) {
-          setSelectedOptionAddons(selectedOptionAddons)
+        setSelectedOptionAddons(selectedOptionAddons)
       } else {
-          const formattingSelectedOptionAddons = selectedOptionAddons.filter((i) => { return i.value !== "Baby's Growth" })
-          setSelectedOptionAddons(formattingSelectedOptionAddons)
+        const formattingSelectedOptionAddons = selectedOptionAddons.filter((i) => { return i.value !== "Baby's Growth" })
+        setSelectedOptionAddons(formattingSelectedOptionAddons)
       }
     }
   }, [seletedService])
@@ -1635,10 +1635,10 @@ function App() {
       }
       if (clientState.sessionTypeId === ultrasounds[1].value && addBabysGrowth) {
         newSessionTypeId = getBGCombo(
-          "Gender Determination  + Baby's Growth - $118",
+          "Gender Determination + Baby's Growth - $118",
           consultedUltrasounds
         );
-        newSessionTypeName = "Gender Determination  + Baby's Growth - $118";
+        newSessionTypeName = "Gender Determination + Baby's Growth - $118";
       }
       setClientState((clientState) => ({
         ...clientState,
@@ -1646,7 +1646,7 @@ function App() {
         sessionTypeName: newSessionTypeName,
       }));
     }
-  },[sendForm,clientState.sessionTypeName,clientState.sessionTypeId]);
+  }, [sendForm, clientState.sessionTypeName, clientState.sessionTypeId]);
 
   const styles = {
     default: {
@@ -1709,7 +1709,8 @@ function App() {
     errors.weeks,
     errors.service,
     errors.temsCheckbox,
-    clickButtonForm])
+    clickButtonForm
+  ])
 
 
   return (
@@ -1717,7 +1718,7 @@ function App() {
 
       <div className="row mt-5 mx-auto align-items-center justify-content-center">
 
-        <div className="col-md-5 d-flex">
+        <div className="col-md-12 d-flex">
 
           <div className={
             stepOne === "success" ? "btn btn-cta-active rounded-circle" :
@@ -1749,12 +1750,12 @@ function App() {
 
       </div>
       <div className="row mx-auto align-items-center justify-content-center">
-        <div className="col-md-5 d-flex">
+        <div className="col-12 d-flex">
 
           <span className="col col-md-3 col-lg-4 col-xl-4">Information</span>
-          <div className="col"/>
-          <span className="col col-md-5 col-lg-5 col-xl-5 text-center">Schedule</span>
-          <div className="col"/>
+          <div className="col" />
+          <span className="col col-md-5 col-lg-4 col-xl-4 text-center">Schedule</span>
+          <div className="col" />
           <span className="col col-md-3 col-lg-4 col-xl-4 text-end">Summary</span>
 
         </div>
@@ -1987,57 +1988,11 @@ function App() {
                 style={{ fontSize: 13 }}
               >
                 <div className="row mt-2">
-                  <div className="col-12 m-0 text-start">
-                    <ul className="fa-ul mb-1 mb-md-3">
-                      <li className="text-sm text-lg text-xl mb-4 mt-2">
-                        <span className="fa-li">
-                          <FontAwesomeIcon icon={faCheck} />
-                        </span>
-                        Baby's measurements{" "}
-                      </li>
-                      <li className="text-sm text-lg text-xl mb-4">
-                        <span className="fa-li">
-                          <FontAwesomeIcon icon={faCheck} />
-                        </span>
-                        Baby's position in uterus
-                      </li>
-                      <li className="text-sm text-lg text-xl mb-4">
-                        <span className="fa-li">
-                          <FontAwesomeIcon icon={faCheck} />
-                        </span>
-                        Baby's weight
-                      </li>
-                      <li className="text-sm text-lg text-xl mb-4">
-                        <span className="fa-li">
-                          <FontAwesomeIcon icon={faCheck} />
-                        </span>
-                        Baby's heart activity
-                      </li>
-                      <li className="text-sm text-lg text-xl mb-4">
-                        <span className="fa-li">
-                          <FontAwesomeIcon icon={faCheck} />
-                        </span>
-                        Weeks of Pregnancy
-                      </li>
-                      <li className="text-sm text-lg text-xl mb-4">
-                        <span className="fa-li">
-                          <FontAwesomeIcon icon={faCheck} />
-                        </span>
-                        Estimated due date
-                      </li>
-                      <li className="text-sm text-lg text-xl mb-4">
-                        <span className="fa-li">
-                          <FontAwesomeIcon icon={faCheck} />
-                        </span>
-                        Estimated due date
-                      </li>
-                      <li className="text-sm text-lg text-xl">
-                        <span className="fa-li">
-                          <FontAwesomeIcon icon={faCheck} />
-                        </span>
-                        Amniotic fluid
-                      </li>
-                    </ul>
+                  <div className="col-12">
+                  <p style={{textAlign: 'justify'}} className="px-3 pt-3">
+                      By adding this feature, you'll discover: baby's position in the uterus,
+                      weeks of pregnancy and estimated due date, baby's measurements and baby hearts activity.
+                      This add-on doesn't replace a medical study performed by your specialist</p>
                   </div>
                 </div>
               </div>
@@ -2053,33 +2008,12 @@ function App() {
                 style={{ fontSize: 13 }}
               >
                 <div className="row mt-2">
-                  <div className="col-12 m-0 text-start">
-                    <ul className="fa-ul mb-1 mb-md-3">
-                      <li className="text-sm text-lg text-xl mt-2 mb-4">
-                        <span className="fa-li">
-                          <FontAwesomeIcon icon={faCheck} />
-                        </span>
-                        Beautiful high-quality stuffed animal{" "}
-                      </li>
-                      <li className="text-sm text-lg text-xl mb-4">
-                        <span className="fa-li">
-                          <FontAwesomeIcon icon={faCheck} />
-                        </span>
-                        Recording of baby's heartbeat{" "}
-                      </li>
-                      <li className="text-sm text-lg text-xl mb-4">
-                        <span className="fa-li">
-                          <FontAwesomeIcon icon={faCheck} />
-                        </span>
-                        Cherished forever{" "}
-                      </li>
-                      <li className="text-sm text-lg text-xl">
-                        <span className="fa-li">
-                          <FontAwesomeIcon icon={faCheck} />
-                        </span>
-                        Build connection an strenghtens bond with baby
-                      </li>
-                    </ul>
+                  <div className="col-12">
+                  <p style={{textAlign: 'justify'}} className="px-3 pt-3">
+                      Some moments come once in a lifetime, and they should never be forgotten.
+                      Recording the baby's heartbeat builds connection and strengthens the bond with baby.
+                      Our beautiful, high-quality stuffed animals come with a 20-second recording of the baby's heartbeat that can be cherished forever.
+                    </p>
                   </div>
                 </div>
               </div>
@@ -2318,44 +2252,23 @@ function App() {
                       icon={faTimesCircle}
                     />
                   </button>
-                  <div className="lb-modal-body-addons py-2 px-4 text-justify ">
+                  <div className="lb-modal-body-addons py-2 px-4 text-justify">
                     <>
                       <div className="row mt-2">
-                        <div className="col-12 m-0 text-start">
-                          <ul className="fa-ul mb-1 mb-md-3">
-                            <li className="fs-5 mb-4 mt-4">
-                              <span className="fa-li">
-                                <FontAwesomeIcon icon={faCheck} />
-                              </span>
-                              Beautiful high-quality stuffed animal{" "}
-                            </li>
-                            <li className="fs-5 mb-4">
-                              <span className="fa-li">
-                                <FontAwesomeIcon icon={faCheck} />
-                              </span>
-                              Recording of baby's heartbeat{" "}
-                            </li>
-                            <li className="fs-5 mb-4">
-                              <span className="fa-li">
-                                <FontAwesomeIcon icon={faCheck} />
-                              </span>
-                              Cherished forever{" "}
-                            </li>
-                            <li className="fs-5 mb-4">
-                              <span className="fa-li">
-                                <FontAwesomeIcon icon={faCheck} />
-                              </span>
-                              Build connection an strenghtens bond with baby
-                            </li>
-                          </ul>
+                        <div className="col-12 m-1">
+                          <p style={{textAlign: 'justify'}}>
+                            Some moments come once in a lifetime, and they should never be forgotten.
+                            Recording the baby's heartbeat builds connection and strengthens the bond with baby.
+                            Our beautiful, high-quality stuffed animals come with a 20-second recording of the baby's heartbeat that can be cherished forever.
+                          </p>
                         </div>
                       </div>
                     </>
                   </div>
                   <div className="lb-modal-footer-addons lb-text-center ">
                     <button className="btn btn-cta-active rounded-pill px-3 mx-auto"
-                     onClick={(e) => setModalHearthbeat(false)}
-                     style={{ cursor: "pointer" }}
+                      onClick={(e) => setModalHearthbeat(false)}
+                      style={{ cursor: "pointer" }}
                     >
                       Close
                     </button>
@@ -2380,65 +2293,19 @@ function App() {
                   <div className="lb-modal-body-addons py-2 px-4 text-justify">
                     <>
                       <div className="row mt-2">
-                        <div className="col-12 m-0 text-start">
-                          <ul className="fa-ul mb-1 mb-md-3">
-                            <li className="fs-5 mb-4">
-                              <span className="fa-li">
-                                <FontAwesomeIcon icon={faCheck} />
-                              </span>
-                              Baby's measurements{" "}
-                            </li>
-                            <li className="fs-5 mb-4">
-                              <span className="fa-li">
-                                <FontAwesomeIcon icon={faCheck} />
-                              </span>
-                              Baby's position in uterus
-                            </li>
-                            <li className="fs-5 mb-4">
-                              <span className="fa-li">
-                                <FontAwesomeIcon icon={faCheck} />
-                              </span>
-                              Baby's weight
-                            </li>
-                            <li className="fs-5 mb-4">
-                              <span className="fa-li">
-                                <FontAwesomeIcon icon={faCheck} />
-                              </span>
-                              Baby's heart activity
-                            </li>
-                            <li className="fs-5 mb-4">
-                              <span className="fa-li">
-                                <FontAwesomeIcon icon={faCheck} />
-                              </span>
-                              Weeks of Pregnancy
-                            </li>
-                            <li className="fs-5 mb-4">
-                              <span className="fa-li">
-                                <FontAwesomeIcon icon={faCheck} />
-                              </span>
-                              Estimated due date
-                            </li>
-                            <li className="fs-5 mb-4">
-                              <span className="fa-li">
-                                <FontAwesomeIcon icon={faCheck} />
-                              </span>
-                              Estimated due date
-                            </li>
-                            <li className="fs-5 mb-4">
-                              <span className="fa-li">
-                                <FontAwesomeIcon icon={faCheck} />
-                              </span>
-                              Amniotic fluid
-                            </li>
-                          </ul>
+                        <div className="col-12 m-1">
+                        <p style={{textAlign: 'justify'}}>
+                            By adding this feature, you'll discover: baby's position in the uterus,
+                            weeks of pregnancy and estimated due date, baby's measurements and baby hearts activity.
+                            This add-on doesn't replace a medical study performed by your specialist</p>
                         </div>
                       </div>
                     </>
                   </div>
                   <div className="lb-modal-footer-addons lb-text-center ">
                     <button className="btn btn-cta-active rounded-pill px-3 mx-auto"
-                     onClick={(e) => setModalBabyGrow(false)}
-                     style={{ cursor: "pointer" }}
+                      onClick={(e) => setModalBabyGrow(false)}
+                      style={{ cursor: "pointer" }}
                     >
                       Close
                     </button>
