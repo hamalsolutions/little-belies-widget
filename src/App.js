@@ -917,10 +917,10 @@ function App() {
 
   };
 
-  // Handle the booking of the appointment and creation of the client if necesary
+  // Handle the booking of the appointment and creation of the client if necesary 
   const bookAppointment = async () => {
     setStepThree("success");
-
+    
     if (state.appointmentRequestStatus === "loading") {
       return;
     }
@@ -1083,10 +1083,11 @@ function App() {
           if(!mailResponse.ok){
             console.error(mailResponse)
           }
-          
+          const nameListAddons = selectedOptionAddons.map((i) => {return i.value});
           const dynamoPayload = {
             id: "" + bookAppointmentData.Appointment.Id,
             sessionTypeId: "" + bookAppointmentData.Appointment.SessionTypeId,
+            sessionTypeName: clientState.sessionTypeName,
             locationId: "" + bookAppointmentData.Appointment.LocationId,
             staffId: "" + bookAppointmentData.Appointment.StaffId,
             clientId: "" + bookAppointmentData.Appointment.ClientId,
@@ -1094,9 +1095,7 @@ function App() {
             startDateTime: bookAppointmentData.Appointment.StartDateTime,
             status: bookAppointmentData.Appointment.Status,
             firstAppointment: bookAppointmentData.Appointment.FirstAppointment,
-            addOns: addHeartbeatBuddies
-              ? "HeartBeat Buddies"
-              : bookAppointmentData.Appointment.AddOns,
+            addOns: nameListAddons,
             bookDate: moment().format("MM/DD/YYYY"),
             siteId: state.siteId,
             source: "online",
@@ -1511,13 +1510,6 @@ function App() {
   }
 
   useEffect(() => {
-    if (selectedOptionAddons) {
-      const formattingSelectedOptionAddons = selectedOptionAddons.filter((i) => { return i.value !== "Baby's Growth" })
-      setSelectedOptionAddons(formattingSelectedOptionAddons)
-    }
-  }, [seletedService])
-
-  useEffect(() => {
     if (selectedOptionAddons !== null) {
 
       const babyGrow = selectedOptionAddons.find(i => i.value === "Baby's Growth");
@@ -1594,6 +1586,20 @@ function App() {
 
 
   useEffect(() => {
+    if (selectedOptionAddons) {
+      if (
+        seletedService.value === ultrasounds[1].value ||
+        seletedService.value === ultrasounds[2].value ||
+        seletedService.value === ultrasounds[3].value) {
+          setSelectedOptionAddons(selectedOptionAddons)
+      } else {
+          const formattingSelectedOptionAddons = selectedOptionAddons.filter((i) => { return i.value !== "Baby's Growth" })
+          setSelectedOptionAddons(formattingSelectedOptionAddons)
+      }
+    }
+  }, [seletedService])
+
+  useEffect(() => {
     if (seletedService !== null) {
       if (
         seletedService.value === ultrasounds[1].value ||
@@ -1640,7 +1646,7 @@ function App() {
         sessionTypeName: newSessionTypeName,
       }));
     }
-  }, [sendForm]);
+  },[sendForm,clientState.sessionTypeName,clientState.sessionTypeId]);
 
   const styles = {
     default: {
@@ -1717,7 +1723,7 @@ function App() {
             stepOne === "success" ? "btn btn-cta-active rounded-circle" :
               stepOne === "invalid" ? "btn rounded-circle btn-cta-invalid" :
                 "text-dark btn rounded-circle btn-cta-default bg-white"}>
-            {stepOne === "success" ? "✔" :
+            {stepOne === "success" ? "✓" :
               stepOne === "invalid" ? "X" : "1"}
           </div>
 
@@ -1728,7 +1734,7 @@ function App() {
           <div className={
             stepTwo === "success" ? "btn btn-cta-active rounded-circle" :
               "text-dark btn rounded-circle btn-cta-default bg-white"}>
-            {stepTwo === "success" ? "✔" : "2"}
+            {stepTwo === "success" ? "✓" : "2"}
           </div>
 
           <div className="col mt-3" style={stepTwo === "success" ? styles.success : styles.default} />
@@ -1736,7 +1742,7 @@ function App() {
           <div className={
             stepThree === "success" ? "btn btn-cta-active rounded-circle" :
               "text-dark btn rounded-circle btn-cta-default bg-white"}>
-            {stepThree === "success" ? "✔" : "3"}
+            {stepThree === "success" ? "✓" : "3"}
           </div>
 
         </div>
@@ -2346,6 +2352,14 @@ function App() {
                       </div>
                     </>
                   </div>
+                  <div className="lb-modal-footer-addons lb-text-center ">
+                    <button className="btn btn-cta-active rounded-pill px-3 mx-auto"
+                     onClick={(e) => setModalHearthbeat(false)}
+                     style={{ cursor: "pointer" }}
+                    >
+                      Close
+                    </button>
+                  </div>
                 </div>
               </div>
             )}
@@ -2420,6 +2434,14 @@ function App() {
                         </div>
                       </div>
                     </>
+                  </div>
+                  <div className="lb-modal-footer-addons lb-text-center ">
+                    <button className="btn btn-cta-active rounded-pill px-3 mx-auto"
+                     onClick={(e) => setModalBabyGrow(false)}
+                     style={{ cursor: "pointer" }}
+                    >
+                      Close
+                    </button>
                   </div>
                 </div>
               </div>
