@@ -1635,10 +1635,10 @@ function App() {
       }
       if (clientState.sessionTypeId === ultrasounds[1].value && addBabysGrowth) {
         newSessionTypeId = getBGCombo(
-          "Gender Determination  + Baby's Growth - $118",
+          "Gender Determination + Baby's Growth - $118",
           consultedUltrasounds
         );
-        newSessionTypeName = "Gender Determination  + Baby's Growth - $118";
+        newSessionTypeName = "Gender Determination + Baby's Growth - $118";
       }
       setClientState((clientState) => ({
         ...clientState,
@@ -1709,7 +1709,8 @@ function App() {
     errors.weeks,
     errors.service,
     errors.temsCheckbox,
-    clickButtonForm])
+    clickButtonForm
+  ])
 
 
   return (
