@@ -184,6 +184,7 @@ function App() {
   const [showDetailsBG, setShowDetailsBG] = useState(false);
   const [showDetailsHB, setShowDetailsHB] = useState(false);
   const [addHeartbeatBuddies, setAddHeartbeatBuddies] = useState(false);
+  const [add8kRealisticView, setAdd8kRealisticView] = useState(false);
   const [addBabysGrowth, setAddBabysGrowth] = useState(false);
   const [state, setState] = useState({
     step: "registerForm",
@@ -227,7 +228,7 @@ function App() {
   });
   const [availableBlocks, setAvailableBlocks] = useState([]);
   const [services, setServices] = useState([]);
-  const addonsAvility = [
+  const addOnsToMeetYourBaby = [
     {
       value: "Hearthbeat Buddies",
       label: (
@@ -266,8 +267,69 @@ function App() {
           </div>
         </div>
       )
-    }];
-  const addonsOnly = [
+    },
+    {
+      value: "8K Realistic View",
+      label: (
+        <div className="col-12 d-flex">
+          <div className="col-11">
+            <span>8K Realistic View</span>
+          </div>
+          <div className="col-1"
+            onMouseOver={() => setHoverIndex8kRealisticView(true)}
+            onMouseLeave={() => setHoverIndex8kRealisticView(false)}
+            style={{ cursor: "pointer" }}
+          >
+            <FontAwesomeIcon icon={faInfo}
+              onClick={(e) => setModal8kRealisticView(true)}
+            />
+          </div>
+        </div>
+      )
+    }
+  ];
+  const addOnsToGenderDetermination = [
+    {
+      value: "Hearthbeat Buddies",
+      label: (
+        <div className="d-flex col-12"
+        >
+          <div className="col-11">
+            <span>Hearthbeat Buddies</span>
+          </div>
+          <div className="col-1"
+            onMouseOver={() => setHoverIndexHearthbeat(true)}
+            onMouseLeave={() => setHoverIndexHearthbeat(false)}
+            style={{ cursor: "pointer" }}
+          >
+            <FontAwesomeIcon icon={faInfo}
+              onClick={(e) => { setModalHearthbeat(true) }}
+            />
+          </div>
+        </div>
+      )
+    },
+    {
+      value: "Baby's Growth",
+      label: (
+        <div className="col-12 d-flex">
+          <div className="col-11">
+            <span>Baby's Growth</span>
+          </div>
+          <div className="col-1"
+            onMouseOver={() => setHoverIndexBabyGrow(true)}
+            onMouseLeave={() => setHoverIndexBabyGrow(false)}
+            style={{ cursor: "pointer" }}
+          >
+            <FontAwesomeIcon icon={faInfo}
+              onClick={(e) => setModalBabyGrow(true)}
+            />
+          </div>
+        </div>
+      )
+    }
+  ];
+  const addOnsToEarlyPregnancy = [
     {
       value: "Hearthbeat Buddies",
       label: (
@@ -289,6 +351,7 @@ function App() {
       )
     }];
   const [selectedOptionAddons, setSelectedOptionAddons] = useState(null);
+  const [hoverIndex8kRealisticView, setHoverIndex8kRealisticView] = useState(false);
   const [hoverIndexBabyGrow, setHoverIndexBabyGrow] = useState(false);
   const [hoverIndexHearthbeat, setHoverIndexHearthbeat] = useState(false);
   const [stepOne, setStepOne] = useState("default");
@@ -297,11 +360,10 @@ function App() {
   const [clickButtonForm, setClickButtonForm] = useState(false);
   const [modalBabyGrow, setModalBabyGrow] = useState(false);
   const [modalHearthbeat, setModalHearthbeat] = useState(false);
+  const [modal8kRealisticView, setModal8kRealisticView] = useState(false);
   const [seletedService, setSeletedService] = useState(null)
   const [sendForm, setSendForm] = useState(false)
   const [addOns, setAddOns] = useState();
-
-
   const [ultrasounds, setUltrasounds] = useState([]);
   const [consultedUltrasounds, setConsultedUltrasounds] = useState([]);
   const [weeks, setWeeks] = useState([]);
@@ -326,14 +388,6 @@ function App() {
     partititonKey: "",
     orderKey: "",
   });
-
-
-  const onChangeServices = (service) => {
-    setSeletedService(service)
-    setAddBabysGrowth(false);
-    setAddHeartbeatBuddies(false);
-  };
-
 
   useEffect(() => {
     updateDimensions();
@@ -392,6 +446,7 @@ function App() {
   const getPrice = (service) => {
     return parseInt(service.split("$")[1]);
   };
+
   const orderServices = (services) => {
     return services.sort(function (a, b) {
       // console.log(a.label.split('$')[1])
@@ -438,6 +493,7 @@ function App() {
     // console.log("ServiceId: " + serviceId);
     return serviceId;
   };
+
   const getBGCombo = (serviceName, servicesArray) => {
     const sessionTypeName = serviceName;
     let purifiedServiceName = "";
@@ -467,7 +523,6 @@ function App() {
     // console.log("ServiceId: " + serviceId);
     return serviceId;
   };
-
   // Loads the dropdown values and set the states for that display on first load
   useEffect(() => {
     async function getServices() {
@@ -828,7 +883,6 @@ function App() {
     state.authorization,
     clientState.sessionTypeId,
   ]);
-
   const removeTags = (str) => {
     if (str === null || str === "") return false;
     else str = str.toString();
@@ -838,7 +892,6 @@ function App() {
     // HTML tag with a null string.
     return str.replace(/(<([^>]+)>)/gi, "");
   };
-
   // Handles the date change
   const onSelectedDay = (val) => {
     setStepTwo("default")
@@ -916,7 +969,6 @@ function App() {
     }
 
   };
-
   // Handle the booking of the appointment and creation of the client if necesary 
   const bookAppointment = async () => {
     setStepThree("success");
@@ -1029,10 +1081,13 @@ function App() {
           notes:
             "Weeks: " +
             clientState.weeks +
-            "\n Language: " +
+            "\n" +
+            "Language: "+ 
             state.language +
             "\n" +
-            (addHeartbeatBuddies ? "Add HeartBeat Buddies" : ""),
+            (addHeartbeatBuddies ? "Add HeartBeat Buddies" : "")  +
+            (addHeartbeatBuddies ? "\n" : "") +
+            (add8kRealisticView ? "Add 8k Realistic View" : ""),
           startDateTime: moment(state.block.blockDate)
             .format("YYYY-MM-DD[T]HH:mm:ss")
             .toString(),
@@ -1460,11 +1515,33 @@ function App() {
     }));
   };
 
+  const stepProgressStyles = {
+    default: {
+      borderRight: "none",
+      borderBottom: "none",
+      borderLeft: "none",
+      borderTop: "4px dotted #a9a9a9"
+    },
+    error: {
+      borderRight: "none",
+      borderBottom: "none",
+      borderLeft: "none",
+      borderTop: "4px dotted #dc3545"
+    },
+    success: {
+      borderRight: "none",
+      borderBottom: "none",
+      borderLeft: "none",
+      borderTop: "4px dotted #AE678C ",
+    },
+  };
+
   const groupStyles = {
     display: "flex",
     alignItems: "center",
     justifyContent: "space-between",
   };
+
   const selectStyles = {
     option: (styles, { data, isDisabled, isFocused, isSelected }) => {
       return {
@@ -1473,28 +1550,31 @@ function App() {
       };
     },
   };
+
   const groupTextStyles = {
     color: "#AE678C",
     fontSize: width > 1023 ? 18 : 16,
     textTransform: "capitalize",
   };
+
   const formatGroupLabel = (data) => (
     <div style={groupStyles}>
       <span style={groupTextStyles}>{data.label}</span>
     </div>
   );
+
   const showInMapClicked = () => {
     window.open(
       "https://maps.google.com?q=" + state.latitude + "," + state.longitude
     );
   };
-
   const showTerms = () => {
     setState((state) => ({
       ...state,
       displayTerms: true,
     }));
   };
+
   const hideTerms = () => {
     setState((state) => ({
       ...state,
@@ -1502,98 +1582,56 @@ function App() {
     }));
   };
 
+  const onChangeServices = (service) => {
+    setSeletedService(service)
+    setAddBabysGrowth(false);
+    setAddHeartbeatBuddies(false);
+    setAdd8kRealisticView(false)
+  };
+
   const handleAddonsSelected = (e) => {
     const addons = e;
     setSelectedOptionAddons(addons);
     setHoverIndexBabyGrow(false)
     setHoverIndexHearthbeat(false)
+    setHoverIndex8kRealisticView(false)
   }
 
   useEffect(() => {
-    if (selectedOptionAddons !== null) {
-
-      const babyGrow = selectedOptionAddons.find(i => i.value === "Baby's Growth");
-      const hearthbeat = selectedOptionAddons.find(i => i.value === "Hearthbeat Buddies");
-
-      if (babyGrow === undefined) {
-        setAddBabysGrowth(false)
-
-        addonsAvility[1].label =
-          <div className="col-12 d-flex">
-            <div className="col-11">
-              <span>Baby's Growth</span>
-            </div>
-            <div className="col-1"
-              onMouseOver={() => setHoverIndexBabyGrow(true)}
-              onMouseLeave={() => setHoverIndexBabyGrow(false)}
-              style={{ cursor: "pointer" }}
-            >
-              <FontAwesomeIcon icon={faInfo}
-                onClick={(e) => setModalBabyGrow(true)}
-              />
-            </div>
-          </div>;
-
-        setAddOns(addonsAvility)
-
-      } else {
-        setAddBabysGrowth(true)
-        babyGrow.label = <span>Baby's Growth</span>;
-      }
-
-      if (hearthbeat === undefined) {
-        setAddHeartbeatBuddies(false)
-
-        addonsAvility[0].label =
-          <div className="d-flex col-12">
-            <div className="col-11">
-              <span>Hearthbeat Buddies</span>
-            </div>
-            <div className="col-1"
-              onMouseOver={() => setHoverIndexHearthbeat(true)}
-              onMouseLeave={() => setHoverIndexHearthbeat(false)}
-              style={{ cursor: "pointer" }}
-            >
-              <FontAwesomeIcon icon={faInfo}
-                onClick={(e) => setModalHearthbeat(true)}
-              />
-            </div>
-          </div>;
-
-        setAddOns(addonsAvility)
-
-      } else {
-        setAddHeartbeatBuddies(true);
-        hearthbeat.label = <span>Hearthbeat Buddies</span>;
-      }
-    }
-
-  }, [selectedOptionAddons])
-
-  useEffect(() => {
-
-    if (modalBabyGrow) {
-      const formattingSelectedOptionAddons = selectedOptionAddons.filter((i) => { return i.value !== "Baby's Growth" })
-      setSelectedOptionAddons(formattingSelectedOptionAddons)
-      setAddBabysGrowth(false)
-    }
+    let formattingSelectedOptionAddons;
     if (modalHearthbeat) {
-      const formattingSelectedOptionAddons = selectedOptionAddons.filter((i) => { return i.value !== "Hearthbeat Buddies" })
+      formattingSelectedOptionAddons = selectedOptionAddons.filter((i) => { return i.value !== "Hearthbeat Buddies" })
       setSelectedOptionAddons(formattingSelectedOptionAddons)
       setAddHeartbeatBuddies(false)
     }
-  }, [modalBabyGrow, modalHearthbeat])
-
+    if (modalBabyGrow) {
+      formattingSelectedOptionAddons = selectedOptionAddons.filter((i) => { return i.value !== "Baby's Growth" })
+      setSelectedOptionAddons(formattingSelectedOptionAddons)
+      setAddBabysGrowth(false)
+    }
+    if (modal8kRealisticView) {
+      formattingSelectedOptionAddons = selectedOptionAddons.filter((i) => { return i.value !== "8K Realistic View" })
+      setSelectedOptionAddons(formattingSelectedOptionAddons)
+      setAdd8kRealisticView(false)
+    }
+  }, [modalBabyGrow, modalHearthbeat, modal8kRealisticView])
 
   useEffect(() => {
     if (selectedOptionAddons) {
-      if (
-        seletedService.value === ultrasounds[1].value ||
-        seletedService.value === ultrasounds[2].value ||
-        seletedService.value === ultrasounds[3].value) {
+
+      let formattingSelectedOptionAddons;
+
+      if (seletedService.value === ultrasounds[1].value) {
+
+        formattingSelectedOptionAddons = selectedOptionAddons.filter((i) => { return i.value !== "8K Realistic View" })
+        setSelectedOptionAddons(formattingSelectedOptionAddons)
+
+      } else if (seletedService.value === ultrasounds[2].value || seletedService.value === ultrasounds[3].value) {
+
         setSelectedOptionAddons(selectedOptionAddons)
+
       } else {
-        const formattingSelectedOptionAddons = selectedOptionAddons.filter((i) => { return i.value !== "Baby's Growth" })
+        formattingSelectedOptionAddons = selectedOptionAddons.filter((i) => { return i.value !== "Baby's Growth" && i.value !== "8K Realistic View" })
         setSelectedOptionAddons(formattingSelectedOptionAddons)
       }
     }
@@ -1601,17 +1639,198 @@ function App() {
 
   useEffect(() => {
     if (seletedService !== null) {
-      if (
-        seletedService.value === ultrasounds[1].value ||
-        seletedService.value === ultrasounds[2].value ||
-        seletedService.value === ultrasounds[3].value) {
-        setAddOns(addonsAvility)
-      } else {
-        setAddOns(addonsOnly)
+
+      if (seletedService.value === ultrasounds[1].value) {
+
+        setAddOns(addOnsToGenderDetermination)
+
+      }
+      if (seletedService.value === ultrasounds[2].value || seletedService.value === ultrasounds[3].value) {
+
+        setAddOns(addOnsToMeetYourBaby)
+
+      }
+      if (seletedService.value === ultrasounds[0].value || seletedService.value === ultrasounds[4].value) {
+
+        setAddOns(addOnsToEarlyPregnancy)
+
       }
     }
   }, [seletedService, selectedOptionAddons])
 
+  useEffect(() => {
+    if (selectedOptionAddons !== null) {
+      const babyGrow = selectedOptionAddons.find(i => i.value === "Baby's Growth");
+      const hearthbeat = selectedOptionAddons.find(i => i.value === "Hearthbeat Buddies");
+      const realisticView = selectedOptionAddons.find(i => i.value === "8K Realistic View");
+
+      if (seletedService.value === ultrasounds[0].value || seletedService.value === ultrasounds[4].value) {
+     
+        if (hearthbeat === undefined) {
+          setAddHeartbeatBuddies(false)
+
+          addOnsToEarlyPregnancy[0].label =
+            <div className="d-flex col-12">
+              <div className="col-11">
+                <span>Hearthbeat Buddies</span>
+              </div>
+              <div className="col-1"
+                onMouseOver={() => setHoverIndexHearthbeat(true)}
+                onMouseLeave={() => setHoverIndexHearthbeat(false)}
+                style={{ cursor: "pointer" }}
+              >
+                <FontAwesomeIcon icon={faInfo}
+                  onClick={(e) => setModalHearthbeat(true)}
+                />
+              </div>
+            </div>;
+
+          setAddOns(addOnsToEarlyPregnancy)
+
+        } else {
+          setAddHeartbeatBuddies(true);
+          hearthbeat.label = <span>Hearthbeat Buddies</span>;
+        }
+      }
+
+      if (seletedService.value === ultrasounds[1].value) {
+
+        if (hearthbeat === undefined) {
+          setAddHeartbeatBuddies(false)
+
+          addOnsToGenderDetermination[0].label =
+            <div className="d-flex col-12">
+              <div className="col-11">
+                <span>Hearthbeat Buddies</span>
+              </div>
+              <div className="col-1"
+                onMouseOver={() => setHoverIndexHearthbeat(true)}
+                onMouseLeave={() => setHoverIndexHearthbeat(false)}
+                style={{ cursor: "pointer" }}
+              >
+                <FontAwesomeIcon icon={faInfo}
+                  onClick={(e) => setModalHearthbeat(true)}
+                />
+              </div>
+            </div>;
+
+          setAddOns(addOnsToGenderDetermination)
+
+        } else {
+          setAddHeartbeatBuddies(true);
+          hearthbeat.label = <span>Hearthbeat Buddies</span>;
+        }
+
+        if (babyGrow === undefined) {
+          setAddBabysGrowth(false)
+
+          addOnsToGenderDetermination[1].label =
+            <div className="col-12 d-flex">
+              <div className="col-11">
+                <span>Baby's Growth</span>
+              </div>
+              <div className="col-1"
+                onMouseOver={() => setHoverIndexBabyGrow(true)}
+                onMouseLeave={() => setHoverIndexBabyGrow(false)}
+                style={{ cursor: "pointer" }}
+              >
+                <FontAwesomeIcon icon={faInfo}
+                  onClick={(e) => setModalBabyGrow(true)}
+                />
+              </div>
+            </div>;
+
+          setAddOns(addOnsToGenderDetermination)
+
+        } else {
+          setAddBabysGrowth(true)
+          babyGrow.label = <span>Baby's Growth</span>;
+        }
+      }
+
+      if (seletedService.value === ultrasounds[2].value || seletedService.value === ultrasounds[3].value) {
+
+        if (hearthbeat === undefined) {
+          setAddHeartbeatBuddies(false)
+
+          addOnsToMeetYourBaby[0].label =
+            <div className="d-flex col-12">
+              <div className="col-11">
+                <span>Hearthbeat Buddies</span>
+              </div>
+              <div className="col-1"
+                onMouseOver={() => setHoverIndexHearthbeat(true)}
+                onMouseLeave={() => setHoverIndexHearthbeat(false)}
+                style={{ cursor: "pointer" }}
+              >
+                <FontAwesomeIcon icon={faInfo}
+                  onClick={(e) => setModalHearthbeat(true)}
+                />
+              </div>
+            </div>;
+
+          setAddOns(addOnsToMeetYourBaby)
+
+        } else {
+          setAddHeartbeatBuddies(true);
+          hearthbeat.label = <span>Hearthbeat Buddies</span>;
+        }
+
+        if (babyGrow === undefined) {
+          setAddBabysGrowth(false)
+
+          addOnsToMeetYourBaby[1].label =
+            <div className="col-12 d-flex">
+              <div className="col-11">
+                <span>Baby's Growth</span>
+              </div>
+              <div className="col-1"
+                onMouseOver={() => setHoverIndexBabyGrow(true)}
+                onMouseLeave={() => setHoverIndexBabyGrow(false)}
+                style={{ cursor: "pointer" }}
+              >
+                <FontAwesomeIcon icon={faInfo}
+                  onClick={(e) => setModalBabyGrow(true)}
+                />
+              </div>
+            </div>;
+
+          setAddOns(addOnsToMeetYourBaby)
+
+        } else {
+          setAddBabysGrowth(true)
+          babyGrow.label = <span>Baby's Growth</span>;
+        }
+
+        if (realisticView === undefined) {
+          setAdd8kRealisticView(false)
+
+          addOnsToMeetYourBaby[2].label =
+            <div className="col-12 d-flex">
+              <div className="col-11">
+                <span>8K Realistic View</span>
+              </div>
+              <div className="col-1"
+                onMouseOver={() => setHoverIndex8kRealisticView(true)}
+                onMouseLeave={() => setHoverIndex8kRealisticView(false)}
+                style={{ cursor: "pointer" }}
+              >
+                <FontAwesomeIcon icon={faInfo}
+                  onClick={(e) => setModal8kRealisticView(true)}
+                />
+              </div>
+            </div>;
+
+          setAddOns(addOnsToMeetYourBaby)
+
+        } else {
+          setAdd8kRealisticView(true)
+          realisticView.label = <span>8K Realistic View</span>;
+        }
+
+      }
+    }
+  }, [selectedOptionAddons, seletedService])
 
   useEffect(() => {
     let newSessionTypeId = clientState.sessionTypeId;
@@ -1648,27 +1867,6 @@ function App() {
     }
   }, [sendForm, clientState.sessionTypeName, clientState.sessionTypeId]);
 
-  const styles = {
-    default: {
-      borderRight: "none",
-      borderBottom: "none",
-      borderLeft: "none",
-      borderTop: "4px dotted #a9a9a9"
-    },
-    error: {
-      borderRight: "none",
-      borderBottom: "none",
-      borderLeft: "none",
-      borderTop: "4px dotted #dc3545"
-    },
-    success: {
-      borderRight: "none",
-      borderBottom: "none",
-      borderLeft: "none",
-      borderTop: "4px dotted #AE678C ",
-    },
-  }
-
   useEffect(() => {
     let val = false;
     if (errors.firstName) {
@@ -1692,7 +1890,6 @@ function App() {
     if (errors.temsCheckbox) {
       val = true;
     }
-
     if (clickButtonForm) {
       if (val) {
         setStepOne("invalid")
@@ -1712,7 +1909,6 @@ function App() {
     clickButtonForm
   ])
 
-
   return (
     <div className="container">
 
@@ -1729,8 +1925,8 @@ function App() {
           </div>
 
           <div className="col mt-3" style={
-            stepOne === "success" ? styles.success :
-              stepOne === "invalid" ? styles.error : styles.default} />
+            stepOne === "success" ? stepProgressStyles.success :
+              stepOne === "invalid" ? stepProgressStyles.error : stepProgressStyles.default} />
 
           <div className={
             stepTwo === "success" ? "btn btn-cta-active rounded-circle" :
@@ -1738,7 +1934,7 @@ function App() {
             {stepTwo === "success" ? "✓" : "2"}
           </div>
 
-          <div className="col mt-3" style={stepTwo === "success" ? styles.success : styles.default} />
+          <div className="col mt-3" style={stepTwo === "success" ? stepProgressStyles.success : stepProgressStyles.default} />
 
           <div className={
             stepThree === "success" ? "btn btn-cta-active rounded-circle" :
@@ -1989,7 +2185,7 @@ function App() {
               >
                 <div className="row mt-2">
                   <div className="col-12">
-                  <p style={{textAlign: 'justify'}} className="px-3 pt-3">
+                    <p style={{ textAlign: 'justify' }} className="px-3 pt-3">
                       By adding this feature, you'll discover: baby's position in the uterus,
                       weeks of pregnancy and estimated due date, baby's measurements and baby hearts activity.
                       This add-on doesn't replace a medical study performed by your specialist</p>
@@ -2009,10 +2205,30 @@ function App() {
               >
                 <div className="row mt-2">
                   <div className="col-12">
-                  <p style={{textAlign: 'justify'}} className="px-3 pt-3">
+                    <p style={{ textAlign: 'justify' }} className="px-3 pt-3">
                       Some moments come once in a lifetime, and they should never be forgotten.
                       Recording the baby's heartbeat builds connection and strengthens the bond with baby.
                       Our beautiful, high-quality stuffed animals come with a 20-second recording of the baby's heartbeat that can be cherished forever.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {hoverIndex8kRealisticView && (
+              <div
+                className={
+                  hoverIndex8kRealisticView
+                    ? "lb-preview-info-card-visible-8k-realistic-view col-3"
+                    : "lb-preview-card"
+                }
+                style={{ fontSize: 13 }}
+              >
+                <div className="row mt-2">
+                  <div className="col-12">
+                    <p style={{ textAlign: 'justify' }} className="px-3 pt-3">
+                      will show our Mommies and Fathers a hyper-realistic image of what their babies will look like once they are born. We work with the ultrasound images from the session,
+                      process them and send them to our clients within 7 business days.
                     </p>
                   </div>
                 </div>
@@ -2256,7 +2472,7 @@ function App() {
                     <>
                       <div className="row mt-2">
                         <div className="col-12 m-1">
-                          <p style={{textAlign: 'justify'}}>
+                          <p style={{ textAlign: 'justify' }}>
                             Some moments come once in a lifetime, and they should never be forgotten.
                             Recording the baby's heartbeat builds connection and strengthens the bond with baby.
                             Our beautiful, high-quality stuffed animals come with a 20-second recording of the baby's heartbeat that can be cherished forever.
@@ -2294,7 +2510,7 @@ function App() {
                     <>
                       <div className="row mt-2">
                         <div className="col-12 m-1">
-                        <p style={{textAlign: 'justify'}}>
+                          <p style={{ textAlign: 'justify' }}>
                             By adding this feature, you'll discover: baby's position in the uterus,
                             weeks of pregnancy and estimated due date, baby's measurements and baby hearts activity.
                             This add-on doesn't replace a medical study performed by your specialist</p>
@@ -2305,6 +2521,43 @@ function App() {
                   <div className="lb-modal-footer-addons lb-text-center ">
                     <button className="btn btn-cta-active rounded-pill px-3 mx-auto"
                       onClick={(e) => setModalBabyGrow(false)}
+                      style={{ cursor: "pointer" }}
+                    >
+                      Close
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
+            {modal8kRealisticView && (
+              <div className="lb-modal-overlay-addons" >
+                <div className="lb-modal-addons rounded-3">
+                  <button
+                    className="closeTermsButton btn btn-link m-0 p-0"
+                    onClick={(e) => setModal8kRealisticView(false)}
+                    style={{ cursor: "pointer" }}
+                  >
+                    <FontAwesomeIcon
+                      className="white-icon"
+                      size="lg"
+                      icon={faTimesCircle}
+                    />
+                  </button>
+                  <div className="lb-modal-body-addons py-2 px-4 text-justify">
+                    <>
+                      <div className="row mt-2">
+                        <div className="col-12 m-1">
+                          <p style={{ textAlign: 'justify' }}>
+                            will show our Mommies and Fathers a hyper-realistic image of what their babies will
+                            look like once they are born. We work with the ultrasound images from the session,
+                            process them and send them to our clients within 7 business days.</p>
+                        </div>
+                      </div>
+                    </>
+                  </div>
+                  <div className="lb-modal-footer-addons lb-text-center ">
+                    <button className="btn btn-cta-active rounded-pill px-3 mx-auto"
+                      onClick={(e) => setModal8kRealisticView(false)}
                       style={{ cursor: "pointer" }}
                     >
                       Close
