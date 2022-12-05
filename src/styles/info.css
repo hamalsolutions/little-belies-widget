@@ -18,7 +18,7 @@
   padding: 10px 0;
   position: absolute;
   z-index: 1;
-  bottom: 25%;
+  bottom: 20%;
   right: 36%;
   opacity: 1;
   transition: opacity 2s;
@@ -45,7 +45,7 @@
   padding: 10px 0;
   position: absolute;
   z-index: 1;
-  bottom: 20%;
+  bottom: 15%;
   right: 36%;
   opacity: 1;
   transition: opacity 2s;
@@ -72,7 +72,7 @@
   padding: 10px 0;
   position: absolute;
   z-index: 1;
-  bottom: 15%;
+  bottom: 10%;
   right: 36%;
   opacity: 1;
   transition: opacity 2s;
