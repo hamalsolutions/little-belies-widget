@@ -230,12 +230,12 @@ function App() {
   const [services, setServices] = useState([]);
   const addOnsToMeetYourBaby = [
     {
-      value: "Hearthbeat Buddies",
+      value: "Heartbeat Buddies",
       label: (
         <div className="d-flex col-12"
         >
           <div className="col-11">
-            <span>Hearthbeat Buddies</span>
+            <span>Heartbeat Buddies</span>
           </div>
           <div className="col-1"
             onMouseOver={() => setHoverIndexHearthbeat(true)}
@@ -290,12 +290,12 @@ function App() {
   ];
   const addOnsToGenderDetermination = [
     {
-      value: "Hearthbeat Buddies",
+      value: "Heartbeat Buddies",
       label: (
         <div className="d-flex col-12"
         >
           <div className="col-11">
-            <span>Hearthbeat Buddies</span>
+            <span>Heartbeat Buddies</span>
           </div>
           <div className="col-1"
             onMouseOver={() => setHoverIndexHearthbeat(true)}
@@ -331,12 +331,12 @@ function App() {
   ];
   const addOnsToEarlyPregnancy = [
     {
-      value: "Hearthbeat Buddies",
+      value: "Heartbeat Buddies",
       label: (
         <div className="d-flex col-12"
         >
           <div className="col-11">
-            <span>Hearthbeat Buddies</span>
+            <span>Heartbeat Buddies</span>
           </div>
           <div className="col-1"
             onMouseOver={() => setHoverIndexHearthbeat(true)}
@@ -1600,7 +1600,7 @@ function App() {
   useEffect(() => {
     let formattingSelectedOptionAddons;
     if (modalHearthbeat) {
-      formattingSelectedOptionAddons = selectedOptionAddons.filter((i) => { return i.value !== "Hearthbeat Buddies" })
+      formattingSelectedOptionAddons = selectedOptionAddons.filter((i) => { return i.value !== "Heartbeat Buddies" })
       setSelectedOptionAddons(formattingSelectedOptionAddons)
       setAddHeartbeatBuddies(false)
     }
@@ -1661,7 +1661,7 @@ function App() {
   useEffect(() => {
     if (selectedOptionAddons !== null) {
       const babyGrow = selectedOptionAddons.find(i => i.value === "Baby's Growth");
-      const hearthbeat = selectedOptionAddons.find(i => i.value === "Hearthbeat Buddies");
+      const hearthbeat = selectedOptionAddons.find(i => i.value === "Heartbeat Buddies");
       const realisticView = selectedOptionAddons.find(i => i.value === "8K Realistic View");
 
       if (seletedService.value === ultrasounds[0].value || seletedService.value === ultrasounds[4].value) {
@@ -1672,7 +1672,7 @@ function App() {
           addOnsToEarlyPregnancy[0].label =
             <div className="d-flex col-12">
               <div className="col-11">
-                <span>Hearthbeat Buddies</span>
+                <span>Heartbeat Buddies</span>
               </div>
               <div className="col-1"
                 onMouseOver={() => setHoverIndexHearthbeat(true)}
@@ -1689,7 +1689,7 @@ function App() {
 
         } else {
           setAddHeartbeatBuddies(true);
-          hearthbeat.label = <span>Hearthbeat Buddies</span>;
+          hearthbeat.label = <span>Heartbeat Buddies</span>;
         }
       }
 
@@ -1701,7 +1701,7 @@ function App() {
           addOnsToGenderDetermination[0].label =
             <div className="d-flex col-12">
               <div className="col-11">
-                <span>Hearthbeat Buddies</span>
+                <span>Heartbeat Buddies</span>
               </div>
               <div className="col-1"
                 onMouseOver={() => setHoverIndexHearthbeat(true)}
@@ -1718,7 +1718,7 @@ function App() {
 
         } else {
           setAddHeartbeatBuddies(true);
-          hearthbeat.label = <span>Hearthbeat Buddies</span>;
+          hearthbeat.label = <span>Heartbeat Buddies</span>;
         }
 
         if (babyGrow === undefined) {
@@ -1756,7 +1756,7 @@ function App() {
           addOnsToMeetYourBaby[0].label =
             <div className="d-flex col-12">
               <div className="col-11">
-                <span>Hearthbeat Buddies</span>
+                <span>Heartbeat Buddies</span>
               </div>
               <div className="col-1"
                 onMouseOver={() => setHoverIndexHearthbeat(true)}
@@ -1773,7 +1773,7 @@ function App() {
 
         } else {
           setAddHeartbeatBuddies(true);
-          hearthbeat.label = <span>Hearthbeat Buddies</span>;
+          hearthbeat.label = <span>Heartbeat Buddies</span>;
         }
 
         if (babyGrow === undefined) {
