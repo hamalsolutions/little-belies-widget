@@ -18,7 +18,7 @@
   padding: 10px 0;
   position: absolute;
   z-index: 1;
-  bottom: 10%;
+  bottom: 25%;
   right: 36%;
   opacity: 1;
   transition: opacity 2s;
@@ -45,7 +45,7 @@
   padding: 10px 0;
   position: absolute;
   z-index: 1;
-  bottom: 5%;
+  bottom: 20%;
   right: 36%;
   opacity: 1;
   transition: opacity 2s;
@@ -72,7 +72,7 @@
   padding: 10px 0;
   position: absolute;
   z-index: 1;
-  bottom: -1%;
+  bottom: 15%;
   right: 36%;
   opacity: 1;
   transition: opacity 2s;
@@ -103,7 +103,7 @@
     padding: 10px 0;
     position: absolute;
     z-index: 1;
-    bottom: 7%;
+    bottom: 15%;
     right: 25%;
     opacity: 1;
     transition: opacity 2s;
@@ -130,7 +130,7 @@
     padding: 10px 0;
     position: absolute;
     z-index: 1;
-    bottom: 1%;
+    bottom: 10%;
     right: 25%;
     opacity: 1;
     transition: opacity 2s;
@@ -157,7 +157,7 @@
     padding: 10px 0;
     position: absolute;
     z-index: 1;
-    bottom: -5%;
+    bottom: 5%;
     right: 25%;
     opacity: 1;
     transition: opacity 2s;
