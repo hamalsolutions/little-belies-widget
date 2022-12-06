@@ -1140,6 +1140,7 @@ function App() {
           if (!mailResponse.ok) {
             console.error(mailResponse)
           }
+          
           let nameListAddons = [];
           if (selectedOptionAddons) {
             nameListAddons = selectedOptionAddons.map((i) => { return i.value });
