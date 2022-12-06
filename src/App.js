@@ -565,6 +565,14 @@ function App() {
           const ultrasoundsData = await ultrasoundResponse.json();
           let massageData = {};
           if (ultrasoundResponse.ok) {
+
+            let searchUltrasounds = [
+              "Early Pregnancy - $69",
+              "Gender Determination - $89",
+              "Meet Your Baby - 15 Min 5D/HD - $109",
+              "Meet Your Baby - 25 min 5D/HD - $149",
+            ];
+
             if (state.siteId === "557418" || state.siteId === "902886") {
               const massageRequest = {
                 method: "GET",
@@ -580,19 +588,13 @@ function App() {
                 massageRequest
               );
               massageData = await massageResponse.json();
+              searchUltrasounds.push("Special Promotion 25 min 5D/HD Ultrasound - $229")
             }
             const ultrasounds = [];
             const massages = [];
             // console.log( hasBabyGrowth("Meet Your Baby - 15 Min 5D/HD - $99", ultrasoundsData.services ) );
             // console.log(ultrasoundsData);
 
-            const searchUltrasounds = [
-              "Early Pregnancy - $69",
-              "Gender Determination - $89",
-              "Meet Your Baby - 15 Min 5D/HD - $109",
-              "Meet Your Baby - 25 min 5D/HD - $149",
-              "Special Promotion 25 min 5D/HD Ultrasound - $229",
-            ];
             const existingServices = [];
 
             searchUltrasounds.forEach((service) => {
@@ -619,6 +621,7 @@ function App() {
               };
               ultrasounds.push(mutableItem);
             });
+            console.log('a', ultrasounds)
             setUltrasounds(ultrasounds);
             setConsultedUltrasounds(ultrasoundsData.services);
 
@@ -631,7 +634,7 @@ function App() {
                 massages.push(mutableItem);
               });
             }
-            // console.log(ultrasounds);
+            // console.log(ultrasounds); 
             const displayableServices = [
               {
                 label: "Ultrasounds",
@@ -1082,10 +1085,10 @@ function App() {
             "Weeks: " +
             clientState.weeks +
             "\n" +
-            "Language: "+ 
+            "Language: " +
             state.language +
             "\n" +
-            (addHeartbeatBuddies ? "Add HeartBeat Buddies" : "")  +
+            (addHeartbeatBuddies ? "Add Heartbeat Buddies" : "") +
             (addHeartbeatBuddies ? "\n" : "") +
             (add8kRealisticView ? "Add 8k Realistic View" : ""),
           startDateTime: moment(state.block.blockDate)
@@ -1650,11 +1653,30 @@ function App() {
         setAddOns(addOnsToMeetYourBaby)
 
       }
-      if (seletedService.value === ultrasounds[0].value || seletedService.value === ultrasounds[4].value) {
-
-        setAddOns(addOnsToEarlyPregnancy)
-
+      if (seletedService.value === 9 || seletedService.value === 10 ||
+        seletedService.value === 21 || seletedService.value === 23) {
+        setAddOns([])
       }
+
+      if (state.siteId === "557418" || state.siteId === "902886") {
+
+        if (seletedService.value === ultrasounds[0].value || seletedService.value === ultrasounds[4].value) {
+
+          setAddOns(addOnsToEarlyPregnancy)
+
+        }
+      } else {
+
+        if (seletedService.value === ultrasounds[0].value) {
+
+          setAddOns(addOnsToEarlyPregnancy)
+
+        }
+      }
+
+
+
+
     }
   }, [seletedService, selectedOptionAddons])
 
@@ -1664,33 +1686,68 @@ function App() {
       const hearthbeat = selectedOptionAddons.find(i => i.value === "Heartbeat Buddies");
       const realisticView = selectedOptionAddons.find(i => i.value === "8K Realistic View");
 
-      if (seletedService.value === ultrasounds[0].value || seletedService.value === ultrasounds[4].value) {
-     
-        if (hearthbeat === undefined) {
-          setAddHeartbeatBuddies(false)
+      if (state.siteId === "557418" || state.siteId === "902886") {
 
-          addOnsToEarlyPregnancy[0].label =
-            <div className="d-flex col-12">
-              <div className="col-11">
-                <span>Heartbeat Buddies</span>
-              </div>
-              <div className="col-1"
-                onMouseOver={() => setHoverIndexHearthbeat(true)}
-                onMouseLeave={() => setHoverIndexHearthbeat(false)}
-                style={{ cursor: "pointer" }}
-              >
-                <FontAwesomeIcon icon={faInfo}
-                  onClick={(e) => setModalHearthbeat(true)}
-                />
-              </div>
-            </div>;
+        if (seletedService.value === ultrasounds[0].value || seletedService.value === ultrasounds[4].value) {
 
-          setAddOns(addOnsToEarlyPregnancy)
+          if (hearthbeat === undefined) {
+            setAddHeartbeatBuddies(false)
 
-        } else {
-          setAddHeartbeatBuddies(true);
-          hearthbeat.label = <span>Heartbeat Buddies</span>;
+            addOnsToEarlyPregnancy[0].label =
+              <div className="d-flex col-12">
+                <div className="col-11">
+                  <span>Heartbeat Buddies</span>
+                </div>
+                <div className="col-1"
+                  onMouseOver={() => setHoverIndexHearthbeat(true)}
+                  onMouseLeave={() => setHoverIndexHearthbeat(false)}
+                  style={{ cursor: "pointer" }}
+                >
+                  <FontAwesomeIcon icon={faInfo}
+                    onClick={(e) => setModalHearthbeat(true)}
+                  />
+                </div>
+              </div>;
+
+            setAddOns(addOnsToEarlyPregnancy)
+
+          } else {
+            setAddHeartbeatBuddies(true);
+            hearthbeat.label = <span>Heartbeat Buddies</span>;
+          }
         }
+
+      } else {
+
+        if (seletedService.value === ultrasounds[0].value) {
+
+          if (hearthbeat === undefined) {
+            setAddHeartbeatBuddies(false)
+
+            addOnsToEarlyPregnancy[0].label =
+              <div className="d-flex col-12">
+                <div className="col-11">
+                  <span>Heartbeat Buddies</span>
+                </div>
+                <div className="col-1"
+                  onMouseOver={() => setHoverIndexHearthbeat(true)}
+                  onMouseLeave={() => setHoverIndexHearthbeat(false)}
+                  style={{ cursor: "pointer" }}
+                >
+                  <FontAwesomeIcon icon={faInfo}
+                    onClick={(e) => setModalHearthbeat(true)}
+                  />
+                </div>
+              </div>;
+
+            setAddOns(addOnsToEarlyPregnancy)
+
+          } else {
+            setAddHeartbeatBuddies(true);
+            hearthbeat.label = <span>Heartbeat Buddies</span>;
+          }
+        }
+
       }
 
       if (seletedService.value === ultrasounds[1].value) {
@@ -1865,7 +1922,7 @@ function App() {
         sessionTypeName: newSessionTypeName,
       }));
     }
-  }, [sendForm, clientState.sessionTypeName, clientState.sessionTypeId]);
+  }, [sendForm, clientState.sessionTypeName, clientState.sessionTypeId, addBabysGrowth]);
 
   useEffect(() => {
     let val = false;
@@ -2993,7 +3050,7 @@ function App() {
             )}
           </div>
 
-          <div className="row w-50 mb-3 bg-light-container mx-auto p-4 justify-content-center">
+          <div className="row w-50 mb-3 bg-light-container mx-auto p-2 justify-content-center">
             <div>
               {(
                 <>
@@ -3020,6 +3077,17 @@ function App() {
                       <div>
                         <b>Service: </b>
                         {clientState.sessionTypeName}
+                      </div>
+                    </div>
+                  </div>
+                  <div className="row mb-3">
+                    <div className="col">
+                      <div>
+                        <b>Addons: </b>
+                        {addHeartbeatBuddies && ("Add Heartbeat Buddies ")}
+                        {addHeartbeatBuddies && add8kRealisticView && ("-")}
+                        {!addHeartbeatBuddies && !add8kRealisticView && ("N/A")}
+                        {add8kRealisticView && (" Add 8k Realistic View")}
                       </div>
                     </div>
                   </div>
