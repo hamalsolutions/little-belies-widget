@@ -567,13 +567,13 @@ function App() {
           if (ultrasoundResponse.ok) {
 
             let searchUltrasounds = [
-              "Early Pregnancy - $69",
+              "Early Pregnancy - $69 ",
               "Gender Determination - $89",
               "Meet Your Baby - 15 Min 5D/HD - $109",
               "Meet Your Baby - 25 min 5D/HD - $149",
             ];
 
-            if (state.siteId === "557418" || state.siteId === "902886") {
+            if ((state.siteId === "557418" || state.siteId === "902886") && (state.locationId === "1")) {
               const massageRequest = {
                 method: "GET",
                 headers: {
@@ -621,11 +621,10 @@ function App() {
               };
               ultrasounds.push(mutableItem);
             });
-            console.log('a', ultrasounds)
             setUltrasounds(ultrasounds);
             setConsultedUltrasounds(ultrasoundsData.services);
 
-            if (state.siteId === "557418" || state.siteId === "902886") {
+            if ((state.siteId === "557418" || state.siteId === "902886") && (state.locationId === "1")) {
               massageData.services.forEach((item) => {
                 const mutableItem = {
                   value: item.sessionTypeId,
@@ -1141,7 +1140,11 @@ function App() {
           if (!mailResponse.ok) {
             console.error(mailResponse)
           }
-          const nameListAddons = selectedOptionAddons.map((i) => { return i.value });
+          
+          let nameListAddons = [];
+          if (selectedOptionAddons) {
+            nameListAddons = selectedOptionAddons.map((i) => { return i.value });
+          }
           const dynamoPayload = {
             id: "" + bookAppointmentData.Appointment.Id,
             sessionTypeId: "" + bookAppointmentData.Appointment.SessionTypeId,
@@ -1658,7 +1661,7 @@ function App() {
         setAddOns([])
       }
 
-      if (state.siteId === "557418" || state.siteId === "902886") {
+      if ((state.siteId === "557418" || state.siteId === "902886") && (state.locationId === "1")) {
 
         if (seletedService.value === ultrasounds[0].value || seletedService.value === ultrasounds[4].value) {
 
@@ -1674,9 +1677,6 @@ function App() {
         }
       }
 
-
-
-
     }
   }, [seletedService, selectedOptionAddons])
 
@@ -1686,7 +1686,7 @@ function App() {
       const hearthbeat = selectedOptionAddons.find(i => i.value === "Heartbeat Buddies");
       const realisticView = selectedOptionAddons.find(i => i.value === "8K Realistic View");
 
-      if (state.siteId === "557418" || state.siteId === "902886") {
+      if ((state.siteId === "557418" || state.siteId === "902886") && (state.locationId === "1")) {
 
         if (seletedService.value === ultrasounds[0].value || seletedService.value === ultrasounds[4].value) {
 
@@ -1911,10 +1911,10 @@ function App() {
       }
       if (clientState.sessionTypeId === ultrasounds[1].value && addBabysGrowth) {
         newSessionTypeId = getBGCombo(
-          "Gender Determination + Baby's Growth - $118",
+          "Gender Determination  + Baby's Growth - $118  ",
           consultedUltrasounds
         );
-        newSessionTypeName = "Gender Determination + Baby's Growth - $118";
+        newSessionTypeName = "Gender Determination  + Baby's Growth - $118  ";
       }
       setClientState((clientState) => ({
         ...clientState,
@@ -3080,17 +3080,20 @@ function App() {
                       </div>
                     </div>
                   </div>
-                  <div className="row mb-3">
-                    <div className="col">
-                      <div>
-                        <b>Addons: </b>
-                        {addHeartbeatBuddies && ("Add Heartbeat Buddies ")}
-                        {addHeartbeatBuddies && add8kRealisticView && ("-")}
-                        {!addHeartbeatBuddies && !add8kRealisticView && ("N/A")}
-                        {add8kRealisticView && (" Add 8k Realistic View")}
+
+                  {addHeartbeatBuddies || add8kRealisticView ?
+                    <div className="row mb-3">
+                      <div className="col">
+                        <div>
+                          <b>Addons: </b>
+                          {addHeartbeatBuddies && ("Add Heartbeat Buddies ")}
+                          {addHeartbeatBuddies && add8kRealisticView && ("-")}
+                          {add8kRealisticView && (" Add 8k Realistic View")}
+                        </div>
                       </div>
                     </div>
-                  </div>
+                    : ""}
+
                   {/* 
             <div className="row mb-2">
               <div className="col">
