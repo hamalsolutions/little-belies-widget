@@ -472,13 +472,22 @@ function App() {
             // console.log( hasBabyGrowth("Meet Your Baby - 15 Min 5D/HD - $99", ultrasoundsData.services ) );
             console.log(ultrasoundsData);
 
-            const searchUltrasounds = [
-              "Early Pregnancy - $69",
-              "Gender Determination - $89",
-              "Meet Your Baby - 15 Min 5D/HD - $109",
-              "Meet Your Baby - 25 min 5D/HD - $149",
-              "Special Promotion 25 min 5D/HD Ultrasound - $229",
-            ];
+            const searchUltrasounds = [];
+            if (state.siteId === "795028") {
+              searchUltrasounds.push(
+                "Early Pregnancy - $59",
+                "Gender Determination - $79",
+                "Meet Your Baby - 15 Min 5D/HD - $109",
+                "Meet Your Baby - 25 min 5D/HD - $149",
+              );
+            } else {
+              searchUltrasounds.push(
+                "Early Pregnancy - $69",
+                "Gender Determination - $89",
+                "Meet Your Baby - 15 Min 5D/HD - $109",
+                "Meet Your Baby - 25 min 5D/HD - $149",
+              );
+            }
             const existingServices = [];
 
             searchUltrasounds.forEach((service) => {
