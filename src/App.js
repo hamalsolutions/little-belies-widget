@@ -1085,7 +1085,7 @@ function App() {
             "Language: "+ 
             state.language +
             "\n" +
-            (addHeartbeatBuddies ? "Add HeartBeat Buddies" : "")  +
+            (addHeartbeatBuddies ? "Add Heartbeat Buddies" : "")  +
             (addHeartbeatBuddies ? "\n" : "") +
             (add8kRealisticView ? "Add 8k Realistic View" : ""),
           startDateTime: moment(state.block.blockDate)
@@ -1865,7 +1865,7 @@ function App() {
         sessionTypeName: newSessionTypeName,
       }));
     }
-  }, [sendForm, clientState.sessionTypeName, clientState.sessionTypeId]);
+  }, [sendForm, clientState.sessionTypeName, clientState.sessionTypeId,addBabysGrowth]);
 
   useEffect(() => {
     let val = false;
@@ -3020,6 +3020,17 @@ function App() {
                       <div>
                         <b>Service: </b>
                         {clientState.sessionTypeName}
+                      </div>
+                    </div>
+                  </div>
+                  <div className="row mb-3">
+                    <div className="col">
+                      <div>
+                        <b>Addons: </b>
+                        {addHeartbeatBuddies && ("Add Heartbeat Buddies ")}
+                        {addHeartbeatBuddies && add8kRealisticView && ("-")}
+                        {!addHeartbeatBuddies && !add8kRealisticView && ("N/A")}
+                        {add8kRealisticView && (" Add 8k Realistic View")}
                       </div>
                     </div>
                   </div>
