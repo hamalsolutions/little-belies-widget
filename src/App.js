@@ -470,7 +470,7 @@ function App() {
             const ultrasounds = [];
             const massages = [];
             // console.log(hasBabyGrowth("Meet Your Baby - 15 Min 5D/HD - $99", ultrasoundsData.services ) );
-            console.log(ultrasoundsData);
+            console.log( ultrasoundsData);
 
             const searchUltrasounds = [];
             if (state.siteId === "795028") {
