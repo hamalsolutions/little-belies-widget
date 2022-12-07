@@ -2302,7 +2302,7 @@ function App() {
                 <div className="row mt-2">
                   <div className="col-12">
                     <p style={{ textAlign: 'justify' }} className="px-3 pt-3">
-                      will show our Mommies and Fathers a hyper-realistic image of what their babies will look like once they are born. We work with the ultrasound images from the session,
+                      Will show our Mommies and Fathers a hyper-realistic image of what their babies will look like once they are born. We work with the ultrasound images from the session,
                       process them and send them to our clients within 7 business days.
                     </p>
                   </div>
@@ -2623,7 +2623,7 @@ function App() {
                       <div className="row mt-2">
                         <div className="col-12 m-1 mt-3 py-3 text-center">
                           <p style={{ textAlign: 'justify' }}>
-                            will show our Mommies and Fathers a hyper-realistic image of what their babies will
+                            Will show our Mommies and Fathers a hyper-realistic image of what their babies will
                             look like once they are born. We work with the ultrasound images from the session,
                             process them and send them to our clients within 7 business days.</p>
                         </div>
