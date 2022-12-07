@@ -192,7 +192,7 @@ function App() {
     availabilityRequestStatus: "IDLE",
     appointmentRequestStatus: "IDLE",
     city: params.get("city") || "N/A",
-    message: "",
+    message: "",  
     siteId: params.get("id") || "490100",
     latitude: params.get("latitude") || "0",
     longitude: params.get("longitude") || "0",
@@ -2546,7 +2546,7 @@ function App() {
                   <div className="lb-modal-body-addons py-2 px-4 text-justify">
                     <>
                       <div className="row mt-2">
-                        <div className="col-12 m-1">
+                        <div className="col-12 m-1 mt-3 py-1 text-center">
                           <p style={{ textAlign: 'justify' }}>
                             Some moments come once in a lifetime, and they should never be forgotten.
                             Recording the baby's heartbeat builds connection and strengthens the bond with baby.
@@ -2584,7 +2584,7 @@ function App() {
                   <div className="lb-modal-body-addons py-2 px-4 text-justify">
                     <>
                       <div className="row mt-2">
-                        <div className="col-12 m-1">
+                        <div className="col-12 m-1 mt-3 py-2 text-center">
                           <p style={{ textAlign: 'justify' }}>
                             By adding this feature, you'll discover: baby's position in the uterus,
                             weeks of pregnancy and estimated due date, baby's measurements and baby hearts activity.
