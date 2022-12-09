@@ -192,8 +192,8 @@ function App() {
     availabilityRequestStatus: "IDLE",
     appointmentRequestStatus: "IDLE",
     city: params.get("city") || "N/A",
-    message: "",  // 758692 490100
-    siteId: params.get("id") || "758692",
+    message: "",
+    siteId: params.get("id") || "490100",
     latitude: params.get("latitude") || "0",
     longitude: params.get("longitude") || "0",
     language: languageList[params.get("lang")] || "English",
