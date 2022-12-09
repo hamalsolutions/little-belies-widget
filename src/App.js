@@ -192,7 +192,7 @@ function App() {
     availabilityRequestStatus: "IDLE",
     appointmentRequestStatus: "IDLE",
     city: params.get("city") || "N/A",
-    message: "",  
+    message: "",
     siteId: params.get("id") || "490100",
     latitude: params.get("latitude") || "0",
     longitude: params.get("longitude") || "0",
@@ -1647,10 +1647,16 @@ function App() {
     if (selectedOptionAddons) {
 
       let formattingSelectedOptionAddons;
+      const specialPromotion25min = seletedService.label.toLowerCase().replace(/[-.()+\s]/g, "").search("specialpromotion25min");
 
       if (seletedService.value === ultrasounds[1].value) {
 
         formattingSelectedOptionAddons = selectedOptionAddons.filter((i) => { return i.value !== "8K Realistic View" })
+        setSelectedOptionAddons(formattingSelectedOptionAddons)
+
+      } else if (seletedService.value === ultrasounds[0].value || specialPromotion25min === 0) {
+
+        formattingSelectedOptionAddons = selectedOptionAddons.filter((i) => { return i.value !== "Baby's Growth" && i.value !== "8K Realistic View" })
         setSelectedOptionAddons(formattingSelectedOptionAddons)
 
       } else if (seletedService.value === ultrasounds[2].value || seletedService.value === ultrasounds[3].value) {
@@ -1658,8 +1664,7 @@ function App() {
         setSelectedOptionAddons(selectedOptionAddons)
 
       } else {
-        formattingSelectedOptionAddons = selectedOptionAddons.filter((i) => { return i.value !== "Baby's Growth" && i.value !== "8K Realistic View" })
-        setSelectedOptionAddons(formattingSelectedOptionAddons)
+        setSelectedOptionAddons([])
       }
     }
   }, [seletedService])
@@ -1667,20 +1672,23 @@ function App() {
   useEffect(() => {
     if (seletedService !== null) {
       const specialPromotion25min = seletedService.label.toLowerCase().replace(/[-.()+\s]/g, "").search("specialpromotion25min");
-     
+
       if (seletedService.value === ultrasounds[1].value) {
         setAddOns(addOnsToGenderDetermination)
+
       }
       else if (seletedService.value === ultrasounds[2].value || seletedService.value === ultrasounds[3].value) {
         setAddOns(addOnsToMeetYourBaby)
+
       }
       else if (seletedService.value === ultrasounds[0].value || specialPromotion25min === 0) {
         setAddOns(addOnsToEarlyPregnancy)
       }
-      else{
-          setAddOns([])
+      else {
+        setAddOns([])
       }
     }
+
   }, [seletedService, selectedOptionAddons, ultrasounds])
 
   useEffect(() => {
@@ -1690,7 +1698,7 @@ function App() {
       const realisticView = selectedOptionAddons.find(i => i.value === "8K Realistic View");
       const specialPromotion25min = seletedService.label.toLowerCase().replace(/[-.()+\s]/g, "").search("specialpromotion25min");
 
-      if (seletedService.value === ultrasounds[1].value || specialPromotion25min === 0) {
+      if (seletedService.value === ultrasounds[1].value) {
 
         if (hearthbeat === undefined) {
           setAddHeartbeatBuddies(false)
@@ -1739,7 +1747,7 @@ function App() {
         }
       }
 
-      if (seletedService.value === ultrasounds[2].value || seletedService.value === ultrasounds[3].value) {
+      else if (seletedService.value === ultrasounds[2].value || seletedService.value === ultrasounds[3].value) {
 
         if (hearthbeat === undefined) {
           setAddHeartbeatBuddies(false)
@@ -1809,6 +1817,38 @@ function App() {
           setAdd8kRealisticView(true)
           realisticView.label = <span>8K Realistic View</span>;
         }
+
+      }
+
+      else if (seletedService.value === ultrasounds[0].value || specialPromotion25min === 0) {
+
+        if (hearthbeat === undefined) {
+          setAddHeartbeatBuddies(false)
+          addOnsToEarlyPregnancy[0].label =
+            <div className="d-flex col-12">
+              <div className="col-11">
+                <span>Heartbeat Buddies</span>
+              </div>
+              <div className="col-1"
+                onMouseOver={() => setHoverIndexHearthbeat(true)}
+                onMouseLeave={() => setHoverIndexHearthbeat(false)}
+                style={{ cursor: "pointer" }}
+              >
+                <FontAwesomeIcon icon={faInfo}
+                  onClick={(e) => setModalHearthbeat(true)}
+                />
+              </div>
+            </div>;
+          setAddOns(addOnsToEarlyPregnancy)
+        } else {
+          setAddHeartbeatBuddies(true);
+          hearthbeat.label = <span>Heartbeat Buddies</span>;
+        }
+
+
+      } 
+      else {
+        setAddOns([])
       }
 
     }
