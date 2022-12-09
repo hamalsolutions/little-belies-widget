@@ -192,12 +192,13 @@ function App() {
     availabilityRequestStatus: "IDLE",
     appointmentRequestStatus: "IDLE",
     city: params.get("city") || "N/A",
-    message: "",  // 758692 490100
-    siteId: params.get("id") || "758692",
+    message: "",
+    siteId: params.get("id") || "490100",
     latitude: params.get("latitude") || "0",
     longitude: params.get("longitude") || "0",
     language: languageList[params.get("lang")] || "English",
     locationId: params.get("city") !== "coral-springs" ? "1" : "2",
+    locationId: "1",
     authorization: "",
     address: params.get("address") || "N/A",
     phone: params.get("phone") || "N/A",
@@ -574,8 +575,24 @@ function App() {
           if (ultrasoundResponse.ok) {
 
             const servicesUltrasounds = [...ultrasoundsData.services];
-            const filterServicesBySeeOnline = servicesUltrasounds.filter((i) => { return i.seeOnLine === true })
-              .map((i) => { return i.name });
+
+            const filterServicesBySeeOnline = servicesUltrasounds.filter((i) => {
+              if (state.siteId === "557418" && state.locationId === "2") {
+
+                let specialpromotion25min = i.name.toLowerCase().replace(/[-.()+\s]/g, "").search("specialpromotion25min");
+                if (specialpromotion25min !== 0) return i.seeOnLine === true
+
+              } else {
+                return i.seeOnLine === true
+              }
+
+            }).map((i) => {
+              return i.name
+            }).sort((a, b) => {
+              if (a > b) return 1
+              if (a < b) return -1
+              return 0;
+            });
 
             if ((state.siteId === "557418" || state.siteId === "902886") && (state.locationId === "1")) {
               const massageRequest = {
@@ -621,6 +638,7 @@ function App() {
               };
               ultrasounds.push(mutableItem);
             });
+
 
             setUltrasounds(ultrasounds);
             setConsultedUltrasounds(ultrasoundsData.services);
@@ -1697,7 +1715,7 @@ function App() {
 
       if (fixedServices.genderdetermination === 0) {
 
-        if(realisticView === undefined){
+        if (realisticView === undefined) {
           setAdd8kRealisticView(false)
         }
 
@@ -1821,13 +1839,13 @@ function App() {
 
       }
       else if (fixedServices.earlypregnancy === 0 || fixedServices.specialPromotion25min === 0) {
-        if(realisticView === undefined){
+        if (realisticView === undefined) {
           setAdd8kRealisticView(false)
         }
 
-        if(babyGrow === undefined){
+        if (babyGrow === undefined) {
           setAddBabysGrowth(false)
-         }
+        }
 
         if (hearthbeat === undefined) {
           setAddHeartbeatBuddies(false)
