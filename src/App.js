@@ -192,7 +192,7 @@ function App() {
     availabilityRequestStatus: "IDLE",
     appointmentRequestStatus: "IDLE",
     city: params.get("city") || "N/A",
-    message: "",
+    message: "",  
     siteId: params.get("id") || "490100",
     latitude: params.get("latitude") || "0",
     longitude: params.get("longitude") || "0",
@@ -362,6 +362,14 @@ function App() {
   const [modalHearthbeat, setModalHearthbeat] = useState(false);
   const [modal8kRealisticView, setModal8kRealisticView] = useState(false);
   const [seletedService, setSeletedService] = useState(null)
+  const [fixedServices, setFixedServices] = useState({
+    specialPromotion25min: "",
+    genderdetermination: "",
+    earlypregnancy: "",
+    meetyourbaby25: "",
+    meetyourbaby15: "",
+    costGenderPlusBabysGrowth: 0
+  });
   const [sendForm, setSendForm] = useState(false)
   const [addOns, setAddOns] = useState();
   const [ultrasounds, setUltrasounds] = useState([]);
@@ -1619,26 +1627,42 @@ function App() {
   }, [modalBabyGrow, modalHearthbeat, modal8kRealisticView])
 
   useEffect(() => {
+
+    if (seletedService) {
+
+      const costBabysGrowth = 29
+      const costGenderDetermination = seletedService.label.match(/(\d+)/g);
+      const costGenderPlusBabysGrowth = parseFloat(costGenderDetermination[0]) + costBabysGrowth;
+
+      setFixedServices((fixedServices) => ({
+        ...fixedServices,
+        specialPromotion25min: seletedService.label.toLowerCase().replace(/[-.()+\s]/g, "").search("specialpromotion25min"),
+        genderdetermination: seletedService.label.toLowerCase().replace(/[-.()+\s]/g, "").search("genderdetermination"),
+        earlypregnancy: seletedService.label.toLowerCase().replace(/[-.()+\s]/g, "").search("earlypregnancy"),
+        meetyourbaby25: seletedService.label.toLowerCase().replace(/[-.()+\s]/g, "").search("meetyourbaby25"),
+        meetyourbaby15: seletedService.label.toLowerCase().replace(/[-.()+\s]/g, "").search("meetyourbaby15"),
+        costGenderPlusBabysGrowth: costGenderPlusBabysGrowth,
+      }));
+    }
+
+  }, [seletedService]);
+
+  useEffect(() => {
     if (selectedOptionAddons) {
 
       let formattingSelectedOptionAddons;
-      const specialPromotion25min = seletedService.label.toLowerCase().replace(/[-.()+\s]/g, "").search("specialpromotion25min");
-      const genderdetermination = seletedService.label.toLowerCase().replace(/[-.()+\s]/g, "").search("genderdetermination");
-      const earlypregnancy = seletedService.label.toLowerCase().replace(/[-.()+\s]/g, "").search("earlypregnancy");
-      const meetyourbaby25 = seletedService.label.toLowerCase().replace(/[-.()+\s]/g, "").search("meetyourbaby25");
-      const meetyourbaby15 = seletedService.label.toLowerCase().replace(/[-.()+\s]/g, "").search("meetyourbaby15");
 
-      if (genderdetermination === 0) {
+      if (fixedServices.genderdetermination === 0) {
 
         formattingSelectedOptionAddons = selectedOptionAddons.filter((i) => { return i.value !== "8K Realistic View" })
         setSelectedOptionAddons(formattingSelectedOptionAddons)
 
-      } else if (earlypregnancy === 0 || specialPromotion25min === 0) {
+      } else if (fixedServices.earlypregnancy === 0 || fixedServices.specialPromotion25min === 0) {
 
         formattingSelectedOptionAddons = selectedOptionAddons.filter((i) => { return i.value !== "Baby's Growth" && i.value !== "8K Realistic View" })
         setSelectedOptionAddons(formattingSelectedOptionAddons)
 
-      } else if (meetyourbaby15 === 0 || meetyourbaby25 === 0) {
+      } else if (fixedServices.meetyourbaby25 === 0 || fixedServices.meetyourbaby15 === 0) {
 
         setSelectedOptionAddons(selectedOptionAddons)
 
@@ -1646,31 +1670,29 @@ function App() {
         setSelectedOptionAddons([])
       }
     }
-  }, [seletedService])
+  }, [seletedService, fixedServices])
 
   useEffect(() => {
-    if (seletedService !== null) {
-      const specialPromotion25min = seletedService.label.toLowerCase().replace(/[-.()+\s]/g, "").search("specialpromotion25min");
-      const genderdetermination = seletedService.label.toLowerCase().replace(/[-.()+\s]/g, "").search("genderdetermination");
-      const earlypregnancy = seletedService.label.toLowerCase().replace(/[-.()+\s]/g, "").search("earlypregnancy");
-      const meetyourbaby25 = seletedService.label.toLowerCase().replace(/[-.()+\s]/g, "").search("meetyourbaby25");
-      const meetyourbaby15 = seletedService.label.toLowerCase().replace(/[-.()+\s]/g, "").search("meetyourbaby15");
 
-      if (genderdetermination === 0) {
-        setAddOns(addOnsToGenderDetermination)
+    if (fixedServices.genderdetermination === 0) {
+      setAddOns(addOnsToGenderDetermination)
 
-      } else if (meetyourbaby15 === 0 || meetyourbaby25 === 0) {
-        setAddOns(addOnsToMeetYourBaby)
+    } else if (fixedServices.meetyourbaby25 === 0 || fixedServices.meetyourbaby15 === 0) {
+      setAddOns(addOnsToMeetYourBaby)
 
-      } else if (earlypregnancy === 0 || specialPromotion25min === 0) {
-        setAddOns(addOnsToEarlyPregnancy)
-      }
-      else {
-        setAddOns([])
-      }
+    } else if (fixedServices.earlypregnancy === 0 || fixedServices.specialPromotion25min === 0) {
+      setAddOns(addOnsToEarlyPregnancy)
+    }
+    else {
+      setAddOns([])
     }
 
-  }, [seletedService, selectedOptionAddons, ultrasounds])
+  }, [
+    ultrasounds,
+    seletedService,
+    selectedOptionAddons,
+    fixedServices
+  ])
 
   useEffect(() => {
     if (selectedOptionAddons !== null) {
@@ -1678,13 +1700,7 @@ function App() {
       const hearthbeat = selectedOptionAddons.find(i => i.value === "Heartbeat Buddies");
       const realisticView = selectedOptionAddons.find(i => i.value === "8K Realistic View");
 
-      const specialPromotion25min = seletedService.label.toLowerCase().replace(/[-.()+\s]/g, "").search("specialpromotion25min");
-      const genderdetermination = seletedService.label.toLowerCase().replace(/[-.()+\s]/g, "").search("genderdetermination");
-      const earlypregnancy = seletedService.label.toLowerCase().replace(/[-.()+\s]/g, "").search("earlypregnancy");
-      const meetyourbaby25 = seletedService.label.toLowerCase().replace(/[-.()+\s]/g, "").search("meetyourbaby25");
-      const meetyourbaby15 = seletedService.label.toLowerCase().replace(/[-.()+\s]/g, "").search("meetyourbaby15");
-
-      if (genderdetermination === 0) {
+      if (fixedServices.genderdetermination === 0) {
 
         if (hearthbeat === undefined) {
           setAddHeartbeatBuddies(false)
@@ -1731,8 +1747,8 @@ function App() {
           setAddBabysGrowth(true)
           babyGrow.label = <span>Baby's Growth</span>;
         }
-      
-      } else if (meetyourbaby15 === 0 || meetyourbaby25 === 0) {
+
+      } else if (fixedServices.meetyourbaby25 === 0 || fixedServices.meetyourbaby15 === 0) {
 
         if (hearthbeat === undefined) {
           setAddHeartbeatBuddies(false)
@@ -1804,7 +1820,7 @@ function App() {
         }
 
       }
-      else if (earlypregnancy === 0 || specialPromotion25min === 0) {
+      else if (fixedServices.earlypregnancy === 0 || fixedServices.specialPromotion25min === 0) {
         if (hearthbeat === undefined) {
           setAddHeartbeatBuddies(false)
           addOnsToEarlyPregnancy[0].label =
@@ -1833,46 +1849,40 @@ function App() {
       else {
         setAddOns([])
       }
-
     }
-  }, [selectedOptionAddons, seletedService])
+  }, [
+    seletedService,
+    selectedOptionAddons,
+    fixedServices
+  ])
 
   useEffect(() => {
     let newSessionTypeId = clientState.sessionTypeId;
     let newSessionTypeName = clientState.sessionTypeName;
 
-    if(seletedService){
-
-      const genderdetermination = seletedService.label.toLowerCase().replace(/[-.()+\s]/g, "").search("genderdetermination");
-      const meetyourbaby25 = seletedService.label.toLowerCase().replace(/[-.()+\s]/g, "").search("meetyourbaby25");
-      const meetyourbaby15 = seletedService.label.toLowerCase().replace(/[-.()+\s]/g, "").search("meetyourbaby15");
-
     if (ultrasounds.length > 0) {
 
-      if (meetyourbaby25 === 0 && addBabysGrowth) {
+      if (fixedServices.meetyourbaby25 === 0 && addBabysGrowth) {
         newSessionTypeId = getBGCombo(
           "Meet Your Baby - 25 Min 5D/HD + Baby's Growth $178",
           consultedUltrasounds
         );
         newSessionTypeName = "Meet Your Baby - 25 Min 5D/HD + Baby's Growth $178";
       }
-      if (meetyourbaby15 === 0 && addBabysGrowth) {
+      if (fixedServices.meetyourbaby15 === 0 && addBabysGrowth) {
         newSessionTypeId = getBGCombo(
           "Meet Your Baby - 15 Min 5D/HD + Baby's Growth $138",
           consultedUltrasounds
         );
         newSessionTypeName = "Meet Your Baby - 15 Min 5D/HD + Baby's Growth $138";
       }
-      if (genderdetermination === 0 && addBabysGrowth) {
-
-        const costGender = seletedService.label.match(/(\d+)/g);
-        const costGenderPlusBabysGrowth = parseFloat(costGender[0]) + 29;
+      if (fixedServices.genderdetermination === 0 && addBabysGrowth) {
 
         newSessionTypeId = getBGCombo(
-          `Gender Determination  + Baby's Growth - $${costGenderPlusBabysGrowth}  `,
+          `Gender Determination  + Baby's Growth - $${fixedServices.costGenderPlusBabysGrowth}  `,
           consultedUltrasounds
         );
-        newSessionTypeName = `Gender Determination  + Baby's Growth - $${costGenderPlusBabysGrowth}  `;
+        newSessionTypeName = `Gender Determination  + Baby's Growth - $${fixedServices.costGenderPlusBabysGrowth}  `;
 
       }
       setClientState((clientState) => ({
@@ -1881,13 +1891,15 @@ function App() {
         sessionTypeName: newSessionTypeName,
       }));
     }
-  }
 
-  }, [sendForm,
+  }, [
+    sendForm,
     clientState.sessionTypeName,
     clientState.sessionTypeId,
     addBabysGrowth,
-    seletedService]);
+    seletedService,
+    fixedServices
+  ]);
 
   useEffect(() => {
     let val = false;
