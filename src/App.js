@@ -192,8 +192,8 @@ function App() {
     availabilityRequestStatus: "IDLE",
     appointmentRequestStatus: "IDLE",
     city: params.get("city") || "N/A",
-    message: "",
-    siteId: params.get("id") || "557418",
+    message: "",  // 758692 490100
+    siteId: params.get("id") || "758692",
     latitude: params.get("latitude") || "0",
     longitude: params.get("longitude") || "0",
     language: languageList[params.get("lang")] || "English",
@@ -368,7 +368,6 @@ function App() {
     earlypregnancy: "",
     meetyourbaby25: "",
     meetyourbaby15: "",
-    costGenderPlusBabysGrowth: 0
   });
   const [sendForm, setSendForm] = useState(false)
   const [addOns, setAddOns] = useState();
@@ -1630,10 +1629,6 @@ function App() {
 
     if (seletedService) {
 
-      const costBabysGrowth = 29
-      const costGenderDetermination = seletedService.label.match(/(\d+)/g);
-      const costGenderPlusBabysGrowth = parseFloat(costGenderDetermination[0]) + costBabysGrowth;
-
       setFixedServices((fixedServices) => ({
         ...fixedServices,
         specialPromotion25min: seletedService.label.toLowerCase().replace(/[-.()+\s]/g, "").search("specialpromotion25min"),
@@ -1641,7 +1636,6 @@ function App() {
         earlypregnancy: seletedService.label.toLowerCase().replace(/[-.()+\s]/g, "").search("earlypregnancy"),
         meetyourbaby25: seletedService.label.toLowerCase().replace(/[-.()+\s]/g, "").search("meetyourbaby25"),
         meetyourbaby15: seletedService.label.toLowerCase().replace(/[-.()+\s]/g, "").search("meetyourbaby15"),
-        costGenderPlusBabysGrowth: costGenderPlusBabysGrowth,
       }));
     }
 
@@ -1894,11 +1888,15 @@ function App() {
       }
       if (fixedServices.genderdetermination === 0 && addBabysGrowth) {
 
+        const costBabysGrowth = 29
+        const costGenderDetermination = seletedService.label.match(/(\d+)/g);
+        const costGenderPlusBabysGrowth = parseFloat(costGenderDetermination[0]) + costBabysGrowth;
+
         newSessionTypeId = getBGCombo(
-          `Gender Determination  + Baby's Growth - $${fixedServices.costGenderPlusBabysGrowth}  `,
+          `Gender Determination  + Baby's Growth - $${costGenderPlusBabysGrowth}  `,
           consultedUltrasounds
         );
-        newSessionTypeName = `Gender Determination  + Baby's Growth - $${fixedServices.costGenderPlusBabysGrowth}  `;
+        newSessionTypeName = `Gender Determination  + Baby's Growth - $${costGenderPlusBabysGrowth}  `;
 
       }
       setClientState((clientState) => ({
