@@ -192,8 +192,8 @@ function App() {
     availabilityRequestStatus: "IDLE",
     appointmentRequestStatus: "IDLE",
     city: params.get("city") || "N/A",
-    message: "",  
-    siteId: params.get("id") || "490100",
+    message: "",
+    siteId: params.get("id") || "557418",
     latitude: params.get("latitude") || "0",
     longitude: params.get("longitude") || "0",
     language: languageList[params.get("lang")] || "English",
@@ -1645,7 +1645,8 @@ function App() {
       }));
     }
 
-  }, [seletedService]);
+  }, [
+    seletedService]);
 
   useEffect(() => {
     if (selectedOptionAddons) {
@@ -1702,6 +1703,10 @@ function App() {
 
       if (fixedServices.genderdetermination === 0) {
 
+        if(realisticView === undefined){
+          setAdd8kRealisticView(false)
+        }
+
         if (hearthbeat === undefined) {
           setAddHeartbeatBuddies(false)
           addOnsToGenderDetermination[0].label =
@@ -1747,6 +1752,7 @@ function App() {
           setAddBabysGrowth(true)
           babyGrow.label = <span>Baby's Growth</span>;
         }
+
 
       } else if (fixedServices.meetyourbaby25 === 0 || fixedServices.meetyourbaby15 === 0) {
 
@@ -1821,6 +1827,14 @@ function App() {
 
       }
       else if (fixedServices.earlypregnancy === 0 || fixedServices.specialPromotion25min === 0) {
+        if(realisticView === undefined){
+          setAdd8kRealisticView(false)
+        }
+
+        if(babyGrow === undefined){
+          setAddBabysGrowth(false)
+         }
+
         if (hearthbeat === undefined) {
           setAddHeartbeatBuddies(false)
           addOnsToEarlyPregnancy[0].label =
@@ -1847,14 +1861,16 @@ function App() {
 
       }
       else {
+        setAddHeartbeatBuddies(false)
+        setAdd8kRealisticView(false)
+        setAddBabysGrowth(false)
         setAddOns([])
       }
     }
   }, [
     seletedService,
     selectedOptionAddons,
-    fixedServices
-  ])
+    fixedServices])
 
   useEffect(() => {
     let newSessionTypeId = clientState.sessionTypeId;
