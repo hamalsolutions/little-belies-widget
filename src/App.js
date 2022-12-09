@@ -198,7 +198,6 @@ function App() {
     longitude: params.get("longitude") || "0",
     language: languageList[params.get("lang")] || "English",
     locationId: params.get("city") !== "coral-springs" ? "1" : "2",
-    locationId: "1",
     authorization: "",
     address: params.get("address") || "N/A",
     phone: params.get("phone") || "N/A",
