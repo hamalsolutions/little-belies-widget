@@ -362,6 +362,14 @@ function App() {
   const [modalHearthbeat, setModalHearthbeat] = useState(false);
   const [modal8kRealisticView, setModal8kRealisticView] = useState(false);
   const [seletedService, setSeletedService] = useState(null)
+  const [fixedServices, setFixedServices] = useState({
+    specialPromotion25min: "",
+    genderdetermination: "",
+    earlypregnancy: "",
+    meetyourbaby25: "",
+    meetyourbaby15: "",
+    costGenderPlusBabysGrowth: 0
+  });
   const [sendForm, setSendForm] = useState(false)
   const [addOns, setAddOns] = useState();
   const [ultrasounds, setUltrasounds] = useState([]);
@@ -557,7 +565,7 @@ function App() {
               authorization: authData.accesssToken,
               locationid: state.locationId,
             },
-          }; 
+          };
           const ultrasoundResponse = await fetch(
             `${process.env.REACT_APP_API_URL}/api/sessionTypes/2`,
             ultrasoundsRequest
@@ -566,24 +574,10 @@ function App() {
           let massageData = {};
           if (ultrasoundResponse.ok) {
 
-            const searchUltrasounds = [];
+            const servicesUltrasounds = [...ultrasoundsData.services];
+            const filterServicesBySeeOnline = servicesUltrasounds.filter((i) => { return i.seeOnLine === true })
+              .map((i) => { return i.name });
 
-            if(state.siteId === "795028"){
-              searchUltrasounds.push(
-              "Early Pregnancy - $59 ",
-              "Gender Determination - $79",
-              "Meet Your Baby - 15 Min 5D/HD - $109",
-              "Meet Your Baby - 25 min 5D/HD - $149");
-
-            }else{
-              searchUltrasounds.push(
-                "Early Pregnancy - $69",
-                "Gender Determination - $89",
-                "Meet Your Baby - 15 Min 5D/HD - $109",
-                "Meet Your Baby - 25 min 5D/HD - $149",
-              );
-            }
-         
             if ((state.siteId === "557418" || state.siteId === "902886") && (state.locationId === "1")) {
               const massageRequest = {
                 method: "GET",
@@ -599,13 +593,12 @@ function App() {
                 massageRequest
               );
               massageData = await massageResponse.json();
-              searchUltrasounds.push("Special Promotion 25 min 5D/HD Ultrasound - $229")
             }
             const ultrasounds = [];
             const massages = [];
             const existingServices = [];
 
-            searchUltrasounds.forEach((service) => {
+            filterServicesBySeeOnline.forEach((service) => {
               const serviceTypeId = getServiceId(service, ultrasoundsData.services);
               if (serviceTypeId !== "") {
                 const servicePrice = getPrice(service);
@@ -617,7 +610,7 @@ function App() {
                 existingServices.push(serviceObject);
               }
             });
-            
+
             const ultrasoundServices = {
               services: existingServices,
             };
@@ -629,6 +622,7 @@ function App() {
               };
               ultrasounds.push(mutableItem);
             });
+
             setUltrasounds(ultrasounds);
             setConsultedUltrasounds(ultrasoundsData.services);
 
@@ -641,7 +635,7 @@ function App() {
                 massages.push(mutableItem);
               });
             }
-            // console.log(ultrasounds); 
+
             const displayableServices = [
               {
                 label: "Ultrasounds",
@@ -979,6 +973,7 @@ function App() {
     }
 
   };
+
   // Handle the booking of the appointment and creation of the client if necesary 
   const bookAppointment = async () => {
     setStepThree("success");
@@ -1169,6 +1164,7 @@ function App() {
             siteId: state.siteId,
             source: "online",
             cbff: false,
+            bookTime: moment().format("HH:mm")
           };
           const putDynamo = {
             method: "PUT",
@@ -1631,62 +1627,72 @@ function App() {
   }, [modalBabyGrow, modalHearthbeat, modal8kRealisticView])
 
   useEffect(() => {
+
+    if (seletedService) {
+
+      const costBabysGrowth = 29
+      const costGenderDetermination = seletedService.label.match(/(\d+)/g);
+      const costGenderPlusBabysGrowth = parseFloat(costGenderDetermination[0]) + costBabysGrowth;
+
+      setFixedServices((fixedServices) => ({
+        ...fixedServices,
+        specialPromotion25min: seletedService.label.toLowerCase().replace(/[-.()+\s]/g, "").search("specialpromotion25min"),
+        genderdetermination: seletedService.label.toLowerCase().replace(/[-.()+\s]/g, "").search("genderdetermination"),
+        earlypregnancy: seletedService.label.toLowerCase().replace(/[-.()+\s]/g, "").search("earlypregnancy"),
+        meetyourbaby25: seletedService.label.toLowerCase().replace(/[-.()+\s]/g, "").search("meetyourbaby25"),
+        meetyourbaby15: seletedService.label.toLowerCase().replace(/[-.()+\s]/g, "").search("meetyourbaby15"),
+        costGenderPlusBabysGrowth: costGenderPlusBabysGrowth,
+      }));
+    }
+
+  }, [seletedService]);
+
+  useEffect(() => {
     if (selectedOptionAddons) {
 
       let formattingSelectedOptionAddons;
 
-      if (seletedService.value === ultrasounds[1].value) {
+      if (fixedServices.genderdetermination === 0) {
 
         formattingSelectedOptionAddons = selectedOptionAddons.filter((i) => { return i.value !== "8K Realistic View" })
         setSelectedOptionAddons(formattingSelectedOptionAddons)
 
-      } else if (seletedService.value === ultrasounds[2].value || seletedService.value === ultrasounds[3].value) {
+      } else if (fixedServices.earlypregnancy === 0 || fixedServices.specialPromotion25min === 0) {
+
+        formattingSelectedOptionAddons = selectedOptionAddons.filter((i) => { return i.value !== "Baby's Growth" && i.value !== "8K Realistic View" })
+        setSelectedOptionAddons(formattingSelectedOptionAddons)
+
+      } else if (fixedServices.meetyourbaby25 === 0 || fixedServices.meetyourbaby15 === 0) {
 
         setSelectedOptionAddons(selectedOptionAddons)
 
       } else {
-        formattingSelectedOptionAddons = selectedOptionAddons.filter((i) => { return i.value !== "Baby's Growth" && i.value !== "8K Realistic View" })
-        setSelectedOptionAddons(formattingSelectedOptionAddons)
+        setSelectedOptionAddons([])
       }
     }
-  }, [seletedService])
+  }, [seletedService, fixedServices])
 
   useEffect(() => {
-    if (seletedService !== null) {
 
-      if (seletedService.value === ultrasounds[1].value) {
+    if (fixedServices.genderdetermination === 0) {
+      setAddOns(addOnsToGenderDetermination)
 
-        setAddOns(addOnsToGenderDetermination)
+    } else if (fixedServices.meetyourbaby25 === 0 || fixedServices.meetyourbaby15 === 0) {
+      setAddOns(addOnsToMeetYourBaby)
 
-      }
-      if (seletedService.value === ultrasounds[2].value || seletedService.value === ultrasounds[3].value) {
-
-        setAddOns(addOnsToMeetYourBaby)
-
-      }
-      if (seletedService.value === 9 || seletedService.value === 10 ||
-        seletedService.value === 21 || seletedService.value === 23) {
-        setAddOns([])
-      }
-
-      if ((state.siteId === "557418" || state.siteId === "902886") && (state.locationId === "1")) {
-
-        if (seletedService.value === ultrasounds[0].value || seletedService.value === ultrasounds[4].value) {
-
-          setAddOns(addOnsToEarlyPregnancy)
-
-        }
-      } else {
-
-        if (seletedService.value === ultrasounds[0].value) {
-
-          setAddOns(addOnsToEarlyPregnancy)
-
-        }
-      }
-
+    } else if (fixedServices.earlypregnancy === 0 || fixedServices.specialPromotion25min === 0) {
+      setAddOns(addOnsToEarlyPregnancy)
     }
-  }, [seletedService, selectedOptionAddons])
+    else {
+      setAddOns([])
+    }
+
+  }, [
+    ultrasounds,
+    seletedService,
+    selectedOptionAddons,
+    fixedServices
+  ])
 
   useEffect(() => {
     if (selectedOptionAddons !== null) {
@@ -1694,75 +1700,10 @@ function App() {
       const hearthbeat = selectedOptionAddons.find(i => i.value === "Heartbeat Buddies");
       const realisticView = selectedOptionAddons.find(i => i.value === "8K Realistic View");
 
-      if ((state.siteId === "557418" || state.siteId === "902886") && (state.locationId === "1")) {
-
-        if (seletedService.value === ultrasounds[0].value || seletedService.value === ultrasounds[4].value) {
-
-          if (hearthbeat === undefined) {
-            setAddHeartbeatBuddies(false)
-
-            addOnsToEarlyPregnancy[0].label =
-              <div className="d-flex col-12">
-                <div className="col-11">
-                  <span>Heartbeat Buddies</span>
-                </div>
-                <div className="col-1"
-                  onMouseOver={() => setHoverIndexHearthbeat(true)}
-                  onMouseLeave={() => setHoverIndexHearthbeat(false)}
-                  style={{ cursor: "pointer" }}
-                >
-                  <FontAwesomeIcon icon={faInfo}
-                    onClick={(e) => setModalHearthbeat(true)}
-                  />
-                </div>
-              </div>;
-
-            setAddOns(addOnsToEarlyPregnancy)
-
-          } else {
-            setAddHeartbeatBuddies(true);
-            hearthbeat.label = <span>Heartbeat Buddies</span>;
-          }
-        }
-
-      } else {
-
-        if (seletedService.value === ultrasounds[0].value) {
-
-          if (hearthbeat === undefined) {
-            setAddHeartbeatBuddies(false)
-
-            addOnsToEarlyPregnancy[0].label =
-              <div className="d-flex col-12">
-                <div className="col-11">
-                  <span>Heartbeat Buddies</span>
-                </div>
-                <div className="col-1"
-                  onMouseOver={() => setHoverIndexHearthbeat(true)}
-                  onMouseLeave={() => setHoverIndexHearthbeat(false)}
-                  style={{ cursor: "pointer" }}
-                >
-                  <FontAwesomeIcon icon={faInfo}
-                    onClick={(e) => setModalHearthbeat(true)}
-                  />
-                </div>
-              </div>;
-
-            setAddOns(addOnsToEarlyPregnancy)
-
-          } else {
-            setAddHeartbeatBuddies(true);
-            hearthbeat.label = <span>Heartbeat Buddies</span>;
-          }
-        }
-
-      }
-
-      if (seletedService.value === ultrasounds[1].value) {
+      if (fixedServices.genderdetermination === 0) {
 
         if (hearthbeat === undefined) {
           setAddHeartbeatBuddies(false)
-
           addOnsToGenderDetermination[0].label =
             <div className="d-flex col-12">
               <div className="col-11">
@@ -1778,9 +1719,7 @@ function App() {
                 />
               </div>
             </div>;
-
           setAddOns(addOnsToGenderDetermination)
-
         } else {
           setAddHeartbeatBuddies(true);
           hearthbeat.label = <span>Heartbeat Buddies</span>;
@@ -1788,7 +1727,6 @@ function App() {
 
         if (babyGrow === undefined) {
           setAddBabysGrowth(false)
-
           addOnsToGenderDetermination[1].label =
             <div className="col-12 d-flex">
               <div className="col-11">
@@ -1804,20 +1742,16 @@ function App() {
                 />
               </div>
             </div>;
-
           setAddOns(addOnsToGenderDetermination)
-
         } else {
           setAddBabysGrowth(true)
           babyGrow.label = <span>Baby's Growth</span>;
         }
-      }
 
-      if (seletedService.value === ultrasounds[2].value || seletedService.value === ultrasounds[3].value) {
+      } else if (fixedServices.meetyourbaby25 === 0 || fixedServices.meetyourbaby15 === 0) {
 
         if (hearthbeat === undefined) {
           setAddHeartbeatBuddies(false)
-
           addOnsToMeetYourBaby[0].label =
             <div className="d-flex col-12">
               <div className="col-11">
@@ -1833,9 +1767,7 @@ function App() {
                 />
               </div>
             </div>;
-
           setAddOns(addOnsToMeetYourBaby)
-
         } else {
           setAddHeartbeatBuddies(true);
           hearthbeat.label = <span>Heartbeat Buddies</span>;
@@ -1843,7 +1775,6 @@ function App() {
 
         if (babyGrow === undefined) {
           setAddBabysGrowth(false)
-
           addOnsToMeetYourBaby[1].label =
             <div className="col-12 d-flex">
               <div className="col-11">
@@ -1859,9 +1790,7 @@ function App() {
                 />
               </div>
             </div>;
-
           setAddOns(addOnsToMeetYourBaby)
-
         } else {
           setAddBabysGrowth(true)
           babyGrow.label = <span>Baby's Growth</span>;
@@ -1869,7 +1798,6 @@ function App() {
 
         if (realisticView === undefined) {
           setAdd8kRealisticView(false)
-
           addOnsToMeetYourBaby[2].label =
             <div className="col-12 d-flex">
               <div className="col-11">
@@ -1885,53 +1813,76 @@ function App() {
                 />
               </div>
             </div>;
-
           setAddOns(addOnsToMeetYourBaby)
-
         } else {
           setAdd8kRealisticView(true)
           realisticView.label = <span>8K Realistic View</span>;
         }
 
       }
-    }
-  }, [selectedOptionAddons, seletedService])
+      else if (fixedServices.earlypregnancy === 0 || fixedServices.specialPromotion25min === 0) {
+        if (hearthbeat === undefined) {
+          setAddHeartbeatBuddies(false)
+          addOnsToEarlyPregnancy[0].label =
+            <div className="d-flex col-12">
+              <div className="col-11">
+                <span>Heartbeat Buddies</span>
+              </div>
+              <div className="col-1"
+                onMouseOver={() => setHoverIndexHearthbeat(true)}
+                onMouseLeave={() => setHoverIndexHearthbeat(false)}
+                style={{ cursor: "pointer" }}
+              >
+                <FontAwesomeIcon icon={faInfo}
+                  onClick={(e) => setModalHearthbeat(true)}
+                />
+              </div>
+            </div>;
+          setAddOns(addOnsToEarlyPregnancy)
+        } else {
+          setAddHeartbeatBuddies(true);
+          hearthbeat.label = <span>Heartbeat Buddies</span>;
+        }
 
-  useEffect(() => { 
+
+      }
+      else {
+        setAddOns([])
+      }
+    }
+  }, [
+    seletedService,
+    selectedOptionAddons,
+    fixedServices
+  ])
+
+  useEffect(() => {
     let newSessionTypeId = clientState.sessionTypeId;
     let newSessionTypeName = clientState.sessionTypeName;
 
     if (ultrasounds.length > 0) {
 
-      if (clientState.sessionTypeId === ultrasounds[3].value && addBabysGrowth) {
+      if (fixedServices.meetyourbaby25 === 0 && addBabysGrowth) {
         newSessionTypeId = getBGCombo(
           "Meet Your Baby - 25 Min 5D/HD + Baby's Growth $178",
           consultedUltrasounds
         );
         newSessionTypeName = "Meet Your Baby - 25 Min 5D/HD + Baby's Growth $178";
       }
-      if (clientState.sessionTypeId === ultrasounds[2].value && addBabysGrowth) {
+      if (fixedServices.meetyourbaby15 === 0 && addBabysGrowth) {
         newSessionTypeId = getBGCombo(
           "Meet Your Baby - 15 Min 5D/HD + Baby's Growth $138",
           consultedUltrasounds
         );
         newSessionTypeName = "Meet Your Baby - 15 Min 5D/HD + Baby's Growth $138";
       }
-      if (clientState.sessionTypeId === ultrasounds[1].value && addBabysGrowth) {
+      if (fixedServices.genderdetermination === 0 && addBabysGrowth) {
 
-        if (state.siteId === "795028") {
-          newSessionTypeId = getBGCombo(
-            "Gender Determination  + Baby's Growth - $108  ",
-            consultedUltrasounds
-          );
-          newSessionTypeName = "Gender Determination  + Baby's Growth - $108  ";
-        } else {
-          newSessionTypeId = getBGCombo(
-            "Gender Determination  + Baby's Growth - $118  ",
-            consultedUltrasounds
-          );
-          newSessionTypeName = "Gender Determination  + Baby's Growth - $118  ";
-        }
+        newSessionTypeId = getBGCombo(
+          `Gender Determination  + Baby's Growth - $${fixedServices.costGenderPlusBabysGrowth}  `,
+          consultedUltrasounds
+        );
+        newSessionTypeName = `Gender Determination  + Baby's Growth - $${fixedServices.costGenderPlusBabysGrowth}  `;
 
       }
       setClientState((clientState) => ({
@@ -1940,7 +1891,15 @@ function App() {
         sessionTypeName: newSessionTypeName,
       }));
     }
-  }, [sendForm, clientState.sessionTypeName, clientState.sessionTypeId, addBabysGrowth]);
+
+  }, [
+    sendForm,
+    clientState.sessionTypeName,
+    clientState.sessionTypeId,
+    addBabysGrowth,
+    seletedService,
+    fixedServices
+  ]);
 
   useEffect(() => {
     let val = false;
