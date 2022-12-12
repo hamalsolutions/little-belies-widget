@@ -192,13 +192,12 @@ function App() {
     availabilityRequestStatus: "IDLE",
     appointmentRequestStatus: "IDLE",
     city: params.get("city") || "N/A",
-    message: "",
+    message: "", 
     siteId: params.get("id") || "490100",
     latitude: params.get("latitude") || "0",
     longitude: params.get("longitude") || "0",
     language: languageList[params.get("lang")] || "English",
     locationId: params.get("city") !== "coral-springs" ? "1" : "2",
-    locationId: "1",
     authorization: "",
     address: params.get("address") || "N/A",
     phone: params.get("phone") || "N/A",
@@ -457,7 +456,6 @@ function App() {
 
   const orderServices = (services) => {
     return services.sort(function (a, b) {
-      // console.log(a.label.split('$')[1])
       if (getPrice(a.label) < getPrice(b.label)) {
         return -1;
       }
@@ -498,7 +496,6 @@ function App() {
         serviceId = serviceItem.sessionTypeId;
       }
     });
-    // console.log("ServiceId: " + serviceId);
     return serviceId;
   };
 
@@ -1624,6 +1621,188 @@ function App() {
     setHoverIndex8kRealisticView(false)
   }
 
+  const handleFixedServices = () => {
+    const service = {
+      specialPromotion25min: seletedService ? seletedService.label.toLowerCase().replace(/[-.()+\s]/g, "").search("specialpromotion25min") : "",
+      genderdetermination: seletedService ? seletedService.label.toLowerCase().replace(/[-.()+\s]/g, "").search("genderdetermination") : "",
+      earlypregnancy: seletedService ? seletedService.label.toLowerCase().replace(/[-.()+\s]/g, "").search("earlypregnancy") : "",
+      meetyourbaby25: seletedService ? seletedService.label.toLowerCase().replace(/[-.()+\s]/g, "").search("meetyourbaby25") : "",
+      meetyourbaby15: seletedService ? seletedService.label.toLowerCase().replace(/[-.()+\s]/g, "").search("meetyourbaby15") : "",
+    }
+    setFixedServices((fixedServices) => ({
+      ...fixedServices,
+      specialPromotion25min: service.specialPromotion25min === 0,
+      genderdetermination: service.genderdetermination === 0,
+      earlypregnancy: service.earlypregnancy === 0,
+      meetyourbaby25: service.meetyourbaby25 === 0,
+      meetyourbaby15: service.meetyourbaby15 === 0,
+    }));
+  }
+  useEffect(() => {
+    handleFixedServices();
+  }, [seletedService]);
+
+  useEffect(() => {
+    if (selectedOptionAddons) {
+
+      let formattingSelectedOptionAddons;
+
+      if (fixedServices.genderdetermination) {
+
+        formattingSelectedOptionAddons = selectedOptionAddons.filter((i) => { return i.value !== "8K Realistic View" })
+        setSelectedOptionAddons(formattingSelectedOptionAddons)
+
+      } else if (fixedServices.earlypregnancy || fixedServices.specialPromotion25min) {
+
+        formattingSelectedOptionAddons = selectedOptionAddons.filter((i) => { return i.value !== "Baby's Growth" && i.value !== "8K Realistic View" })
+        setSelectedOptionAddons(formattingSelectedOptionAddons)
+
+      } else if (fixedServices.meetyourbaby25 || fixedServices.meetyourbaby15) {
+
+        setSelectedOptionAddons(selectedOptionAddons)
+
+      } else {
+        setSelectedOptionAddons([])
+      }
+    }
+  }, [seletedService, fixedServices])
+
+
+  useEffect(() => {
+
+    let babyGrow;
+    let hearthbeat;
+    let realisticView;
+
+    if (selectedOptionAddons) {
+      babyGrow = selectedOptionAddons.find(i => i.value === "Baby's Growth");
+      hearthbeat = selectedOptionAddons.find(i => i.value === "Heartbeat Buddies");
+      realisticView = selectedOptionAddons.find(i => i.value === "8K Realistic View");
+    }
+
+    if (fixedServices.genderdetermination) {
+
+      setAddOns(addOnsToGenderDetermination)
+
+      if (realisticView === undefined) setAdd8kRealisticView(false);
+
+      if (hearthbeat === undefined) {
+        setAddHeartbeatBuddies(false)
+        addOnsToGenderDetermination[0].label = addOnsToGenderDetermination[0].label;
+      } else {
+        setAddHeartbeatBuddies(true);
+        hearthbeat.label = <span>Heartbeat Buddies</span>;
+      }
+      if (babyGrow === undefined) {
+        setAddBabysGrowth(false)
+        addOnsToGenderDetermination[1].label = addOnsToGenderDetermination[1].label;
+      } else {
+        setAddBabysGrowth(true)
+        babyGrow.label = <span>Baby's Growth</span>;
+      }
+
+    } else if (fixedServices.meetyourbaby25 || fixedServices.meetyourbaby15) {
+
+      setAddOns(addOnsToMeetYourBaby)
+
+      if (hearthbeat === undefined) {
+        setAddHeartbeatBuddies(false)
+        addOnsToMeetYourBaby[0].label = addOnsToMeetYourBaby[0].label;
+      } else {
+        setAddHeartbeatBuddies(true);
+        hearthbeat.label = <span>Heartbeat Buddies</span>;
+      }
+      if (babyGrow === undefined) {
+        setAddBabysGrowth(false)
+        addOnsToMeetYourBaby[1].label = addOnsToMeetYourBaby[1].label;
+      } else {
+        setAddBabysGrowth(true)
+        babyGrow.label = <span>Baby's Growth</span>;
+      }
+      if (realisticView === undefined) {
+        setAdd8kRealisticView(false)
+        addOnsToMeetYourBaby[2].label = addOnsToMeetYourBaby[2].label;
+      } else {
+        setAdd8kRealisticView(true)
+        realisticView.label = <span>8K Realistic View</span>;
+      }
+
+    }
+    else if (fixedServices.earlypregnancy || fixedServices.specialPromotion25min) {
+
+      setAddOns(addOnsToEarlyPregnancy)
+
+      if (babyGrow === undefined) setAddBabysGrowth(false);
+
+      if (realisticView === undefined) setAdd8kRealisticView(false);
+
+      if (hearthbeat === undefined) {
+        setAddHeartbeatBuddies(false)
+        addOnsToEarlyPregnancy[0].label = addOnsToEarlyPregnancy[0].label;
+      } else {
+        setAddHeartbeatBuddies(true);
+        hearthbeat.label = <span>Heartbeat Buddies</span>;
+      }
+
+    } else {
+      setAddHeartbeatBuddies(false)
+      setAdd8kRealisticView(false)
+      setAddBabysGrowth(false)
+      setAddOns([])
+    }
+
+  }, [
+    seletedService,
+    selectedOptionAddons,
+    fixedServices,
+    ultrasounds
+  ])
+
+  useEffect(() => {
+    let newSessionTypeId = clientState.sessionTypeId;
+    let newSessionTypeName = clientState.sessionTypeName;
+
+      if (fixedServices.meetyourbaby25 && addBabysGrowth) {
+        newSessionTypeId = getBGCombo(
+          "Meet Your Baby - 25 Min 5D/HD + Baby's Growth $178",
+          consultedUltrasounds
+        );
+        newSessionTypeName = "Meet Your Baby - 25 Min 5D/HD + Baby's Growth $178";
+      }
+      if (fixedServices.meetyourbaby15 && addBabysGrowth) {
+        newSessionTypeId = getBGCombo(
+          "Meet Your Baby - 15 Min 5D/HD + Baby's Growth $138",
+          consultedUltrasounds
+        );
+        newSessionTypeName = "Meet Your Baby - 15 Min 5D/HD + Baby's Growth $138";
+      }
+      if (fixedServices.genderdetermination && addBabysGrowth) {
+
+        const costBabysGrowth = 29
+        const costGenderDetermination = seletedService.label.match(/(\d+)/g);
+        const costGenderPlusBabysGrowth = parseFloat(costGenderDetermination[0]) + costBabysGrowth;
+
+        newSessionTypeId = getBGCombo(
+          `Gender Determination  + Baby's Growth - $${costGenderPlusBabysGrowth}  `,
+          consultedUltrasounds
+        );
+        newSessionTypeName = `Gender Determination  + Baby's Growth - $${costGenderPlusBabysGrowth}  `;
+
+      }
+      setClientState((clientState) => ({
+        ...clientState,
+        sessionTypeId: newSessionTypeId,
+        sessionTypeName: newSessionTypeName,
+      }));
+  }, [
+    sendForm,
+    clientState.sessionTypeName,
+    clientState.sessionTypeId,
+    addBabysGrowth,
+    seletedService,
+    fixedServices
+  ]);
+
   useEffect(() => {
     let formattingSelectedOptionAddons;
     if (modalHearthbeat) {
@@ -1643,295 +1822,6 @@ function App() {
     }
   }, [modalBabyGrow, modalHearthbeat, modal8kRealisticView])
 
-  useEffect(() => {
-
-    if (seletedService) {
-
-      setFixedServices((fixedServices) => ({
-        ...fixedServices,
-        specialPromotion25min: seletedService.label.toLowerCase().replace(/[-.()+\s]/g, "").search("specialpromotion25min"),
-        genderdetermination: seletedService.label.toLowerCase().replace(/[-.()+\s]/g, "").search("genderdetermination"),
-        earlypregnancy: seletedService.label.toLowerCase().replace(/[-.()+\s]/g, "").search("earlypregnancy"),
-        meetyourbaby25: seletedService.label.toLowerCase().replace(/[-.()+\s]/g, "").search("meetyourbaby25"),
-        meetyourbaby15: seletedService.label.toLowerCase().replace(/[-.()+\s]/g, "").search("meetyourbaby15"),
-      }));
-    }
-
-  }, [
-    seletedService]);
-
-  useEffect(() => {
-    if (selectedOptionAddons) {
-
-      let formattingSelectedOptionAddons;
-
-      if (fixedServices.genderdetermination === 0) {
-
-        formattingSelectedOptionAddons = selectedOptionAddons.filter((i) => { return i.value !== "8K Realistic View" })
-        setSelectedOptionAddons(formattingSelectedOptionAddons)
-
-      } else if (fixedServices.earlypregnancy === 0 || fixedServices.specialPromotion25min === 0) {
-
-        formattingSelectedOptionAddons = selectedOptionAddons.filter((i) => { return i.value !== "Baby's Growth" && i.value !== "8K Realistic View" })
-        setSelectedOptionAddons(formattingSelectedOptionAddons)
-
-      } else if (fixedServices.meetyourbaby25 === 0 || fixedServices.meetyourbaby15 === 0) {
-
-        setSelectedOptionAddons(selectedOptionAddons)
-
-      } else {
-        setSelectedOptionAddons([])
-      }
-    }
-  }, [seletedService, fixedServices])
-
-  useEffect(() => {
-
-    if (fixedServices.genderdetermination === 0) {
-      setAddOns(addOnsToGenderDetermination)
-
-    } else if (fixedServices.meetyourbaby25 === 0 || fixedServices.meetyourbaby15 === 0) {
-      setAddOns(addOnsToMeetYourBaby)
-
-    } else if (fixedServices.earlypregnancy === 0 || fixedServices.specialPromotion25min === 0) {
-      setAddOns(addOnsToEarlyPregnancy)
-    }
-    else {
-      setAddOns([])
-    }
-
-  }, [
-    ultrasounds,
-    seletedService,
-    selectedOptionAddons,
-    fixedServices
-  ])
-
-  useEffect(() => {
-    if (selectedOptionAddons !== null) {
-      const babyGrow = selectedOptionAddons.find(i => i.value === "Baby's Growth");
-      const hearthbeat = selectedOptionAddons.find(i => i.value === "Heartbeat Buddies");
-      const realisticView = selectedOptionAddons.find(i => i.value === "8K Realistic View");
-
-      if (fixedServices.genderdetermination === 0) {
-
-        if (realisticView === undefined) {
-          setAdd8kRealisticView(false)
-        }
-
-        if (hearthbeat === undefined) {
-          setAddHeartbeatBuddies(false)
-          addOnsToGenderDetermination[0].label =
-            <div className="d-flex col-12">
-              <div className="col-11">
-                <span>Heartbeat Buddies</span>
-              </div>
-              <div className="col-1"
-                onMouseOver={() => setHoverIndexHearthbeat(true)}
-                onMouseLeave={() => setHoverIndexHearthbeat(false)}
-                style={{ cursor: "pointer" }}
-              >
-                <FontAwesomeIcon icon={faInfo}
-                  onClick={(e) => setModalHearthbeat(true)}
-                />
-              </div>
-            </div>;
-          setAddOns(addOnsToGenderDetermination)
-        } else {
-          setAddHeartbeatBuddies(true);
-          hearthbeat.label = <span>Heartbeat Buddies</span>;
-        }
-
-        if (babyGrow === undefined) {
-          setAddBabysGrowth(false)
-          addOnsToGenderDetermination[1].label =
-            <div className="col-12 d-flex">
-              <div className="col-11">
-                <span>Baby's Growth</span>
-              </div>
-              <div className="col-1"
-                onMouseOver={() => setHoverIndexBabyGrow(true)}
-                onMouseLeave={() => setHoverIndexBabyGrow(false)}
-                style={{ cursor: "pointer" }}
-              >
-                <FontAwesomeIcon icon={faInfo}
-                  onClick={(e) => setModalBabyGrow(true)}
-                />
-              </div>
-            </div>;
-          setAddOns(addOnsToGenderDetermination)
-        } else {
-          setAddBabysGrowth(true)
-          babyGrow.label = <span>Baby's Growth</span>;
-        }
-
-
-      } else if (fixedServices.meetyourbaby25 === 0 || fixedServices.meetyourbaby15 === 0) {
-
-        if (hearthbeat === undefined) {
-          setAddHeartbeatBuddies(false)
-          addOnsToMeetYourBaby[0].label =
-            <div className="d-flex col-12">
-              <div className="col-11">
-                <span>Heartbeat Buddies</span>
-              </div>
-              <div className="col-1"
-                onMouseOver={() => setHoverIndexHearthbeat(true)}
-                onMouseLeave={() => setHoverIndexHearthbeat(false)}
-                style={{ cursor: "pointer" }}
-              >
-                <FontAwesomeIcon icon={faInfo}
-                  onClick={(e) => setModalHearthbeat(true)}
-                />
-              </div>
-            </div>;
-          setAddOns(addOnsToMeetYourBaby)
-        } else {
-          setAddHeartbeatBuddies(true);
-          hearthbeat.label = <span>Heartbeat Buddies</span>;
-        }
-
-        if (babyGrow === undefined) {
-          setAddBabysGrowth(false)
-          addOnsToMeetYourBaby[1].label =
-            <div className="col-12 d-flex">
-              <div className="col-11">
-                <span>Baby's Growth</span>
-              </div>
-              <div className="col-1"
-                onMouseOver={() => setHoverIndexBabyGrow(true)}
-                onMouseLeave={() => setHoverIndexBabyGrow(false)}
-                style={{ cursor: "pointer" }}
-              >
-                <FontAwesomeIcon icon={faInfo}
-                  onClick={(e) => setModalBabyGrow(true)}
-                />
-              </div>
-            </div>;
-          setAddOns(addOnsToMeetYourBaby)
-        } else {
-          setAddBabysGrowth(true)
-          babyGrow.label = <span>Baby's Growth</span>;
-        }
-
-        if (realisticView === undefined) {
-          setAdd8kRealisticView(false)
-          addOnsToMeetYourBaby[2].label =
-            <div className="col-12 d-flex">
-              <div className="col-11">
-                <span>8K Realistic View</span>
-              </div>
-              <div className="col-1"
-                onMouseOver={() => setHoverIndex8kRealisticView(true)}
-                onMouseLeave={() => setHoverIndex8kRealisticView(false)}
-                style={{ cursor: "pointer" }}
-              >
-                <FontAwesomeIcon icon={faInfo}
-                  onClick={(e) => setModal8kRealisticView(true)}
-                />
-              </div>
-            </div>;
-          setAddOns(addOnsToMeetYourBaby)
-        } else {
-          setAdd8kRealisticView(true)
-          realisticView.label = <span>8K Realistic View</span>;
-        }
-
-      }
-      else if (fixedServices.earlypregnancy === 0 || fixedServices.specialPromotion25min === 0) {
-        if (realisticView === undefined) {
-          setAdd8kRealisticView(false)
-        }
-
-        if (babyGrow === undefined) {
-          setAddBabysGrowth(false)
-        }
-
-        if (hearthbeat === undefined) {
-          setAddHeartbeatBuddies(false)
-          addOnsToEarlyPregnancy[0].label =
-            <div className="d-flex col-12">
-              <div className="col-11">
-                <span>Heartbeat Buddies</span>
-              </div>
-              <div className="col-1"
-                onMouseOver={() => setHoverIndexHearthbeat(true)}
-                onMouseLeave={() => setHoverIndexHearthbeat(false)}
-                style={{ cursor: "pointer" }}
-              >
-                <FontAwesomeIcon icon={faInfo}
-                  onClick={(e) => setModalHearthbeat(true)}
-                />
-              </div>
-            </div>;
-          setAddOns(addOnsToEarlyPregnancy)
-        } else {
-          setAddHeartbeatBuddies(true);
-          hearthbeat.label = <span>Heartbeat Buddies</span>;
-        }
-
-
-      }
-      else {
-        setAddHeartbeatBuddies(false)
-        setAdd8kRealisticView(false)
-        setAddBabysGrowth(false)
-        setAddOns([])
-      }
-    }
-  }, [
-    seletedService,
-    selectedOptionAddons,
-    fixedServices])
-
-  useEffect(() => {
-    let newSessionTypeId = clientState.sessionTypeId;
-    let newSessionTypeName = clientState.sessionTypeName;
-
-    if (ultrasounds.length > 0) {
-
-      if (fixedServices.meetyourbaby25 === 0 && addBabysGrowth) {
-        newSessionTypeId = getBGCombo(
-          "Meet Your Baby - 25 Min 5D/HD + Baby's Growth $178",
-          consultedUltrasounds
-        );
-        newSessionTypeName = "Meet Your Baby - 25 Min 5D/HD + Baby's Growth $178";
-      }
-      if (fixedServices.meetyourbaby15 === 0 && addBabysGrowth) {
-        newSessionTypeId = getBGCombo(
-          "Meet Your Baby - 15 Min 5D/HD + Baby's Growth $138",
-          consultedUltrasounds
-        );
-        newSessionTypeName = "Meet Your Baby - 15 Min 5D/HD + Baby's Growth $138";
-      }
-      if (fixedServices.genderdetermination === 0 && addBabysGrowth) {
-
-        const costBabysGrowth = 29
-        const costGenderDetermination = seletedService.label.match(/(\d+)/g);
-        const costGenderPlusBabysGrowth = parseFloat(costGenderDetermination[0]) + costBabysGrowth;
-
-        newSessionTypeId = getBGCombo(
-          `Gender Determination  + Baby's Growth - $${costGenderPlusBabysGrowth}  `,
-          consultedUltrasounds
-        );
-        newSessionTypeName = `Gender Determination  + Baby's Growth - $${costGenderPlusBabysGrowth}  `;
-
-      }
-      setClientState((clientState) => ({
-        ...clientState,
-        sessionTypeId: newSessionTypeId,
-        sessionTypeName: newSessionTypeName,
-      }));
-    }
-
-  }, [
-    sendForm,
-    clientState.sessionTypeName,
-    clientState.sessionTypeId,
-    addBabysGrowth,
-    seletedService,
-    fixedServices
-  ]);
 
   useEffect(() => {
     let val = false;
@@ -2987,7 +2877,7 @@ function App() {
                   </div>
                 </div>
               )}
-            {(state.availabilityRequestStatus === "loading" || state.availabilityRequestStatus == "BOOK-APPOINTMENT-OK") && (
+            {(state.availabilityRequestStatus === "loading" || state.availabilityRequestStatus === "BOOK-APPOINTMENT-OK") && (
               <div className="row">
                 <div className="col text-center">
                   <h1 className="h1 m-auto">
@@ -3214,17 +3104,6 @@ function App() {
                 </>
               )}
             </div>
-            {/* {state.appointmentRequestStatus === "BOOK-APPOINTMENT-OK" && (
-              <div className="video-responsive">
-                <iframe
-                  src={"https://www.youtube.com/embed/uspIXX4uU9c"}
-                  frameBorder="0"
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                  allowFullScreen
-                  title="Embedded youtube"
-                />
-              </div>
-            )} */}
           </div>
         </div>
       )}
