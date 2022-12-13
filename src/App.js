@@ -193,7 +193,7 @@ function App() {
     appointmentRequestStatus: "IDLE",
     city: params.get("city") || "N/A",
     message: "", 
-    siteId: params.get("id") || "490100",
+    siteId: params.get("id") || "490100", 
     latitude: params.get("latitude") || "0",
     longitude: params.get("longitude") || "0",
     language: languageList[params.get("lang")] || "English",
@@ -568,7 +568,7 @@ function App() {
             ultrasoundsRequest
           );
           const ultrasoundsData = await ultrasoundResponse.json();
-          let massageData = {};
+          let filterMassageData;
           if (ultrasoundResponse.ok) {
 
             const servicesUltrasounds = [...ultrasoundsData.services];
@@ -605,7 +605,8 @@ function App() {
                 `${process.env.REACT_APP_API_URL}/api/sessionTypes/3`,
                 massageRequest
               );
-              massageData = await massageResponse.json();
+              const massageData = await massageResponse.json();
+              filterMassageData = massageData.services.filter((i) => {return i.seeOnLine === true});
             }
             const ultrasounds = [];
             const massages = [];
@@ -641,7 +642,7 @@ function App() {
             setConsultedUltrasounds(ultrasoundsData.services);
 
             if ((state.siteId === "557418" || state.siteId === "902886") && (state.locationId === "1")) {
-              massageData.services.forEach((item) => {
+              filterMassageData.forEach((item) => {
                 const mutableItem = {
                   value: item.sessionTypeId,
                   label: item.name,
