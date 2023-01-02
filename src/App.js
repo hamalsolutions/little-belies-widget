@@ -1363,6 +1363,7 @@ function App() {
         clientId: clientId === undefined ? "n/a" : clientId,
         dateTime: moment().format("YYYY-MM-DD[T]HH:mm:ss").toString(),
         step: 1,
+        language: state.language,
       };
       const leadRequest = {
         method: "POST",
