@@ -374,6 +374,8 @@ function App() {
   const [ultrasounds, setUltrasounds] = useState([]);
   const [consultedUltrasounds, setConsultedUltrasounds] = useState([]);
   const [weeks, setWeeks] = useState([]);
+  const [sitesInfo, setSitesInfo] = useState([]);
+
   const {
     control,
     watch,
@@ -430,8 +432,8 @@ function App() {
   const removePrice = (service) => {
     return service.substring(0, service.lastIndexOf("-")).trim();
   };
-  const parent_origin = 'https://test.littlebelliesspa.com'
-  // const parent_origin = "https://www.littlebelliesspa.com";
+  // const parent_origin = 'https://test.littlebelliesspa.com'
+  const parent_origin = "https://www.littlebelliesspa.com";
   const scrollParenTop = () => {
     window.parent.postMessage({ task: "scroll_top" }, parent_origin);
   };
@@ -440,6 +442,46 @@ function App() {
     console.log("sending task to parent");
     window.parent.postMessage({ task: "google_track_booking", name, service, date, time }, parent_origin);
   };
+
+  
+  const getSitesInfo = async () => {
+    try {
+      const getSitesData = {
+        method: "GET",
+        headers: {
+          "Content-type": "application/json; charset=UTF-8",
+        },
+      };
+      const response = await fetch(
+        `${process.env.REACT_APP_API_URL}/api/config/sites`,
+        getSitesData
+      );
+      const data = await response.json();
+      if (response.ok) {
+        const allSitesItem = data.sites.find(site => site.site === "0-0");
+        let sitesArray = []
+        if (allSitesItem !== undefined) {
+          sitesArray = data.sites.filter(site => site.site !== "0-0");
+        }
+        else {
+          sitesArray = data.sites;
+        }
+        setSitesInfo(sitesArray)
+      } else {
+        console.error(response);
+      }
+    } catch (error) {
+      console.error(JSON.stringify(error));
+    }
+  }
+
+
+  //aqui1
+  useEffect(() => {
+
+    getSitesInfo();
+
+  },[state])
 
   const hasBabyGrowth = (service, services) => {
     return services.find((item) => {
@@ -1163,6 +1205,11 @@ function App() {
           if (selectedOptionAddons) {
             nameListAddons = selectedOptionAddons.map((i) => { return i.value });
           }
+
+          const filterSite = sitesInfo.find((i) => i.site === `${state.siteId}-${state.locationId}`);
+          const date = new Date;
+          const timeZone = date.toLocaleString('en-US',{timeZone : filterSite?.timeZone});
+
           const dynamoPayload = {
             id: "" + bookAppointmentData.Appointment.Id,
             sessionTypeId: "" + bookAppointmentData.Appointment.SessionTypeId,
@@ -1176,11 +1223,11 @@ function App() {
             firstAppointment: bookAppointmentData.Appointment.FirstAppointment,
             programId: bookAppointmentData.Appointment.ProgramId,
             addOns: nameListAddons,
-            bookDate: moment().format("MM/DD/YYYY"),
+            bookDate: moment(timeZone).format("MM/DD/YYYY"),
             siteId: state.siteId,
             source: "online",
             cbff: false,
-            bookTime: moment().format("HH:mm")
+            bookTime: moment(timeZone).format("HH:mm")
           };
           const putDynamo = {
             method: "PUT",
