@@ -476,13 +476,6 @@ function App() {
   }
 
 
-  //aqui1
-  useEffect(() => {
-
-    getSitesInfo();
-
-  },[state])
-
   const hasBabyGrowth = (service, services) => {
     return services.find((item) => {
       return (
@@ -710,6 +703,7 @@ function App() {
         console.error(JSON.stringify(error));
       }
     }
+    getSitesInfo();
     getServices();
     const arrayOfWeeks = [];
     arrayOfWeeks.push({
@@ -1210,10 +1204,12 @@ function App() {
           const date = new Date;
           const timeZone = date.toLocaleString('en-US',{timeZone : filterSite?.timeZone});
 
+          // aqui1
           const dynamoPayload = {
             id: "" + bookAppointmentData.Appointment.Id,
             sessionTypeId: "" + bookAppointmentData.Appointment.SessionTypeId,
             sessionTypeName: clientState.sessionTypeName,
+            serviceName: clientState.sessionTypeName,
             locationId: "" + bookAppointmentData.Appointment.LocationId,
             staffId: "" + bookAppointmentData.Appointment.StaffId,
             clientId: "" + bookAppointmentData.Appointment.ClientId,
