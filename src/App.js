@@ -699,6 +699,119 @@ function App() {
             setServices(displayableServices);
           }
         }
+        else{
+          setState((state) => ({
+            ...state,
+            authorization: authData.accesssToken,
+          }));
+          const ultrasoundsRequest = {
+            method: "GET",
+            headers: {
+              "Content-type": "application/json; charset=UTF-8",
+              siteid: state.siteId,
+              locationid: state.locationId,
+            },
+          };
+          const ultrasoundResponse = await fetch(
+            `${process.env.REACT_APP_API_URL}/api/sessionTypes/2`,
+            ultrasoundsRequest
+          );
+          const ultrasoundsData = await ultrasoundResponse.json();
+          let filterMassageData;
+          if (ultrasoundResponse.ok) {
+
+            const servicesUltrasounds = [...ultrasoundsData.services];
+
+            const filterServicesBySeeOnline = servicesUltrasounds.filter((i) => {
+              if (state.siteId === "557418" && state.locationId === "2") {
+
+                let specialpromotion25min = i.name.toLowerCase().replace(/[-.()+\s]/g, "").search("specialpromotion25min");
+                if (specialpromotion25min !== 0) return i.seeOnLine === true
+
+              } else {
+                return i.seeOnLine === true
+              }
+
+            }).map((i) => {
+              return i.name
+            }).sort((a, b) => {
+              if (a > b) return 1
+              if (a < b) return -1
+              return 0;
+            });
+
+            if ((state.siteId === "557418" || state.siteId === "902886") && (state.locationId === "1")) {
+              const massageRequest = {
+                method: "GET",
+                headers: {
+                  "Content-type": "application/json; charset=UTF-8",
+                  siteid: state.siteId,
+                  locationid: state.locationId,
+                },
+              };
+              const massageResponse = await fetch(
+                `${process.env.REACT_APP_API_URL}/api/sessionTypes/3`,
+                massageRequest
+              );
+              const massageData = await massageResponse.json();
+              filterMassageData = massageData.services.filter((i) => {return i.seeOnLine === true});
+            }
+            const ultrasounds = [];
+            const massages = [];
+            const existingServices = [];
+
+            filterServicesBySeeOnline.forEach((service) => {
+              const serviceTypeId = getServiceId(service, ultrasoundsData.services);
+              if (serviceTypeId !== "") {
+                const servicePrice = getPrice(service);
+                const serviceObject = {
+                  sessionTypeId: serviceTypeId,
+                  name: service,
+                  price: servicePrice,
+                }
+                existingServices.push(serviceObject);
+              }
+            });
+
+            const ultrasoundServices = {
+              services: existingServices,
+            };
+
+            ultrasoundServices.services.forEach((item) => {
+              const mutableItem = {
+                value: item.sessionTypeId,
+                label: item.name,
+              };
+              ultrasounds.push(mutableItem);
+            });
+
+
+            setUltrasounds(ultrasounds);
+            setConsultedUltrasounds(ultrasoundsData.services);
+
+            if ((state.siteId === "557418" || state.siteId === "902886") && (state.locationId === "1")) {
+              filterMassageData.forEach((item) => {
+                const mutableItem = {
+                  value: item.sessionTypeId,
+                  label: item.name,
+                };
+                massages.push(mutableItem);
+              });
+            }
+
+            const displayableServices = [
+              {
+                label: "Ultrasounds",
+                options: ultrasounds,
+              },
+              {
+                label: "Massages",
+                options: orderServices(filterServices(massages)),
+              },
+            ];
+            setServices(displayableServices);
+          }
+        }
       } catch (error) {
         console.error(JSON.stringify(error));
       }
