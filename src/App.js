@@ -178,6 +178,12 @@ function App() {
     const trans = translations[params.get("lang") || "en"];
     return trans[text] || text;
   };
+  //aqui
+  const [localTime, setLocalTime] = useState(new Date);
+  const siteTimeTrigger = "08";
+  const availabilityAt9AM = "09:00";
+  const [appointmentAt10AM, setAppointmentAt10AM] = useState(false);
+
   const [selectedBlock, setSelectBlock] = useState(null);
   const [showBG, setShowBG] = useState(false);
   const [showHB, setShowHB] = useState(false);
@@ -703,6 +709,12 @@ function App() {
         console.error(JSON.stringify(error));
       }
     }
+    const filterSite = sitesInfo.find((i) => i.site === `${state.siteId}-${state.locationId}`);
+    const date = new Date;
+    const timeZone = date.toLocaleString('en-US',{timeZone : filterSite?.timeZone});
+    const siteTime = moment(timeZone).format("HH")
+    //aqui1
+    setLocalTime(siteTime.toString());
     getSitesInfo();
     getServices();
     const arrayOfWeeks = [];
@@ -719,6 +731,8 @@ function App() {
     }
     setWeeks(arrayOfWeeks);
   }, []);
+
+
   // Gets the availability when the date changes
   useEffect(() => {
     if (state.authorization === "") {
@@ -766,6 +780,20 @@ function App() {
               mutableAppointment.segment = segment;
               appointments.push(mutableAppointment);
             });
+
+          const appointmentScheduledAt10am = "10:00";
+          let thereIsAnAppointmentAt10AM = false;
+          
+          availabilityData.schedule.forEach((i) => {
+            i.appointments.forEach((i) => {
+              const citas = moment(i.startDateTime).format('HH:mm').toString();
+              if(citas === appointmentScheduledAt10am){
+                thereIsAnAppointmentAt10AM = true;
+              }
+            })
+          });
+
+          setAppointmentAt10AM(thereIsAnAppointmentAt10AM)
 
             const roomReturn = {
               staffId: room.id,
@@ -907,8 +935,20 @@ function App() {
                 : 0
           );
 
+          // aqui
+         const sortedBlocksFilter = sortedBlocks.filter((available) => {
+            let dis = false;
+            const availability = moment(available.startDateTime).format('HH:mm').toString();
+            if(siteTimeTrigger === localTime && appointmentAt10AM && availability !== availabilityAt9AM){
+              dis = available;
+            }else{
+              if(siteTimeTrigger !== localTime) dis = available;
+            }
+            return dis
+           });
+
           setFirstLoad(false);
-          setAvailableBlocks(sortedBlocks);
+          setAvailableBlocks(sortedBlocksFilter);
 
           setState((state) => ({
             ...state,
@@ -1204,7 +1244,6 @@ function App() {
           const date = new Date;
           const timeZone = date.toLocaleString('en-US',{timeZone : filterSite?.timeZone});
 
-          // aqui1
           const dynamoPayload = {
             id: "" + bookAppointmentData.Appointment.Id,
             sessionTypeId: "" + bookAppointmentData.Appointment.SessionTypeId,
