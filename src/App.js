@@ -178,6 +178,9 @@ function App() {
     const trans = translations[params.get("lang") || "en"];
     return trans[text] || text;
   };
+  const [localTime, setLocalTime] = useState(new Date);
+  const [validateTwoHours, setValidateTwoHours] = useState(false);
+
   const [selectedBlock, setSelectBlock] = useState(null);
   const [showBG, setShowBG] = useState(false);
   const [showHB, setShowHB] = useState(false);
@@ -703,6 +706,10 @@ function App() {
         console.error(JSON.stringify(error));
       }
     }
+    const date = new Date;
+    const filterSite = sitesInfo.find((i) => i.site === `${state.siteId}-${state.locationId}`);
+    const timeZone = date.toLocaleString('en-US',{timeZone : filterSite?.timeZone});
+    setLocalTime(timeZone);
     getSitesInfo();
     getServices();
     const arrayOfWeeks = [];
@@ -719,6 +726,8 @@ function App() {
     }
     setWeeks(arrayOfWeeks);
   }, []);
+
+
   // Gets the availability when the date changes
   useEffect(() => {
     if (state.authorization === "") {
@@ -767,6 +776,20 @@ function App() {
               appointments.push(mutableAppointment);
             });
 
+          const listApointments = [];
+          let firstBlockAvailability = {};
+          availabilityData.schedule.forEach((i) => {
+            firstBlockAvailability = i.availabilities[0];
+            i.appointments.forEach((e) => {listApointments.push(e)})
+          });
+          const minDateAppointment = listApointments.reduce((a, b) => {
+            let minDate; if(a && b) a.startDateTime < b.startDateTime ? minDate = a : minDate = b;
+            return minDate;
+           },{});
+           minDateAppointment.startDateTime < firstBlockAvailability?.startDateTime
+           ? setValidateTwoHours(false)
+           : setValidateTwoHours(true);
+           
             const roomReturn = {
               staffId: room.id,
               staffName: room.name,
@@ -906,9 +929,15 @@ function App() {
                 ? -1
                 : 0
           );
-
+        const hourDifference = moment(localTime).diff(moment(sortedBlocks[0]?.startDateTime),'hours');
+        const filterSortedBlocks = sortedBlocks.filter((available) => {
+          if(validateTwoHours && hourDifference <= -2)
+            return available !== sortedBlocks[0];
+          return available;
+        });
+        
           setFirstLoad(false);
-          setAvailableBlocks(sortedBlocks);
+          setAvailableBlocks(filterSortedBlocks);
 
           setState((state) => ({
             ...state,
@@ -1200,11 +1229,6 @@ function App() {
             nameListAddons = selectedOptionAddons.map((i) => { return i.value });
           }
 
-          const filterSite = sitesInfo.find((i) => i.site === `${state.siteId}-${state.locationId}`);
-          const date = new Date;
-          const timeZone = date.toLocaleString('en-US',{timeZone : filterSite?.timeZone});
-
-          // aqui1
           const dynamoPayload = {
             id: "" + bookAppointmentData.Appointment.Id,
             sessionTypeId: "" + bookAppointmentData.Appointment.SessionTypeId,
@@ -1219,11 +1243,11 @@ function App() {
             firstAppointment: bookAppointmentData.Appointment.FirstAppointment,
             programId: bookAppointmentData.Appointment.ProgramId,
             addOns: nameListAddons,
-            bookDate: moment(timeZone).format("MM/DD/YYYY"),
+            bookDate: moment(localTime).format("MM/DD/YYYY"),
             siteId: state.siteId,
             source: "online",
             cbff: false,
-            bookTime: moment(timeZone).format("HH:mm")
+            bookTime: moment(localTime).format("HH:mm")
           };
           const putDynamo = {
             method: "PUT",
