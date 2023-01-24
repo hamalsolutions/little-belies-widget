@@ -178,7 +178,7 @@ function App() {
     const trans = translations[params.get("lang") || "en"];
     return trans[text] || text;
   };
-  const [localTime, setLocalTime] = useState(new Date);
+  const [localTime, setLocalTime] = useState({date: new Date});
   const [validateTwoHours, setValidateTwoHours] = useState(false);
 
   const [selectedBlock, setSelectBlock] = useState(null);
@@ -478,6 +478,19 @@ function App() {
     }
   }
 
+  useEffect(() => {
+
+    const filterSite = sitesInfo.find((i) => i.site === `${state.siteId}-${state.locationId}`);
+    if(filterSite !== undefined){
+    const date = new Date();
+    const timeZone = date.toLocaleString('en-US',{timeZone : filterSite?.timeZone});
+    setLocalTime((localTime) => ({
+      ...localTime,
+      date: timeZone
+    }));
+    console.log('aqui localTime:', localTime.date)
+    }
+  },[sitesInfo, localTime.date])
 
   const hasBabyGrowth = (service, services) => {
     return services.find((item) => {
@@ -706,11 +719,6 @@ function App() {
         console.error(JSON.stringify(error));
       }
     }
-    const date = new Date;
-    const filterSite = sitesInfo.find((i) => i.site === `${state.siteId}-${state.locationId}`);
-    const timeZone = date.toLocaleString('en-US',{timeZone : filterSite?.timeZone});
-    console.log('aqui localTime:', timeZone)
-    setLocalTime(timeZone);
     getSitesInfo();
     getServices();
     const arrayOfWeeks = [];
@@ -931,8 +939,8 @@ function App() {
                 : 0
           );
 
-          console.log('aqui localTime:', localTime)
-        const hourDifference = moment(localTime).diff(moment(sortedBlocks[0]?.startDateTime),'hours');
+          console.log('aqui localTime boook:', localTime.date)
+        const hourDifference = moment(localTime.date).diff(moment(sortedBlocks[0]?.startDateTime),'hours');
         const filterSortedBlocks = sortedBlocks.filter((available) => {
           if(validateTwoHours && hourDifference <= -2)
             return available !== sortedBlocks[0];
@@ -1246,11 +1254,11 @@ function App() {
             firstAppointment: bookAppointmentData.Appointment.FirstAppointment,
             programId: bookAppointmentData.Appointment.ProgramId,
             addOns: nameListAddons,
-            bookDate: moment(localTime).format("MM/DD/YYYY"),
+            bookDate: moment(localTime.date).format("MM/DD/YYYY"),
             siteId: state.siteId,
             source: "online",
             cbff: false,
-            bookTime: moment(localTime).format("HH:mm")
+            bookTime: moment(localTime.date).format("HH:mm")
           };
           const putDynamo = {
             method: "PUT",
