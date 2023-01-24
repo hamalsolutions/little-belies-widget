@@ -767,7 +767,7 @@ function App() {
             room.appointments.forEach((appointment) => {
               const mutableAppointment = appointment;
               const segment = new Date(
-                mutableAppointment.StartDateTime
+                mutableAppointment.startDateTime
               ).toLocaleTimeString("en-US", {
                 hour: "2-digit",
                 minute: "2-digit",
