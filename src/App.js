@@ -706,11 +706,19 @@ function App() {
         console.error(JSON.stringify(error));
       }
     }
+    const date = new Date;
     const filterSite = sitesInfo.find((i) => i.site === `${state.siteId}-${state.locationId}`);
-    const localDate = new Date();
-    const timeZone = new Date(localDate.toLocaleString('en-US', { timeZone: filterSite?.timeZone }));   
-
-    console.log('aqui localTime:', timeZone)
+    const timeZone = date.toLocaleString('en-US',{
+      timeZone : filterSite?.timeZone,
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit",
+      hourCycle: "h23",
+    });
+    console.log('aqui localTimee:', timeZone)
     setLocalTime(timeZone);
     getSitesInfo();
     getServices();
