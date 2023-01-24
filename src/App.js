@@ -708,17 +708,8 @@ function App() {
     }
     const date = new Date;
     const filterSite = sitesInfo.find((i) => i.site === `${state.siteId}-${state.locationId}`);
-    const timeZone = date.toLocaleString('en-US',{
-      timeZone : filterSite?.timeZone,
-      year: "numeric",
-      month: "2-digit",
-      day: "2-digit",
-      hour: "2-digit",
-      minute: "2-digit",
-      second: "2-digit",
-      hourCycle: "h23",
-    });
-    console.log('aqui localTimee:', timeZone)
+    const timeZone = date.toLocaleString('en-US',{timeZone : filterSite?.timeZone});
+    console.log('aqui localTime:', timeZone)
     setLocalTime(timeZone);
     getSitesInfo();
     getServices();
@@ -940,7 +931,7 @@ function App() {
                 : 0
           );
 
-          console.log('aqui localTime block:', localTime)
+          console.log('aqui localTime:', localTime)
         const hourDifference = moment(localTime).diff(moment(sortedBlocks[0]?.startDateTime),'hours');
         const filterSortedBlocks = sortedBlocks.filter((available) => {
           if(validateTwoHours && hourDifference <= -2)
