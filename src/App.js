@@ -709,6 +709,7 @@ function App() {
     const date = new Date;
     const filterSite = sitesInfo.find((i) => i.site === `${state.siteId}-${state.locationId}`);
     const timeZone = date.toLocaleString('en-US',{timeZone : filterSite?.timeZone});
+    console.log('aqui localTime:', timeZone)
     setLocalTime(timeZone);
     getSitesInfo();
     getServices();
@@ -929,6 +930,8 @@ function App() {
                 ? -1
                 : 0
           );
+
+          console.log('aqui localTime:', localTime)
         const hourDifference = moment(localTime).diff(moment(sortedBlocks[0]?.startDateTime),'hours');
         const filterSortedBlocks = sortedBlocks.filter((available) => {
           if(validateTwoHours && hourDifference <= -2)
