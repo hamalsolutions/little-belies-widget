@@ -641,7 +641,7 @@ function App() {
             setUltrasounds(ultrasounds);
             setConsultedUltrasounds(ultrasoundsData.services);
 
-            if ((state.siteId === "557418" || state.siteId === "902886") && (state.locationId === "1")) {
+            if (state.siteId === "557418" || state.siteId === "902886" || state.siteId === "5721382") {
               filterMassageData.forEach((item) => {
                 const mutableItem = {
                   value: item.sessionTypeId,
