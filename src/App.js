@@ -771,8 +771,12 @@ function App() {
 
         const availabilityData = await availabilityResponse.json();
         if (availabilityResponse.ok) {
+          let firstBlockAvailability = {};
+
           const rooms = availabilityData.schedule.map((room) => {
             const appointments = [];
+            firstBlockAvailability = room.availabilities[0];
+
             room.appointments.forEach((appointment) => {
               const mutableAppointment = appointment;
               const segment = new Date(
@@ -786,19 +790,23 @@ function App() {
             });
 
           const listApointments = [];
-          let firstBlockAvailability = {};
+          const listAvailabities = [];
+
           availabilityData.schedule.forEach((i) => {
-            firstBlockAvailability = i.availabilities[0];
+            i.availabilities.forEach((e) => {listAvailabities.push(e)})
             i.appointments.forEach((e) => {listApointments.push(e)})
           });
+
+          const mintAvailabities = listAvailabities.reduce((a, b) => {
+            let minDate; if(a && b) a.startDateTime < b.startDateTime ? minDate = a : minDate = b;
+            return minDate;
+           },{});
+
           const minDateAppointment = listApointments.reduce((a, b) => {
             let minDate; if(a && b) a.startDateTime < b.startDateTime ? minDate = a : minDate = b;
             return minDate;
            },{});
-           minDateAppointment.startDateTime < firstBlockAvailability?.startDateTime
-           ? setValidateTwoHours(false)
-           : setValidateTwoHours(true);
-           
+
             const roomReturn = {
               staffId: room.id,
               staffName: room.name,
@@ -806,6 +814,8 @@ function App() {
               availabilities: room.availabilities,
               roomBlocks: [],
               appointments: appointments,
+              minAppointment: minDateAppointment,
+              firstBlockAvailability: mintAvailabities,
             };
             return roomReturn;
           });
@@ -909,12 +919,22 @@ function App() {
               availabilities: room.availabilities,
               roomBlocks: roomBlocks,
               availableBlocks: availableBlocks,
+              appointments: room.appointments,
+              minAppointment: room.minAppointment,
+              firstBlockAvailability: room.firstBlockAvailability
             };
             displayableRooms.push(returnRoom);
           });
 
           const availableBlocksForDisplay = [];
+          const allAppointments = [];
+          let firstBlockAvailabilityy;
+          let minAppp;
           displayableRooms.forEach((room) => {
+            allAppointments.push(...room.appointments);
+            minAppp = room.minAppointment;
+            firstBlockAvailabilityy = room.firstBlockAvailability;
+
             room.availableBlocks.forEach((block) => {
               const foundedBlock = availableBlocksForDisplay.find(
                 (availableBlock) => availableBlock.id === block.id
@@ -938,17 +958,44 @@ function App() {
                 ? -1
                 : 0
           );
+      
+      const primeraCita = moment(minAppp?.startDateTime).format("HH:mm");
+      const primerBloqueDisponible = moment(firstBlockAvailabilityy?.startDateTime).format("HH:mm")
+      let bloquesAmostrar = sortedBlocks;
+      const hoy = moment(localTime.date).format("YYYY-MM-DD[T]HH:mm:ss");
+
+      if(primeraCita !== primerBloqueDisponible){
+                                                                      // localTime.date
+        const hourDifference = moment(minAppp?.startDateTime).diff(moment(localTime.date),'hours');
+
+        console.log('hora local:',moment(hoy).format('YYYY-MM-DD HH:mm'))
+        console.log('primera cita:',moment(minAppp?.startDateTime).format('YYYY-MM-DD HH:mm'))
+        console.log('diferecia de agendamiento:',hourDifference)
+
+        if(hourDifference <= 2){
+          console.log('muestro todo lo disponible mayor a la primera cita')
+
+          bloquesAmostrar = sortedBlocks.filter((i) => {
+          return moment(i.startDateTime).format("HH:mm") !== moment(minAppp?.startDateTime).format("HH:mm") 
+          });
+
+        }else{
+          console.log('muestro las disponiblidades mayores a dos horas de la hora del sitio')
+           bloquesAmostrar = sortedBlocks.map((e) => {
+            let dis;
+            const hourDifference = moment(e?.startDateTime).diff(moment(localTime.date),'hours');
+            if(hourDifference > 2){
+              dis = e;
+            }
+            return dis;
+          })
+        }
+      }
 
           console.log('aqui localTime boook:', localTime.date)
-        const hourDifference = moment(localTime.date).diff(moment(sortedBlocks[0]?.startDateTime),'hours');
-        const filterSortedBlocks = sortedBlocks.filter((available) => {
-          if(validateTwoHours && hourDifference <= -2)
-            return available !== sortedBlocks[0];
-          return available;
-        });
         
           setFirstLoad(false);
-          setAvailableBlocks(filterSortedBlocks);
+          setAvailableBlocks(bloquesAmostrar);
 
           setState((state) => ({
             ...state,
