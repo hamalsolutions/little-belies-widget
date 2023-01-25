@@ -179,7 +179,7 @@ function App() {
     return trans[text] || text;
   };
   const [localTime, setLocalTime] = useState({date: new Date});
-  // const [validateTwoHours, setValidateTwoHours] = useState(false);
+  const [validateTwoHours, setValidateTwoHours] = useState(false);
 
   const [selectedBlock, setSelectBlock] = useState(null);
   const [showBG, setShowBG] = useState(false);
@@ -488,6 +488,7 @@ function App() {
       ...localTime,
       date: timeZone
     }));
+    console.log('aqui localTime:', localTime.date)
     }
   },[sitesInfo, localTime.date])
 
@@ -770,10 +771,8 @@ function App() {
 
         const availabilityData = await availabilityResponse.json();
         if (availabilityResponse.ok) {
-          let firstBlockAvailability = {};
           const rooms = availabilityData.schedule.map((room) => {
             const appointments = [];
-            firstBlockAvailability = room.availabilities[0];
             room.appointments.forEach((appointment) => {
               const mutableAppointment = appointment;
               const segment = new Date(
@@ -786,13 +785,20 @@ function App() {
               appointments.push(mutableAppointment);
             });
 
-          // aqui1
-       
-          const minDateAppointment = appointments.reduce((a, b) => {
+          const listApointments = [];
+          let firstBlockAvailability = {};
+          availabilityData.schedule.forEach((i) => {
+            firstBlockAvailability = i.availabilities[0];
+            i.appointments.forEach((e) => {listApointments.push(e)})
+          });
+          const minDateAppointment = listApointments.reduce((a, b) => {
             let minDate; if(a && b) a.startDateTime < b.startDateTime ? minDate = a : minDate = b;
             return minDate;
            },{});
-
+           minDateAppointment.startDateTime < firstBlockAvailability?.startDateTime
+           ? setValidateTwoHours(false)
+           : setValidateTwoHours(true);
+           
             const roomReturn = {
               staffId: room.id,
               staffName: room.name,
@@ -800,8 +806,6 @@ function App() {
               availabilities: room.availabilities,
               roomBlocks: [],
               appointments: appointments,
-              minAppointment: minDateAppointment,
-              firstBlockAvailability: firstBlockAvailability,
             };
             return roomReturn;
           });
@@ -905,22 +909,12 @@ function App() {
               availabilities: room.availabilities,
               roomBlocks: roomBlocks,
               availableBlocks: availableBlocks,
-              appointments: room.appointments,
-              minAppointment: room.minAppointment,
-              firstBlockAvailability: room.firstBlockAvailability
             };
             displayableRooms.push(returnRoom);
           });
 
           const availableBlocksForDisplay = [];
-          const allAppointments = [];
-          let firstBlockAvailabilit;
-          let minAppp;
           displayableRooms.forEach((room) => {
-            allAppointments.push(...room.appointments);
-            minAppp = room.minAppointment;
-            firstBlockAvailabilit = room.firstBlockAvailability;
-
             room.availableBlocks.forEach((block) => {
               const foundedBlock = availableBlocksForDisplay.find(
                 (availableBlock) => availableBlock.id === block.id
@@ -983,6 +977,8 @@ function App() {
         }
       }
 
+          console.log('aqui localTime boook:', localTime.date)
+        
           setFirstLoad(false);
           setAvailableBlocks(bloquesAmostrar);
 
