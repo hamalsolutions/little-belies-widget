@@ -947,15 +947,21 @@ function App() {
 
 
       // aqui
-      const primeraCita = moment(minAppp?.startDateTime).format("HH:mm");
-      const primerBloqueDisponible = moment(firstBlockAvailabilit?.startDateTime).format("HH:mm")
       // const date = new Date("2023","00","25","10","30")
       // const horaLocal = moment(date).format("MM/DD/YYYY");
+      
+      const primeraCita = moment(minAppp?.startDateTime).format("HH:mm");
+      const primerBloqueDisponible = moment(firstBlockAvailabilit?.startDateTime).format("HH:mm")
       let bloquesAmostrar = sortedBlocks;
-        
+      const hoy = moment(localTime.date).format("YYYY-MM-DD[T]HH:mm:ss");
+
       if(primeraCita !== primerBloqueDisponible){
                                                                       // localTime.date
         const hourDifference = moment(minAppp?.startDateTime).diff(moment(localTime.date),'hours');
+
+        console.log('hora local:',moment(hoy).format('YYYY-MM-DD HH:mm'))
+        console.log('primera cita:',moment(minAppp?.startDateTime).format('YYYY-MM-DD HH:mm'))
+        console.log('diferecia de agendamiento:',hourDifference)
 
         if(hourDifference <= 2){
           console.log('muestro todo lo disponible mayor a la primera cita')
