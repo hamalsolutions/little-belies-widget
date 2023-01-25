@@ -915,7 +915,7 @@ function App() {
                   if(hourDifference <= 2){
                     console.log('muestro todo lo disponible mayor a la primera cita')
         
-                    if(moment(mutableBlock.startDateTime) !==  moment(room.firstAppointment?.startDateTime).format("HH:mm")){
+                    if(moment(mutableBlock.startDateTime).format("HH:mm") !== moment(room.firstAppointment?.startDateTime).format("HH:mm")){
                       blocksAvailability =  mutableBlock;
                     }
                   }else{
