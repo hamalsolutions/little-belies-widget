@@ -178,7 +178,7 @@ function App() {
     const trans = translations[params.get("lang") || "en"];
     return trans[text] || text;
   };
-  const [localTime, setLocalTime] = useState({date: new Date});
+  const [localTime, setLocalTime] = useState({ date: new Date });
   const [validateTwoHours, setValidateTwoHours] = useState(false);
 
   const [selectedBlock, setSelectBlock] = useState(null);
@@ -195,8 +195,8 @@ function App() {
     availabilityRequestStatus: "IDLE",
     appointmentRequestStatus: "IDLE",
     city: params.get("city") || "N/A",
-    message: "", 
-    siteId: params.get("id") || "490100", 
+    message: "",
+    siteId: params.get("id") || "490100",
     latitude: params.get("latitude") || "0",
     longitude: params.get("longitude") || "0",
     language: languageList[params.get("lang")] || "English",
@@ -446,7 +446,7 @@ function App() {
     window.parent.postMessage({ task: "google_track_booking", name, service, date, time }, parent_origin);
   };
 
-  
+
   const getSitesInfo = async () => {
     try {
       const getSitesData = {
@@ -481,16 +481,16 @@ function App() {
   useEffect(() => {
 
     const filterSite = sitesInfo.find((i) => i.site === `${state.siteId}-${state.locationId}`);
-    if(filterSite !== undefined){
-    const date = new Date();
-    const timeZone = date.toLocaleString('en-US',{timeZone : filterSite?.timeZone});
-    setLocalTime((localTime) => ({
-      ...localTime,
-      date: timeZone
-    }));
-    console.log('aqui localTime:', localTime.date)
+    if (filterSite !== undefined) {
+      const date = new Date();
+      const timeZone = date.toLocaleString('en-US', { timeZone: filterSite?.timeZone });
+      setLocalTime((localTime) => ({
+        ...localTime,
+        date: timeZone,
+      }));
+      console.log('aqui localTime:', timeZone)
     }
-  },[sitesInfo, localTime.date])
+  }, [sitesInfo, localTime.date])
 
   const hasBabyGrowth = (service, services) => {
     return services.find((item) => {
@@ -771,12 +771,8 @@ function App() {
 
         const availabilityData = await availabilityResponse.json();
         if (availabilityResponse.ok) {
-          let firstBlockAvailability = {};
-
           const rooms = availabilityData.schedule.map((room) => {
             const appointments = [];
-            firstBlockAvailability = room.availabilities[0];
-
             room.appointments.forEach((appointment) => {
               const mutableAppointment = appointment;
               const segment = new Date(
@@ -789,23 +785,22 @@ function App() {
               appointments.push(mutableAppointment);
             });
 
-          const listApointments = [];
-          const listAvailabities = [];
+            const listApointments = [];
+            const listAvailabities = [];
+            availabilityData.schedule.forEach((i) => {
+              i.availabilities.forEach((e) => { listAvailabities.push(e) })
+              i.appointments.forEach((e) => { listApointments.push(e) })
+            });
 
-          availabilityData.schedule.forEach((i) => {
-            i.availabilities.forEach((e) => {listAvailabities.push(e)})
-            i.appointments.forEach((e) => {listApointments.push(e)})
-          });
+            const mintAvailabities = listAvailabities.reduce((a, b) => {
+              let minDate; if (a && b) a.startDateTime < b.startDateTime ? minDate = a : minDate = b;
+              return minDate;
+            }, {});
 
-          const mintAvailabities = listAvailabities.reduce((a, b) => {
-            let minDate; if(a && b) a.startDateTime < b.startDateTime ? minDate = a : minDate = b;
-            return minDate;
-           },{});
-
-          const firstDateAppointment = listApointments.reduce((a, b) => {
-            let minDate; if(a && b) a.startDateTime < b.startDateTime ? minDate = a : minDate = b;
-            return minDate;
-           },{});
+            const firstDateAppointment = listApointments.reduce((a, b) => {
+              let minDate; if (a && b) a.startDateTime < b.startDateTime ? minDate = a : minDate = b;
+              return minDate;
+            }, {});
 
             const roomReturn = {
               staffId: room.id,
@@ -883,8 +878,8 @@ function App() {
                 )
               );
 
-              mutableBlock.appointment =
-                blockAppointment === undefined ? {} : blockAppointment;
+              mutableBlock.appointment = 
+              blockAppointment === undefined ? {} : blockAppointment;
 
               mutableBlock.available = Boolean(available);
               // add time to date
@@ -899,40 +894,47 @@ function App() {
                   second: nowWithTime.second(),
                 });
               }
-              if (blockAppointment === undefined && available && moment(blockDate).isAfter(
-                startMomentWithNowTime.add(2, "hours"))) {
 
-
+              let blocksAvailability;
+              
+              if (blockAppointment === undefined && available && moment(blockDate).isAfter(startMomentWithNowTime.add(2, "hours"))) {
+                availableBlocks.push(mutableBlock);
+              }else {
                 const firstBlockAvailability = moment(room.firstBlockAvailability?.startDateTime).format("HH:mm")
                 const firstAppointment = moment(room.firstAppointment?.startDateTime).format("HH:mm");
-                let blocksAvailability = mutableBlock;
+                const firstAppointmentDateFormat = moment(room.firstAppointment?.startDateTime).format("YYYY-MM-DD[T]HH:mm:ss");
+                const localDate = moment(localTime.date).format("YYYY-MM-DD[T]HH:mm:ss");
 
-                if(firstAppointment !== firstBlockAvailability){
-
-                  const hourDifference = moment(room.firstAppointment?.startDateTime)
-                  .diff(moment(localTime.date),'hours');
-
-                  if(hourDifference <= 2){
-                    console.log('muestro todo lo disponible mayor a la primera cita')
-        
-                    if(moment(mutableBlock.startDateTime).format("HH:mm") !== moment(room.firstAppointment?.startDateTime).format("HH:mm")){
-                      blocksAvailability =  mutableBlock;
+                if (firstAppointment !== firstBlockAvailability) {
+                  const hourDifference = moment(firstAppointmentDateFormat).diff(moment(localDate), 'hours');
+                  if (hourDifference <= 2) {
+                    if (moment(mutableBlock.startDateTime).format("HH:mm") > moment(firstAppointmentDateFormat).format("HH:mm")){ 
+                        blocksAvailability = mutableBlock;
                     }
                   }else{
-                    console.log('muestro disponibilidades mayor a dos horas local')
-                    const hourDifference = moment(mutableBlock?.startDateTime).diff(moment(localTime.date),'hours');
-                    if(hourDifference > 2){
+                    if (moment(mutableBlock.startDateTime).format("HH:mm") > moment(localDate).format("HH:mm")){ 
                       blocksAvailability = mutableBlock;
                     }
                   }
-
+                  
+                } 
+                availableBlocks.push(blocksAvailability);
               }
-
-              availableBlocks.push(blocksAvailability);
-              }
-
+             
               return mutableBlock;
             });
+
+            const filterAvailibities = availableBlocks.filter((i) => {return i !== undefined});
+
+            const newListBlocksAvailability = [];
+            for (var i = 0; i < filterAvailibities.length; i++) {
+                let coincidence=false;
+                 for (var j = 0; j < room.appointments.length & !coincidence; j++) {
+                     if(filterAvailibities[i]['segment'] == room.appointments[j]['segment'])
+                          coincidence=true;
+                 }
+                if(!coincidence) newListBlocksAvailability.push(filterAvailibities[i]);
+            }
 
             const returnRoom = {
               staffId: room.staffId,
@@ -940,7 +942,7 @@ function App() {
               unavailabilities: room.unavailabilities,
               availabilities: room.availabilities,
               roomBlocks: roomBlocks,
-              availableBlocks: availableBlocks,
+              availableBlocks: newListBlocksAvailability,
               appointments: room.appointments,
             };
             displayableRooms.push(returnRoom);
@@ -971,7 +973,7 @@ function App() {
                 ? -1
                 : 0
           );
-        
+
           setFirstLoad(false);
           setAvailableBlocks(sortedBlocks);
 
@@ -1868,38 +1870,38 @@ function App() {
     let newSessionTypeId = clientState.sessionTypeId;
     let newSessionTypeName = clientState.sessionTypeName;
 
-      if (fixedServices.meetyourbaby25 && addBabysGrowth) {
-        newSessionTypeId = getBGCombo(
-          "Meet Your Baby - 25 Min 5D/HD + Baby's Growth $178",
-          consultedUltrasounds
-        );
-        newSessionTypeName = "Meet Your Baby - 25 Min 5D/HD + Baby's Growth $178";
-      }
-      if (fixedServices.meetyourbaby15 && addBabysGrowth) {
-        newSessionTypeId = getBGCombo(
-          "Meet Your Baby - 15 Min 5D/HD + Baby's Growth $138",
-          consultedUltrasounds
-        );
-        newSessionTypeName = "Meet Your Baby - 15 Min 5D/HD + Baby's Growth $138";
-      }
-      if (fixedServices.genderdetermination && addBabysGrowth) {
+    if (fixedServices.meetyourbaby25 && addBabysGrowth) {
+      newSessionTypeId = getBGCombo(
+        "Meet Your Baby - 25 Min 5D/HD + Baby's Growth $178",
+        consultedUltrasounds
+      );
+      newSessionTypeName = "Meet Your Baby - 25 Min 5D/HD + Baby's Growth $178";
+    }
+    if (fixedServices.meetyourbaby15 && addBabysGrowth) {
+      newSessionTypeId = getBGCombo(
+        "Meet Your Baby - 15 Min 5D/HD + Baby's Growth $138",
+        consultedUltrasounds
+      );
+      newSessionTypeName = "Meet Your Baby - 15 Min 5D/HD + Baby's Growth $138";
+    }
+    if (fixedServices.genderdetermination && addBabysGrowth) {
 
-        const costBabysGrowth = 29
-        const costGenderDetermination = seletedService.label.match(/(\d+)/g);
-        const costGenderPlusBabysGrowth = parseFloat(costGenderDetermination[0]) + costBabysGrowth;
+      const costBabysGrowth = 29
+      const costGenderDetermination = seletedService.label.match(/(\d+)/g);
+      const costGenderPlusBabysGrowth = parseFloat(costGenderDetermination[0]) + costBabysGrowth;
 
-        newSessionTypeId = getBGCombo(
-          `Gender Determination  + Baby's Growth - $${costGenderPlusBabysGrowth}  `,
-          consultedUltrasounds
-        );
-        newSessionTypeName = `Gender Determination  + Baby's Growth - $${costGenderPlusBabysGrowth}  `;
+      newSessionTypeId = getBGCombo(
+        `Gender Determination  + Baby's Growth - $${costGenderPlusBabysGrowth}  `,
+        consultedUltrasounds
+      );
+      newSessionTypeName = `Gender Determination  + Baby's Growth - $${costGenderPlusBabysGrowth}  `;
 
-      }
-      setClientState((clientState) => ({
-        ...clientState,
-        sessionTypeId: newSessionTypeId,
-        sessionTypeName: newSessionTypeName,
-      }));
+    }
+    setClientState((clientState) => ({
+      ...clientState,
+      sessionTypeId: newSessionTypeId,
+      sessionTypeName: newSessionTypeName,
+    }));
   }, [
     sendForm,
     clientState.sessionTypeName,
