@@ -195,7 +195,7 @@ function App() {
     availabilityRequestStatus: "IDLE",
     appointmentRequestStatus: "IDLE",
     city: params.get("city") || "N/A",
-    message: "", //aqui
+    message: "", //aqui 
     siteId: params.get("id") || "490100",
     latitude: params.get("latitude") || "0",
     longitude: params.get("longitude") || "0",
@@ -657,7 +657,7 @@ function App() {
                 massageRequest
               );
               const massageData = await massageResponse.json();
-              filterMassageData = massageData.services.filter((i) => {return i.seeOnLine === true});
+              filterMassageData = massageData.services.filter((i) => { return i.seeOnLine === true });
             }
             const ultrasounds = [];
             const massages = [];
@@ -878,8 +878,8 @@ function App() {
                 )
               );
 
-              mutableBlock.appointment = 
-              blockAppointment === undefined ? {} : blockAppointment;
+              mutableBlock.appointment =
+                blockAppointment === undefined ? {} : blockAppointment;
 
               mutableBlock.available = Boolean(available);
               // add time to date
@@ -896,10 +896,11 @@ function App() {
               }
 
               let blocksAvailability;
-              
+              // aqui
+
               if (blockAppointment === undefined && available && moment(blockDate).isAfter(startMomentWithNowTime.add(2, "hours"))) {
                 availableBlocks.push(mutableBlock);
-              }else {
+              } else {
                 const firstBlockAvailability = moment(room.firstBlockAvailability?.startDateTime).format("HH:mm")
                 const firstAppointment = moment(room.firstAppointment?.startDateTime).format("HH:mm");
                 const firstAppointmentDateFormat = moment(room.firstAppointment?.startDateTime).format("YYYY-MM-DD[T]HH:mm:ss");
@@ -907,38 +908,48 @@ function App() {
                 const hourDifferenceAppt = moment(firstAppointmentDateFormat).diff(moment(localDate), 'hours');
                 const hourDifferenceBlocks = moment(mutableBlock.startDateTime).diff(moment(localDate), 'hours');
 
-                if (firstAppointment !== firstBlockAvailability){
+                if (firstAppointment !== firstBlockAvailability) {
 
-                  if (hourDifferenceAppt <= 2){
+                  if (hourDifferenceAppt <= 2) {
                     if (moment(mutableBlock.startDateTime).format("HH:mm") > moment(firstAppointmentDateFormat).format("HH:mm"))
-                        blocksAvailability = mutableBlock;
-                  }else{
-                    if (hourDifferenceBlocks >= 2) 
-                        blocksAvailability = mutableBlock;
+                      blocksAvailability = mutableBlock;
+                  } else {
+                    if (hourDifferenceBlocks >= 2)
+                      blocksAvailability = mutableBlock;
                   }
 
-                }else{ 
-                  if(moment(mutableBlock.startDateTime).format("HH:mm") > moment(localDate).format("HH:mm") &&
-                     moment(mutableBlock.startDateTime).format("HH:mm") > firstBlockAvailability)
-                      blocksAvailability = mutableBlock;
+                } else {
+                  if (moment(mutableBlock.startDateTime).format("HH:mm") > moment(localDate).format("HH:mm") &&
+                    moment(mutableBlock.startDateTime).format("HH:mm") > firstBlockAvailability)
+                    blocksAvailability = mutableBlock;
                 }
                 availableBlocks.push(blocksAvailability);
               }
-             
+
               return mutableBlock;
             });
 
-            const filterAvailibities = availableBlocks.filter((i) => {return i !== undefined});
+            const totalBlocksAvailable = availableBlocks.filter((i) => { return i !== undefined });
+            const validatedAvailableBlocks = [];
 
-            const newListBlocksAvailability = [];
-            for (var i = 0; i < filterAvailibities.length; i++) {
-                let coincidence=false;
-                 for (var j = 0; j < room.appointments.length & !coincidence; j++) {
-                     if(filterAvailibities[i]['segment'] == room.appointments[j]['segment'])
-                          coincidence=true;
-                 }
-                if(!coincidence) newListBlocksAvailability.push(filterAvailibities[i]);
+            for (var i = 0; i < totalBlocksAvailable.length; i++) {
+              let coincidence = false;
+              for (var j = 0; j < room.appointments.length & !coincidence; j++) {
+                if (totalBlocksAvailable[i]['segment'] == room.appointments[j]['segment'])
+                  coincidence = true;
+              }
+              if (!coincidence) validatedAvailableBlocks.push(totalBlocksAvailable[i]);
             }
+
+            const filteredAvailableBlocks = validatedAvailableBlocks.filter((i) => {
+              let availabilitie;
+              room.unavailabilities.forEach((j) => {
+                if(!moment(i.startDateTime).isBetween(j.StartDateTime,j.EndDateTime,undefined,"[)")){
+                  availabilitie = i;
+                }
+              });
+              return availabilitie !== undefined;
+            });
 
             const returnRoom = {
               staffId: room.staffId,
@@ -946,7 +957,7 @@ function App() {
               unavailabilities: room.unavailabilities,
               availabilities: room.availabilities,
               roomBlocks: roomBlocks,
-              availableBlocks: newListBlocksAvailability,
+              availableBlocks: filteredAvailableBlocks,
               appointments: room.appointments,
             };
             displayableRooms.push(returnRoom);
