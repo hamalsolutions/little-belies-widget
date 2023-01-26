@@ -488,7 +488,7 @@ function App() {
         ...localTime,
         date: timeZone,
       }));
-      console.log('aqui localTime:', timeZone)
+      console.log('aqui local:', timeZone)
     }
   }, [sitesInfo, localTime.date])
 
