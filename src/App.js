@@ -908,19 +908,19 @@ function App() {
                 const hourDifferenceBlocks = moment(mutableBlock.startDateTime).diff(moment(localDate), 'hours');
 
                 if (firstAppointment !== firstBlockAvailability){
+
                   if (hourDifferenceAppt <= 2){
-                    if (moment(mutableBlock.startDateTime).format("HH:mm") > moment(firstAppointmentDateFormat).format("HH:mm")){
+                    if (moment(mutableBlock.startDateTime).format("HH:mm") > moment(firstAppointmentDateFormat).format("HH:mm"))
                         blocksAvailability = mutableBlock;
-                    }
                   }else{
-                    if (hourDifferenceBlocks >= 2){
-                      blocksAvailability = mutableBlock;
-                    }
+                    if (hourDifferenceBlocks >= 2) 
+                        blocksAvailability = mutableBlock;
                   }
+
                 }else{ 
-                  if(moment(mutableBlock.startDateTime).format("HH:mm") > moment(localDate).format("HH:mm")){
-                    blocksAvailability = mutableBlock;
-                  }
+                  if(moment(mutableBlock.startDateTime).format("HH:mm") > moment(localDate).format("HH:mm") &&
+                     moment(mutableBlock.startDateTime).format("HH:mm") > firstBlockAvailability)
+                      blocksAvailability = mutableBlock;
                 }
                 availableBlocks.push(blocksAvailability);
               }
@@ -939,11 +939,6 @@ function App() {
                  }
                 if(!coincidence) newListBlocksAvailability.push(filterAvailibities[i]);
             }
-
-            // console.log('bloques disponibles',availableBlocks);
-            // console.log('bloques sin undefined',filterAvailibities);
-            // console.log('todas las citas',room.appointments)
-            // console.log('filtrado terminado',newListBlocksAvailability)
 
             const returnRoom = {
               staffId: room.staffId,
