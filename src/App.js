@@ -951,13 +951,23 @@ function App() {
               return availabilitie !== undefined;
             });
 
+            const filteredAvailableBlocksRange = filteredAvailableBlocks.filter((i) => {
+              let availabilitie;
+              room.availabilities.forEach((j) => {
+                if(moment(i.startDateTime).isBetween(j.startDateTime,j.endDateTime,undefined,"[)")){
+                  availabilitie = i;
+                }
+              });
+              return availabilitie !== undefined;
+            });
+
             const returnRoom = {
               staffId: room.staffId,
               staffName: room.staffName,
               unavailabilities: room.unavailabilities,
               availabilities: room.availabilities,
               roomBlocks: roomBlocks,
-              availableBlocks: filteredAvailableBlocks,
+              availableBlocks: filteredAvailableBlocksRange,
               appointments: room.appointments,
             };
             displayableRooms.push(returnRoom);
