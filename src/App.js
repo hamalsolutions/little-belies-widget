@@ -195,7 +195,7 @@ function App() {
     availabilityRequestStatus: "IDLE",
     appointmentRequestStatus: "IDLE",
     city: params.get("city") || "N/A",
-    message: "",
+    message: "", //aqui
     siteId: params.get("id") || "490100",
     latitude: params.get("latitude") || "0",
     longitude: params.get("longitude") || "0",
@@ -904,20 +904,24 @@ function App() {
                 const firstAppointment = moment(room.firstAppointment?.startDateTime).format("HH:mm");
                 const firstAppointmentDateFormat = moment(room.firstAppointment?.startDateTime).format("YYYY-MM-DD[T]HH:mm:ss");
                 const localDate = moment(localTime.date).format("YYYY-MM-DD[T]HH:mm:ss");
+                const hourDifferenceAppt = moment(firstAppointmentDateFormat).diff(moment(localDate), 'hours');
+                const hourDifferenceBlocks = moment(mutableBlock.startDateTime).diff(moment(localDate), 'hours');
 
-                if (firstAppointment !== firstBlockAvailability) {
-                  const hourDifference = moment(firstAppointmentDateFormat).diff(moment(localDate), 'hours');
-                  if (hourDifference <= 2) {
-                    if (moment(mutableBlock.startDateTime).format("HH:mm") > moment(firstAppointmentDateFormat).format("HH:mm")){ 
+                if (firstAppointment !== firstBlockAvailability){
+                  if (hourDifferenceAppt <= 2){
+                    if (moment(mutableBlock.startDateTime).format("HH:mm") > moment(firstAppointmentDateFormat).format("HH:mm")){
                         blocksAvailability = mutableBlock;
                     }
                   }else{
-                    if (moment(mutableBlock.startDateTime).format("HH:mm") > moment(localDate).format("HH:mm")){ 
+                    if (hourDifferenceBlocks >= 2){
                       blocksAvailability = mutableBlock;
                     }
                   }
-                  
-                } 
+                }else{ 
+                  if(moment(mutableBlock.startDateTime).format("HH:mm") > moment(localDate).format("HH:mm")){
+                    blocksAvailability = mutableBlock;
+                  }
+                }
                 availableBlocks.push(blocksAvailability);
               }
              
@@ -935,6 +939,11 @@ function App() {
                  }
                 if(!coincidence) newListBlocksAvailability.push(filterAvailibities[i]);
             }
+
+            // console.log('bloques disponibles',availableBlocks);
+            // console.log('bloques sin undefined',filterAvailibities);
+            // console.log('todas las citas',room.appointments)
+            // console.log('filtrado terminado',newListBlocksAvailability)
 
             const returnRoom = {
               staffId: room.staffId,
