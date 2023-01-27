@@ -895,9 +895,8 @@ function App() {
                 });
               }
 
-              let blocksAvailability;
               // aqui
-
+              let blocksAvailability;
               if (blockAppointment === undefined && available && moment(blockDate).isAfter(startMomentWithNowTime.add(2, "hours"))) {
                 availableBlocks.push(mutableBlock);
               } else {
@@ -929,19 +928,20 @@ function App() {
               return mutableBlock;
             });
 
-            const totalBlocksAvailable = availableBlocks.filter((i) => { return i !== undefined });
+            const filteredAvailableBlocks = availableBlocks.filter((i) => { return i !== undefined });
             const validatedAvailableBlocks = [];
+            const blocksAvailable = [];
 
-            for (var i = 0; i < totalBlocksAvailable.length; i++) {
+            for (var i = 0; i < filteredAvailableBlocks.length; i++) {
               let coincidence = false;
               for (var j = 0; j < room.appointments.length & !coincidence; j++) {
-                if (totalBlocksAvailable[i]['segment'] == room.appointments[j]['segment'])
+                if (filteredAvailableBlocks[i]['segment'] == room.appointments[j]['segment'])
                   coincidence = true;
               }
-              if (!coincidence) validatedAvailableBlocks.push(totalBlocksAvailable[i]);
+              if (!coincidence) validatedAvailableBlocks.push(filteredAvailableBlocks[i]);
             }
 
-            const filteredAvailableBlocks = validatedAvailableBlocks.filter((i) => {
+            const filteringByRangeUnavailability = validatedAvailableBlocks.filter((i) => {
               let availabilitie;
               room.unavailabilities.forEach((j) => {
                 if(!moment(i.startDateTime).isBetween(j.StartDateTime,j.EndDateTime,undefined,"[)")){
@@ -951,7 +951,7 @@ function App() {
               return availabilitie !== undefined;
             });
 
-            const filteredAvailableBlocksRange = filteredAvailableBlocks.filter((i) => {
+            const filteringByRangeAvailability = filteringByRangeUnavailability.filter((i) => {
               let availabilitie;
               room.availabilities.forEach((j) => {
                 if(moment(i.startDateTime).isBetween(j.startDateTime,j.endDateTime,undefined,"[)")){
@@ -961,13 +961,22 @@ function App() {
               return availabilitie !== undefined;
             });
 
+            for (var i = 0; i < filteringByRangeAvailability.length; i++) {
+              let coincidence = false;
+              for (var j = 0; j < room.unavailabilities.length & !coincidence; j++) {
+                if (filteringByRangeAvailability[i]['startDateTime'] == room.unavailabilities[j]['StartDateTime'])
+                  coincidence = true;
+              }
+              if (!coincidence) blocksAvailable.push(filteringByRangeAvailability[i]);
+            }
+
             const returnRoom = {
               staffId: room.staffId,
               staffName: room.staffName,
               unavailabilities: room.unavailabilities,
               availabilities: room.availabilities,
               roomBlocks: roomBlocks,
-              availableBlocks: filteredAvailableBlocksRange,
+              availableBlocks: blocksAvailable,
               appointments: room.appointments,
             };
             displayableRooms.push(returnRoom);
