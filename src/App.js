@@ -179,7 +179,6 @@ function App() {
     return trans[text] || text;
   };
   const [localTime, setLocalTime] = useState({date: new Date});
-  const [validateTwoHours, setValidateTwoHours] = useState(false);
 
   const [selectedBlock, setSelectBlock] = useState(null);
   const [showBG, setShowBG] = useState(false);
@@ -196,7 +195,7 @@ function App() {
     appointmentRequestStatus: "IDLE",
     city: params.get("city") || "N/A",
     message: "", 
-    siteId: params.get("id") || "490100", 
+    siteId: params.get("id") || "490100",
     latitude: params.get("latitude") || "0",
     longitude: params.get("longitude") || "0",
     language: languageList[params.get("lang")] || "English",
@@ -736,7 +735,20 @@ function App() {
     setWeeks(arrayOfWeeks);
   }, []);
 
+  const getAppointmentsBetweenInterval = (appointment,startTime,endTime) => {
+    return appointment.find((i) => {
+      const appointmentDate = moment(i.startDateTime).format("YYYY-MM-DD[T]HH:mm:ss");
+      return moment(appointmentDate).isBetween(startTime,endTime,undefined,"[)")
+    });
+  }
 
+  const getFirstAvailability = (availabilities) => {
+  return availabilities.reduce((a, b) => {
+    let minDate; if (a && b) a.startDateTime < b.startDateTime ? minDate = a : minDate = b;
+    return minDate;
+    }, {});
+  }
+    
   // Gets the availability when the date changes
   useEffect(() => {
     if (state.authorization === "") {
@@ -785,19 +797,10 @@ function App() {
               appointments.push(mutableAppointment);
             });
 
-          const listApointments = [];
-          let firstBlockAvailability = {};
-          availabilityData.schedule.forEach((i) => {
-            firstBlockAvailability = i.availabilities[0];
-            i.appointments.forEach((e) => {listApointments.push(e)})
-          });
-          const minDateAppointment = listApointments.reduce((a, b) => {
-            let minDate; if(a && b) a.startDateTime < b.startDateTime ? minDate = a : minDate = b;
-            return minDate;
-           },{});
-           minDateAppointment.startDateTime < firstBlockAvailability?.startDateTime
-           ? setValidateTwoHours(false)
-           : setValidateTwoHours(true);
+            const listAvailabities = [];
+            availabilityData.schedule.forEach((i) => {
+              i.availabilities.forEach((e) => { listAvailabities.push(e) })
+            });
            
             const roomReturn = {
               staffId: room.id,
@@ -844,16 +847,37 @@ function App() {
               mutableBlock.blockDate = blockDate;
               mutableBlock.selected = false;
               let available = false;
+
+              const isToday = moment().format("MM/DD/YYYY");
+              let firstBlockTime = moment(isToday).add("09", "hours").add("00", "minutes").toString();
+
+              const localStartTime = moment(localTime.date).format("YYYY-MM-DD[T]HH:mm:ss");
+              const localEndTime = moment(localTime.date).add(2, 'hours').format("YYYY-MM-DD[T]HH:mm:ss");
+              const intervalAppointments = getAppointmentsBetweenInterval(room.appointments,localStartTime,localEndTime);
+
+              const selectedDateBlock = moment(state.startDate).format("MM/DD/YYYY");
+              const firstAppointment =  room.appointments[0]?.startDateTime;
+              const firstAvailability = getFirstAvailability(room.availabilities)?.startDateTime;
+
+              if(isToday === selectedDateBlock && firstAvailability < firstAppointment){
+                if(intervalAppointments){
+                  firstBlockTime = moment(intervalAppointments.startDateTime).toString()
+                }else{
+                  firstBlockTime = moment(localEndTime).toString();
+                }
+              }
+                            
               room.availabilities.forEach((availabilityBlock) => {
                 available =
-                  available +
+                  available + (
                   moment(blockDate).isBetween(
                     availabilityBlock.startDateTime,
                     availabilityBlock.endDateTime,
                     undefined,
                     "[)"
-                  );
+                  ) * (blockDate > firstBlockTime));
               });
+
               room.unavailabilities.forEach((unavailabilityBlock) => {
                 available =
                   available *
@@ -938,17 +962,9 @@ function App() {
                 ? -1
                 : 0
           );
-
-          console.log('aqui localTime boook:', localTime.date)
-        const hourDifference = moment(localTime.date).diff(moment(sortedBlocks[0]?.startDateTime),'hours');
-        const filterSortedBlocks = sortedBlocks.filter((available) => {
-          if(validateTwoHours && hourDifference <= -2)
-            return available !== sortedBlocks[0];
-          return available;
-        });
         
           setFirstLoad(false);
-          setAvailableBlocks(filterSortedBlocks);
+          setAvailableBlocks(sortedBlocks);
 
           setState((state) => ({
             ...state,
