@@ -754,7 +754,7 @@ function App() {
     if (state.authorization === "") {
       return;
     }
-    // console.log("Started working");
+    // console.log("Started working") ;
     const getAvailability = async () => {
       setState((state) => ({
         ...state,
@@ -866,7 +866,7 @@ function App() {
                   firstBlockTime = moment(localEndTime).toString();
                 }
               }
-                            
+
               room.availabilities.forEach((availabilityBlock) => {
                 available =
                   available + (
