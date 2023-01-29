@@ -735,7 +735,7 @@ function App() {
     setWeeks(arrayOfWeeks);
   }, []);
 
-  const getAppointmentsBetweenInterval = (appointment,startTime,endTime) => {
+  const getAppointmentBetweenInterval = (appointment,startTime,endTime) => {
     return appointment.find((i) => {
       const appointmentDate = moment(i.startDateTime).format("YYYY-MM-DD[T]HH:mm:ss");
       return moment(appointmentDate).isBetween(startTime,endTime,undefined,"[)")
@@ -797,10 +797,6 @@ function App() {
               appointments.push(mutableAppointment);
             });
 
-            const listAvailabities = [];
-            availabilityData.schedule.forEach((i) => {
-              i.availabilities.forEach((e) => { listAvailabities.push(e) })
-            });
            
             const roomReturn = {
               staffId: room.id,
@@ -853,15 +849,15 @@ function App() {
 
               const localStartTime = moment(localTime.date).format("YYYY-MM-DD[T]HH:mm:ss");
               const localEndTime = moment(localTime.date).add(2, 'hours').format("YYYY-MM-DD[T]HH:mm:ss");
-              const intervalAppointments = getAppointmentsBetweenInterval(room.appointments,localStartTime,localEndTime);
+              const intervalAppointment = getAppointmentBetweenInterval(room.appointments,localStartTime,localEndTime);
 
               const selectedDateBlock = moment(state.startDate).format("MM/DD/YYYY");
               const firstAppointment =  room.appointments[0]?.startDateTime;
               const firstAvailability = getFirstAvailability(room.availabilities)?.startDateTime;
 
               if(isToday === selectedDateBlock && firstAvailability < firstAppointment){
-                if(intervalAppointments){
-                  firstBlockTime = moment(intervalAppointments.startDateTime).toString()
+                if(intervalAppointment){
+                  firstBlockTime = moment(intervalAppointment.startDateTime).toString();
                 }else{
                   firstBlockTime = moment(localEndTime).toString();
                 }
@@ -901,25 +897,8 @@ function App() {
                 blockAppointment === undefined ? {} : blockAppointment;
 
               mutableBlock.available = Boolean(available);
-              // add time to date
-              var startMomentWithNowTime = moment(state.startDate);
-              var now = moment().format("MM/DD/YYYY");
-              if (now === startMomentWithNowTime.format("MM/DD/YYYY")) {
-                // console.log("IS TODAY")
-                var nowWithTime = moment();
-                startMomentWithNowTime = startMomentWithNowTime.set({
-                  hour: nowWithTime.hour(),
-                  minute: nowWithTime.minute(),
-                  second: nowWithTime.second(),
-                });
-              }
-              if (
-                blockAppointment === undefined &&
-                available &&
-                moment(blockDate).isAfter(
-                  startMomentWithNowTime.add(2, "hours")
-                )
-              ) {
+
+              if (blockAppointment === undefined && available) {
                 availableBlocks.push(mutableBlock);
               }
 
