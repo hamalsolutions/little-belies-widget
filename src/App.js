@@ -195,7 +195,7 @@ function App() {
     appointmentRequestStatus: "IDLE",
     city: params.get("city") || "N/A",
     message: "",
-    siteId: params.get("id") || "490100", // aqui 490100 557418
+    siteId: params.get("id") || "490100", 
     latitude: params.get("latitude") || "0",
     longitude: params.get("longitude") || "0",
     language: languageList[params.get("lang")] || "English",
@@ -487,7 +487,7 @@ function App() {
         ...localTime,
         date: timeZone
       }));
-      console.log('aqui localTime:', timeZone)
+      console.log('localTime:', timeZone)
     }
   }, [sitesInfo, localTime.date])
 
@@ -797,34 +797,14 @@ function App() {
               appointments.push(mutableAppointment);
             });
 
-            const listApointments = [];
-            availabilityData.schedule.forEach((i) => {
-              listApointments.push(i.appointments[0])
-            });
-
-            const searchFirstAppointment = listApointments.reduce((acc, app) => {
-              acc[app?.startDateTime] = ++acc[app?.startDateTime] || 0;
-              return acc;
-            }, {});
-
-            const firstDatesMatches = listApointments.filter((app) => {
-              return searchFirstAppointment[app?.startDateTime];
-            });
-
-            let firstDates = {
-              matches: firstDatesMatches.length !== 0 ? firstDatesMatches[0] : undefined,
-              severalRooms: listApointments.length > 1
-            };
-            // aqui
-
+            
             const roomReturn = {
               staffId: room.id,
               staffName: room.name,
               unavailabilities: room.unavailabilities,
               availabilities: room.availabilities,
               roomBlocks: [],
-              appointments: appointments,
-              firstDatesMatches: firstDates
+              appointments: appointments
             };
             return roomReturn;
           });
@@ -864,83 +844,35 @@ function App() {
               mutableBlock.selected = false;
               let available = false;
               let firstBlockTime;
-
-              const isToday = moment().format("MM/DD/YYYY");
-
+              const isToday = moment().format("MM/DD/YYYY"); 
               const localStartTime = moment(localTime.date).format("YYYY-MM-DD[T]HH:mm:ss");
-              const localEndTime = moment(localTime.date).add(2, 'hours').format("YYYY-MM-DD[T]HH:mm:ss");
-              const intervalAppointment = getAppointmentBetweenInterval(room.appointments, localStartTime, localEndTime);
+              const localEndTime = moment(localTime.date).add(2, 'hours').format("YYYY-MM-DD[T]HH:mm:ss"); 
+              const intervalAppointment = getAppointmentBetweenInterval(room.appointments, localStartTime, localEndTime); 
 
-              const selectedDateBlock = moment(state.startDate).format("MM/DD/YYYY"); // aqui
-              const firstAppointment = room.appointments[0]?.startDateTime;
-              const firstAvailability = getFirstAvailability(room.availabilities)?.startDateTime;
-              // const hourDifferenceAppt = moment(firstAppointment).diff(moment(localDate), 'hours');
+              const selectedDateBlock = moment(state.startDate).format("MM/DD/YYYY"); 
+              const firstAppointment = room.appointments[0]?.startDateTime; 
+              const firstAvailability = getFirstAvailability(room.availabilities)?.startDateTime; 
 
               if (isToday === selectedDateBlock) {
 
-                if (room.firstDatesMatches.severalRooms) {
+                if(firstAvailability < firstAppointment){
 
-                  if (room.firstDatesMatches.matches !== undefined) {
-                    const firstAppt = room.firstDatesMatches.matches.startDateTime;
-
-                    if (firstAppt !== firstAvailability){
-
-                      if (blockDate > moment(localStartTime).toString() && blockDate > moment().toString(firstAppt)) {
-                        firstBlockTime = moment(localStartTime).toString();
-                        console.log(1.1)
-                      }
-
-                    }
-
-                    if(firstAppt === firstAvailability){
-
-                      if (blockDate > moment(localStartTime).toString()) {
-                        firstBlockTime = moment(firstAppt).toString();
-                        console.log(1.2)
-                      }
-
-                    }
-
-                  } 
-
-                if(!room.firstDatesMatches.matches){
-
-                  if (blockDate > moment(localStartTime).toString()) {
-                    firstBlockTime = moment(firstAvailability).toString();
-                    console.log(1.3)
+                  if(intervalAppointment){
+                    firstBlockTime = moment(intervalAppointment.startDateTime).toString()
+                  }
+                  if(!intervalAppointment){
+                    firstBlockTime = moment(localEndTime).toString();
                   }
 
+                }else{
+                  firstBlockTime = moment(localEndTime).toString();
                 }
-                }
 
-                if (!room.firstDatesMatches.severalRooms) {
-
-                  if (firstAppointment !== firstAvailability) {
-                    if (blockDate > moment(localStartTime).toString() && blockDate > moment(firstAppointment).toString()) {
-                      firstBlockTime = moment(localStartTime).toString();
-                      console.log(2.1)
-                    }
-                  }
-
-                  if (firstAppointment === firstAvailability) {
-                    if (intervalAppointment && blockDate > moment(localStartTime).toString()) {
-                      firstBlockTime = moment(intervalAppointment.startDateTime).toString()
-                      console.log(2.2)
-                    }
-
-                    if (!intervalAppointment && blockDate > moment(localStartTime).toString()) {
-                      console.log(2.3)
-                      firstBlockTime = moment(firstAppointment).toString();
-                    }
-                  }
-
-                }
               } 
 
-              if (isToday !== selectedDateBlock) {
+              if(isToday !== selectedDateBlock){
                 firstBlockTime = moment(state.startDate).add("09", "hours").add("00", "minutes").toString();
               }
-              
 
               room.availabilities.forEach((availabilityBlock) => {
                 available =
@@ -950,7 +882,7 @@ function App() {
                       availabilityBlock.endDateTime,
                       undefined,
                       "[)"
-                    ) * (blockDate >= firstBlockTime));
+                    ) * (blockDate >= firstBlockTime)); 
               });
 
               room.unavailabilities.forEach((unavailabilityBlock) => {
@@ -1076,17 +1008,17 @@ function App() {
     }));
   };
   // Search availabilities until found available space
-  // useEffect(() => {
-  //   const nextDay = moment(state.startDate)
-  //     .add(1, "days")
-  //     .format("MM/DD/YYYY")
-  //     .toString();
-  //   if (availableBlocks.length === 0 && !firstLoad) {
-  //     setTimeout(() => {
-  //       onSelectedDay(nextDay);
-  //     }, 500);
-  //   }
-  // }, [availableBlocks]);
+  useEffect(() => {
+    const nextDay = moment(state.startDate)
+      .add(1, "days")
+      .format("MM/DD/YYYY")
+      .toString();
+    if (availableBlocks.length === 0 && !firstLoad) {
+      setTimeout(() => {
+        onSelectedDay(nextDay);
+      }, 500);
+    }
+  }, [availableBlocks]);
   // Saves the selected available block into a state
   const handleAvailabilityBlockSelect = async (block) => {
 
