@@ -179,7 +179,6 @@ function App() {
     return trans[text] || text;
   };
   const [localTime, setLocalTime] = useState({ date: new Date });
-  const [validateTwoHours, setValidateTwoHours] = useState(false);
 
   const [selectedBlock, setSelectBlock] = useState(null);
   const [showBG, setShowBG] = useState(false);
@@ -195,8 +194,8 @@ function App() {
     availabilityRequestStatus: "IDLE",
     appointmentRequestStatus: "IDLE",
     city: params.get("city") || "N/A",
-    message: "", //aqui 
-    siteId: params.get("id") || "490100",
+    message: "",
+    siteId: params.get("id") || "490100", 
     latitude: params.get("latitude") || "0",
     longitude: params.get("longitude") || "0",
     language: languageList[params.get("lang")] || "English",
@@ -486,9 +485,9 @@ function App() {
       const timeZone = date.toLocaleString('en-US', { timeZone: filterSite?.timeZone });
       setLocalTime((localTime) => ({
         ...localTime,
-        date: timeZone,
+        date: timeZone
       }));
-      console.log('aqui local:', timeZone)
+      console.log('localTime:', timeZone)
     }
   }, [sitesInfo, localTime.date])
 
@@ -736,13 +735,26 @@ function App() {
     setWeeks(arrayOfWeeks);
   }, []);
 
+  const getAppointmentBetweenInterval = (appointment, startTime, endTime) => {
+    return appointment.find((i) => {
+      const appointmentDate = moment(i.startDateTime).format("YYYY-MM-DD[T]HH:mm:ss");
+      return moment(appointmentDate).isBetween(startTime, endTime, undefined, "[)")
+    });
+  }
+
+  const getFirstAvailability = (availabilities) => {
+    return availabilities.reduce((a, b) => {
+      let minDate; if (a && b) a.startDateTime < b.startDateTime ? minDate = a : minDate = b;
+      return minDate;
+    }, {});
+  }
 
   // Gets the availability when the date changes
   useEffect(() => {
     if (state.authorization === "") {
       return;
     }
-    // console.log("Started working");
+    // console.log("Started working") ;
     const getAvailability = async () => {
       setState((state) => ({
         ...state,
@@ -785,32 +797,14 @@ function App() {
               appointments.push(mutableAppointment);
             });
 
-            const listApointments = [];
-            const listAvailabities = [];
-            availabilityData.schedule.forEach((i) => {
-              i.availabilities.forEach((e) => { listAvailabities.push(e) })
-              i.appointments.forEach((e) => { listApointments.push(e) })
-            });
-
-            const mintAvailabities = listAvailabities.reduce((a, b) => {
-              let minDate; if (a && b) a.startDateTime < b.startDateTime ? minDate = a : minDate = b;
-              return minDate;
-            }, {});
-
-            const firstDateAppointment = listApointments.reduce((a, b) => {
-              let minDate; if (a && b) a.startDateTime < b.startDateTime ? minDate = a : minDate = b;
-              return minDate;
-            }, {});
-
+            
             const roomReturn = {
               staffId: room.id,
               staffName: room.name,
               unavailabilities: room.unavailabilities,
               availabilities: room.availabilities,
               roomBlocks: [],
-              appointments: appointments,
-              firstAppointment: firstDateAppointment,
-              firstBlockAvailability: mintAvailabities,
+              appointments: appointments
             };
             return roomReturn;
           });
@@ -849,16 +843,42 @@ function App() {
               mutableBlock.blockDate = blockDate;
               mutableBlock.selected = false;
               let available = false;
+              let firstBlockTime;
+              const isToday = moment().format("MM/DD/YYYY"); 
+              const localStartTime = moment(localTime.date).format("YYYY-MM-DD[T]HH:mm:ss");
+              const localEndTime = moment(localTime.date).add(2, 'hours').format("YYYY-MM-DD[T]HH:mm:ss"); 
+              const intervalAppointment = getAppointmentBetweenInterval(room.appointments, localStartTime, localEndTime); 
+
+              const selectedDateBlock = moment(state.startDate).format("MM/DD/YYYY"); 
+              const firstAppointment = room.appointments[0]?.startDateTime; 
+              const firstAvailability = getFirstAvailability(room.availabilities)?.startDateTime; 
+
+              if (isToday === selectedDateBlock) {
+
+                if(firstAvailability < firstAppointment){
+
+                  if(intervalAppointment) firstBlockTime = moment(intervalAppointment.startDateTime).toString();
+                  
+                  if(!intervalAppointment) firstBlockTime = moment(localEndTime).toString();
+
+                }else{
+                  firstBlockTime = moment(localEndTime).toString();
+                }
+              } 
+
+              if(isToday !== selectedDateBlock) firstBlockTime = moment(state.startDate).add("09", "hours").add("00", "minutes").toString();
+              
               room.availabilities.forEach((availabilityBlock) => {
                 available =
-                  available +
-                  moment(blockDate).isBetween(
-                    availabilityBlock.startDateTime,
-                    availabilityBlock.endDateTime,
-                    undefined,
-                    "[)"
-                  );
+                  available + (
+                    moment(blockDate).isBetween(
+                      availabilityBlock.startDateTime,
+                      availabilityBlock.endDateTime,
+                      undefined,
+                      "[)"
+                    ) * (blockDate >= firstBlockTime)); 
               });
+
               room.unavailabilities.forEach((unavailabilityBlock) => {
                 available =
                   available *
@@ -882,93 +902,13 @@ function App() {
                 blockAppointment === undefined ? {} : blockAppointment;
 
               mutableBlock.available = Boolean(available);
-              // add time to date
-              var startMomentWithNowTime = moment(state.startDate);
-              var now = moment().format("MM/DD/YYYY");
-              if (now === startMomentWithNowTime.format("MM/DD/YYYY")) {
-                // console.log("IS TODAY")
-                var nowWithTime = moment();
-                startMomentWithNowTime = startMomentWithNowTime.set({
-                  hour: nowWithTime.hour(),
-                  minute: nowWithTime.minute(),
-                  second: nowWithTime.second(),
-                });
-              }
 
-              // aqui
-              let blocksAvailability;
-              if (blockAppointment === undefined && available && moment(blockDate).isAfter(startMomentWithNowTime.add(2, "hours"))) {
+              if (blockAppointment === undefined && available) {
                 availableBlocks.push(mutableBlock);
-              } else {
-                const firstBlockAvailability = moment(room.firstBlockAvailability?.startDateTime).format("HH:mm")
-                const firstAppointment = moment(room.firstAppointment?.startDateTime).format("HH:mm");
-                const firstAppointmentDateFormat = moment(room.firstAppointment?.startDateTime).format("YYYY-MM-DD[T]HH:mm:ss");
-                const localDate = moment(localTime.date).format("YYYY-MM-DD[T]HH:mm:ss");
-                const hourDifferenceAppt = moment(firstAppointmentDateFormat).diff(moment(localDate), 'hours');
-                const hourDifferenceBlocks = moment(mutableBlock.startDateTime).diff(moment(localDate), 'hours');
-
-                if (firstAppointment !== firstBlockAvailability) {
-
-                  if (hourDifferenceAppt <= 2) {
-                    if (moment(mutableBlock.startDateTime).format("HH:mm") > moment(firstAppointmentDateFormat).format("HH:mm"))
-                      blocksAvailability = mutableBlock;
-                  } else {
-                    if (hourDifferenceBlocks >= 2)
-                      blocksAvailability = mutableBlock;
-                  }
-
-                } else {
-                  if (moment(mutableBlock.startDateTime).format("HH:mm") > moment(localDate).format("HH:mm") &&
-                    moment(mutableBlock.startDateTime).format("HH:mm") > firstBlockAvailability)
-                    blocksAvailability = mutableBlock;
-                }
-                availableBlocks.push(blocksAvailability);
               }
 
               return mutableBlock;
             });
-
-            const filteredAvailableBlocks = availableBlocks.filter((i) => { return i !== undefined });
-            const validatedAvailableBlocks = [];
-            const blocksAvailable = [];
-
-            for (var i = 0; i < filteredAvailableBlocks.length; i++) {
-              let coincidence = false;
-              for (var j = 0; j < room.appointments.length & !coincidence; j++) {
-                if (filteredAvailableBlocks[i]['segment'] == room.appointments[j]['segment'])
-                  coincidence = true;
-              }
-              if (!coincidence) validatedAvailableBlocks.push(filteredAvailableBlocks[i]);
-            }
-
-            const filteringByRangeUnavailability = validatedAvailableBlocks.filter((i) => {
-              let availabilitie;
-              room.unavailabilities.forEach((j) => {
-                if(!moment(i.startDateTime).isBetween(j.StartDateTime,j.EndDateTime,undefined,"[)")){
-                  availabilitie = i;
-                }
-              });
-              return availabilitie !== undefined;
-            });
-
-            const filteringByRangeAvailability = filteringByRangeUnavailability.filter((i) => {
-              let availabilitie;
-              room.availabilities.forEach((j) => {
-                if(moment(i.startDateTime).isBetween(j.startDateTime,j.endDateTime,undefined,"[)")){
-                  availabilitie = i;
-                }
-              });
-              return availabilitie !== undefined;
-            });
-
-            for (var i = 0; i < filteringByRangeAvailability.length; i++) {
-              let coincidence = false;
-              for (var j = 0; j < room.unavailabilities.length & !coincidence; j++) {
-                if (filteringByRangeAvailability[i]['startDateTime'] == room.unavailabilities[j]['StartDateTime'])
-                  coincidence = true;
-              }
-              if (!coincidence) blocksAvailable.push(filteringByRangeAvailability[i]);
-            }
 
             const returnRoom = {
               staffId: room.staffId,
@@ -976,8 +916,7 @@ function App() {
               unavailabilities: room.unavailabilities,
               availabilities: room.availabilities,
               roomBlocks: roomBlocks,
-              availableBlocks: blocksAvailable,
-              appointments: room.appointments,
+              availableBlocks: availableBlocks,
             };
             displayableRooms.push(returnRoom);
           });
