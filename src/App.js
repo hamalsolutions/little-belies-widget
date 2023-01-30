@@ -874,6 +874,7 @@ function App() {
               const selectedDateBlock = moment(state.startDate).format("MM/DD/YYYY"); // aqui
               const firstAppointment = room.appointments[0]?.startDateTime;
               const firstAvailability = getFirstAvailability(room.availabilities)?.startDateTime;
+              // const hourDifferenceAppt = moment(firstAppointment).diff(moment(localDate), 'hours');
 
               if (isToday === selectedDateBlock) {
 
@@ -889,28 +890,30 @@ function App() {
                         console.log(1.1)
                       }
 
-                      }else{
-
-                        if (blockDate > moment(localStartTime).toString()) {
-                          firstBlockTime = moment(firstAppt).toString();
-                          console.log(1.2)
-                        }
-
-                      }
-
-                  } else {
-                    
-                    if (blockDate > moment(localStartTime).toString()) {
-                        firstBlockTime = moment(firstAvailability).toString();
-                        console.log(1.3)
                     }
 
+                    if(firstAppt === firstAvailability){
+
+                      if (blockDate > moment(localStartTime).toString()) {
+                        firstBlockTime = moment(firstAppt).toString();
+                        console.log(1.2)
+                      }
+
+                    }
+
+                  } 
+
+                if(!room.firstDatesMatches.matches){
+
+                  if (blockDate > moment(localStartTime).toString()) {
+                    firstBlockTime = moment(firstAvailability).toString();
+                    console.log(1.3)
                   }
+
+                }
                 }
 
                 if (!room.firstDatesMatches.severalRooms) {
-
-                  console.log('un cuarto')
 
                   if (firstAppointment !== firstAvailability) {
                     if (blockDate > moment(localStartTime).toString() && blockDate > moment(firstAppointment).toString()) {
@@ -921,7 +924,6 @@ function App() {
 
                   if (firstAppointment === firstAvailability) {
                     if (intervalAppointment && blockDate > moment(localStartTime).toString()) {
-                                      //  moment(firstAppointment).toString();
                       firstBlockTime = moment(intervalAppointment.startDateTime).toString()
                       console.log(2.2)
                     }
@@ -933,9 +935,12 @@ function App() {
                   }
 
                 }
-              } else {
+              } 
+
+              if (isToday !== selectedDateBlock) {
                 firstBlockTime = moment(state.startDate).add("09", "hours").add("00", "minutes").toString();
               }
+              
 
               room.availabilities.forEach((availabilityBlock) => {
                 available =
