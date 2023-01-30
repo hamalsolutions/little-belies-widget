@@ -178,7 +178,7 @@ function App() {
     const trans = translations[params.get("lang") || "en"];
     return trans[text] || text;
   };
-  const [localTime, setLocalTime] = useState({date: new Date});
+  const [localTime, setLocalTime] = useState({ date: new Date });
 
   const [selectedBlock, setSelectBlock] = useState(null);
   const [showBG, setShowBG] = useState(false);
@@ -194,12 +194,12 @@ function App() {
     availabilityRequestStatus: "IDLE",
     appointmentRequestStatus: "IDLE",
     city: params.get("city") || "N/A",
-    message: "", 
-    siteId: params.get("id") || "557418", // aqui
+    message: "",
+    siteId: params.get("id") || "490100", // aqui 490100 557418
     latitude: params.get("latitude") || "0",
     longitude: params.get("longitude") || "0",
     language: languageList[params.get("lang")] || "English",
-    locationId: "2",
+    locationId: params.get("city") !== "coral-springs" ? "1" : "2",
     authorization: "",
     address: params.get("address") || "N/A",
     phone: params.get("phone") || "N/A",
@@ -445,7 +445,7 @@ function App() {
     window.parent.postMessage({ task: "google_track_booking", name, service, date, time }, parent_origin);
   };
 
-  
+
   const getSitesInfo = async () => {
     try {
       const getSitesData = {
@@ -480,16 +480,16 @@ function App() {
   useEffect(() => {
 
     const filterSite = sitesInfo.find((i) => i.site === `${state.siteId}-${state.locationId}`);
-    if(filterSite !== undefined){
-    const date = new Date();
-    const timeZone = date.toLocaleString('en-US',{timeZone : filterSite?.timeZone});
-    setLocalTime((localTime) => ({
-      ...localTime,
-      date: timeZone
-    }));
-    console.log('aqui localTime:', localTime.date)
+    if (filterSite !== undefined) {
+      const date = new Date();
+      const timeZone = date.toLocaleString('en-US', { timeZone: filterSite?.timeZone });
+      setLocalTime((localTime) => ({
+        ...localTime,
+        date: timeZone
+      }));
+      console.log('aqui localTime:', timeZone)
     }
-  },[sitesInfo, localTime.date])
+  }, [sitesInfo, localTime.date])
 
   const hasBabyGrowth = (service, services) => {
     return services.find((item) => {
@@ -656,7 +656,7 @@ function App() {
                 massageRequest
               );
               const massageData = await massageResponse.json();
-              filterMassageData = massageData.services.filter((i) => {return i.seeOnLine === true});
+              filterMassageData = massageData.services.filter((i) => { return i.seeOnLine === true });
             }
             const ultrasounds = [];
             const massages = [];
@@ -735,20 +735,20 @@ function App() {
     setWeeks(arrayOfWeeks);
   }, []);
 
-  const getAppointmentBetweenInterval = (appointment,startTime,endTime) => {
+  const getAppointmentBetweenInterval = (appointment, startTime, endTime) => {
     return appointment.find((i) => {
       const appointmentDate = moment(i.startDateTime).format("YYYY-MM-DD[T]HH:mm:ss");
-      return moment(appointmentDate).isBetween(startTime,endTime,undefined,"[)")
+      return moment(appointmentDate).isBetween(startTime, endTime, undefined, "[)")
     });
   }
 
   const getFirstAvailability = (availabilities) => {
-  return availabilities.reduce((a, b) => {
-    let minDate; if (a && b) a.startDateTime < b.startDateTime ? minDate = a : minDate = b;
-    return minDate;
+    return availabilities.reduce((a, b) => {
+      let minDate; if (a && b) a.startDateTime < b.startDateTime ? minDate = a : minDate = b;
+      return minDate;
     }, {});
   }
-    
+
   // Gets the availability when the date changes
   useEffect(() => {
     if (state.authorization === "") {
@@ -797,7 +797,26 @@ function App() {
               appointments.push(mutableAppointment);
             });
 
-           
+            const listApointments = [];
+            availabilityData.schedule.forEach((i) => {
+              listApointments.push(i.appointments[0])
+            });
+
+            const searchFirstAppointment = listApointments.reduce((acc, app) => {
+              acc[app?.startDateTime] = ++acc[app?.startDateTime] || 0;
+              return acc;
+            }, {});
+
+            const firstDatesMatches = listApointments.filter((app) => {
+              return searchFirstAppointment[app?.startDateTime];
+            });
+
+            let firstDates = {
+              matches: firstDatesMatches.length !== 0 ? firstDatesMatches[0] : undefined,
+              severalRooms: listApointments.length > 1
+            };
+            // aqui
+
             const roomReturn = {
               staffId: room.id,
               staffName: room.name,
@@ -805,6 +824,7 @@ function App() {
               availabilities: room.availabilities,
               roomBlocks: [],
               appointments: appointments,
+              firstDatesMatches: firstDates
             };
             return roomReturn;
           });
@@ -849,38 +869,83 @@ function App() {
 
               const localStartTime = moment(localTime.date).format("YYYY-MM-DD[T]HH:mm:ss");
               const localEndTime = moment(localTime.date).add(2, 'hours').format("YYYY-MM-DD[T]HH:mm:ss");
-              const intervalAppointment = getAppointmentBetweenInterval(room.appointments,localStartTime,localEndTime);
+              const intervalAppointment = getAppointmentBetweenInterval(room.appointments, localStartTime, localEndTime);
 
               const selectedDateBlock = moment(state.startDate).format("MM/DD/YYYY"); // aqui
-              const firstAppointment =  room.appointments[0]?.startDateTime;
+              const firstAppointment = room.appointments[0]?.startDateTime;
               const firstAvailability = getFirstAvailability(room.availabilities)?.startDateTime;
-              
-            if(isToday === selectedDateBlock){
 
-              if(firstAppointment !== firstAvailability)
-                if(blockDate > moment(localStartTime).toString() && blockDate > moment(firstAppointment).toString())
-                  firstBlockTime = moment(localStartTime).toString(); 
-            
-              if(firstAppointment === firstAvailability)
-                if(intervalAppointment && blockDate > moment(localStartTime).toString())
-                  firstBlockTime = moment(firstAppointment).toString(); 
+              if (isToday === selectedDateBlock) {
 
-                if(!intervalAppointment && blockDate > moment(localStartTime).toString())
-                  firstBlockTime = moment(firstAppointment).toString();
-                  
-            }else{
+                if (room.firstDatesMatches.severalRooms) {
+
+                  if (room.firstDatesMatches.matches !== undefined) {
+                    const firstAppt = room.firstDatesMatches.matches.startDateTime;
+
+                    if (firstAppt !== firstAvailability){
+
+                      if (blockDate > moment(localStartTime).toString() && blockDate > moment().toString(firstAppt)) {
+                        firstBlockTime = moment(localStartTime).toString();
+                        console.log(1.1)
+                      }
+
+                      }else{
+
+                        if (blockDate > moment(localStartTime).toString()) {
+                          firstBlockTime = moment(firstAppt).toString();
+                          console.log(1.2)
+                        }
+
+                      }
+
+                  } else {
+                    
+                    if (blockDate > moment(localStartTime).toString()) {
+                        firstBlockTime = moment(firstAvailability).toString();
+                        console.log(1.3)
+                    }
+
+                  }
+                }
+
+                if (!room.firstDatesMatches.severalRooms) {
+
+                  console.log('un cuarto')
+
+                  if (firstAppointment !== firstAvailability) {
+                    if (blockDate > moment(localStartTime).toString() && blockDate > moment(firstAppointment).toString()) {
+                      firstBlockTime = moment(localStartTime).toString();
+                      console.log(2.1)
+                    }
+                  }
+
+                  if (firstAppointment === firstAvailability) {
+                    if (intervalAppointment && blockDate > moment(localStartTime).toString()) {
+                                      //  moment(firstAppointment).toString();
+                      firstBlockTime = moment(intervalAppointment.startDateTime).toString()
+                      console.log(2.2)
+                    }
+
+                    if (!intervalAppointment && blockDate > moment(localStartTime).toString()) {
+                      console.log(2.3)
+                      firstBlockTime = moment(firstAppointment).toString();
+                    }
+                  }
+
+                }
+              } else {
                 firstBlockTime = moment(state.startDate).add("09", "hours").add("00", "minutes").toString();
-            }
+              }
 
               room.availabilities.forEach((availabilityBlock) => {
                 available =
                   available + (
-                  moment(blockDate).isBetween(
-                    availabilityBlock.startDateTime,
-                    availabilityBlock.endDateTime,
-                    undefined,
-                    "[)"
-                  ) * (blockDate >= firstBlockTime));
+                    moment(blockDate).isBetween(
+                      availabilityBlock.startDateTime,
+                      availabilityBlock.endDateTime,
+                      undefined,
+                      "[)"
+                    ) * (blockDate >= firstBlockTime));
               });
 
               room.unavailabilities.forEach((unavailabilityBlock) => {
@@ -950,7 +1015,7 @@ function App() {
                 ? -1
                 : 0
           );
-        
+
           setFirstLoad(false);
           setAvailableBlocks(sortedBlocks);
 
@@ -1006,17 +1071,17 @@ function App() {
     }));
   };
   // Search availabilities until found available space
-  useEffect(() => {
-    const nextDay = moment(state.startDate)
-      .add(1, "days")
-      .format("MM/DD/YYYY")
-      .toString();
-    if (availableBlocks.length === 0 && !firstLoad) {
-      setTimeout(() => {
-        onSelectedDay(nextDay);
-      }, 500);
-    }
-  }, [availableBlocks]);
+  // useEffect(() => {
+  //   const nextDay = moment(state.startDate)
+  //     .add(1, "days")
+  //     .format("MM/DD/YYYY")
+  //     .toString();
+  //   if (availableBlocks.length === 0 && !firstLoad) {
+  //     setTimeout(() => {
+  //       onSelectedDay(nextDay);
+  //     }, 500);
+  //   }
+  // }, [availableBlocks]);
   // Saves the selected available block into a state
   const handleAvailabilityBlockSelect = async (block) => {
 
@@ -1847,38 +1912,38 @@ function App() {
     let newSessionTypeId = clientState.sessionTypeId;
     let newSessionTypeName = clientState.sessionTypeName;
 
-      if (fixedServices.meetyourbaby25 && addBabysGrowth) {
-        newSessionTypeId = getBGCombo(
-          "Meet Your Baby - 25 Min 5D/HD + Baby's Growth $178",
-          consultedUltrasounds
-        );
-        newSessionTypeName = "Meet Your Baby - 25 Min 5D/HD + Baby's Growth $178";
-      }
-      if (fixedServices.meetyourbaby15 && addBabysGrowth) {
-        newSessionTypeId = getBGCombo(
-          "Meet Your Baby - 15 Min 5D/HD + Baby's Growth $138",
-          consultedUltrasounds
-        );
-        newSessionTypeName = "Meet Your Baby - 15 Min 5D/HD + Baby's Growth $138";
-      }
-      if (fixedServices.genderdetermination && addBabysGrowth) {
+    if (fixedServices.meetyourbaby25 && addBabysGrowth) {
+      newSessionTypeId = getBGCombo(
+        "Meet Your Baby - 25 Min 5D/HD + Baby's Growth $178",
+        consultedUltrasounds
+      );
+      newSessionTypeName = "Meet Your Baby - 25 Min 5D/HD + Baby's Growth $178";
+    }
+    if (fixedServices.meetyourbaby15 && addBabysGrowth) {
+      newSessionTypeId = getBGCombo(
+        "Meet Your Baby - 15 Min 5D/HD + Baby's Growth $138",
+        consultedUltrasounds
+      );
+      newSessionTypeName = "Meet Your Baby - 15 Min 5D/HD + Baby's Growth $138";
+    }
+    if (fixedServices.genderdetermination && addBabysGrowth) {
 
-        const costBabysGrowth = 29
-        const costGenderDetermination = seletedService.label.match(/(\d+)/g);
-        const costGenderPlusBabysGrowth = parseFloat(costGenderDetermination[0]) + costBabysGrowth;
+      const costBabysGrowth = 29
+      const costGenderDetermination = seletedService.label.match(/(\d+)/g);
+      const costGenderPlusBabysGrowth = parseFloat(costGenderDetermination[0]) + costBabysGrowth;
 
-        newSessionTypeId = getBGCombo(
-          `Gender Determination  + Baby's Growth - $${costGenderPlusBabysGrowth}  `,
-          consultedUltrasounds
-        );
-        newSessionTypeName = `Gender Determination  + Baby's Growth - $${costGenderPlusBabysGrowth}  `;
+      newSessionTypeId = getBGCombo(
+        `Gender Determination  + Baby's Growth - $${costGenderPlusBabysGrowth}  `,
+        consultedUltrasounds
+      );
+      newSessionTypeName = `Gender Determination  + Baby's Growth - $${costGenderPlusBabysGrowth}  `;
 
-      }
-      setClientState((clientState) => ({
-        ...clientState,
-        sessionTypeId: newSessionTypeId,
-        sessionTypeName: newSessionTypeName,
-      }));
+    }
+    setClientState((clientState) => ({
+      ...clientState,
+      sessionTypeId: newSessionTypeId,
+      sessionTypeName: newSessionTypeName,
+    }));
   }, [
     sendForm,
     clientState.sessionTypeName,
