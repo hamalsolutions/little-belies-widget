@@ -857,23 +857,17 @@ function App() {
 
                 if(firstAvailability < firstAppointment){
 
-                  if(intervalAppointment){
-                    firstBlockTime = moment(intervalAppointment.startDateTime).toString()
-                  }
-                  if(!intervalAppointment){
-                    firstBlockTime = moment(localEndTime).toString();
-                  }
+                  if(intervalAppointment) firstBlockTime = moment(intervalAppointment.startDateTime).toString();
+                  
+                  if(!intervalAppointment) firstBlockTime = moment(localEndTime).toString();
 
                 }else{
                   firstBlockTime = moment(localEndTime).toString();
                 }
-
               } 
 
-              if(isToday !== selectedDateBlock){
-                firstBlockTime = moment(state.startDate).add("09", "hours").add("00", "minutes").toString();
-              }
-
+              if(isToday !== selectedDateBlock) firstBlockTime = moment(state.startDate).add("09", "hours").add("00", "minutes").toString();
+              
               room.availabilities.forEach((availabilityBlock) => {
                 available =
                   available + (
