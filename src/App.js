@@ -1042,17 +1042,17 @@ function App() {
     }));
   };
   // Search availabilities until found available space
-  // useEffect(() => {
-  //   const nextDay = moment(state.startDate)
-  //     .add(1, "days")
-  //     .format("MM/DD/YYYY")
-  //     .toString();
-  //   if (availableBlocks.length === 0 && !firstLoad) {
-  //     setTimeout(() => {
-  //       onSelectedDay(nextDay);
-  //     }, 500);
-  //   }
-  // }, [availableBlocks]);
+  useEffect(() => {
+    const nextDay = moment(state.startDate)
+      .add(1, "days")
+      .format("MM/DD/YYYY")
+      .toString();
+    if (availableBlocks.length === 0 && !firstLoad) {
+      setTimeout(() => {
+        onSelectedDay(nextDay);
+      }, 500);
+    }
+  }, [availableBlocks]);
   // Saves the selected available block into a state
   const handleAvailabilityBlockSelect = async (block) => {
 
