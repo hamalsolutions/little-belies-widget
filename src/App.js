@@ -158,7 +158,7 @@ const blocks = [
     appointment: {},
   },
 ];
-//TODO: Complete all text and translate
+// TODO: Complete all text and translate.
 const translations = {
   en: {
     "Please enter your information": "Please enter your information",
