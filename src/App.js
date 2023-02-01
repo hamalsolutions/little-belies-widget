@@ -805,7 +805,7 @@ function App() {
             });
 
             let firstDates = {
-              matches: firstDatesMatches.length !== 0 ? firstDatesMatches[0] : undefined,
+              matches: firstDatesMatches.length !== 0,
               severalRooms: listApointments.length > 1
             };
             
@@ -867,17 +867,17 @@ function App() {
               const hourDifferenceAppt = moment(firstAppointment).diff(moment(localStartTime), 'hours');
               const hourDifferenceBlocks = moment(blockDate).diff(moment(localStartTime), 'hours');
 
-              if (isToday === selectedDateBlock) {
-                
+              if (isToday === selectedDateBlock) { 
+                  
                 if (room.firstDatesMatches.severalRooms) {
 
-                  if (room.firstDatesMatches.matches !== undefined) {
+                  if (room.firstDatesMatches.matches) {
                     if (blockDate > moment(localStartTime).toString()) {
                       firstBlockTime = moment(firstAvailability).toString();
                     }
                   } 
 
-                  if (room.firstDatesMatches.matches === undefined){
+                  if (!room.firstDatesMatches.matches){
                     if (blockDate > moment(localStartTime).toString()) {
                         firstBlockTime = moment(firstAppointment).toString();
                     }
@@ -887,7 +887,7 @@ function App() {
                 if (!room.firstDatesMatches.severalRooms) {
 
                   if (firstAppointment !== firstAvailability) {
-                    if(hourDifferenceAppt <= 2){
+                    if(hourDifferenceAppt <= 2 && blockDate > moment(localStartTime).toString()){
                       firstBlockTime = moment(firstAppointment).toString();
                     }else{ 
                       if(hourDifferenceBlocks >= 2){
