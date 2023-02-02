@@ -905,7 +905,7 @@ function App() {
               } 
 
               if(isToday !== selectedDateBlock){
-                firstBlockTime = moment(state.startDate).add("09", "hours").add("00", "minutes").toString();
+                firstBlockTime = moment(state.startDate).add("08", "hours").add("30", "minutes").toString();
               }
 
               room.availabilities.forEach((availabilityBlock) => {
