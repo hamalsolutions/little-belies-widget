@@ -411,20 +411,40 @@ function App() {
     const width = window.innerWidth;
     setWindowWidth(width);
   };
-  const servicesToRemoveitem = [
-    "Meet Your Baby - 25 Min 5D/HD + Baby's Growth $188",
-    "Meet Your Baby - 15 Min 5D/HD + Baby's Growth $158",
-    "Come back for free",
-    "Special Promo Ultrasound (G)",
-    "Membership + Visit  - $198",
-    "Membership Ultrasound -$30",
-    "Gender Determination  + Baby's Growth - $128  ",
-    "Gender Determination  + Baby's Growth - $128",
-    "CBFF + Baby's Growth",
-    "Special Promo 50 min (G)",
-    "Membership - $169",
-    "Early Pregnancy + Baby's Growth",
-  ];
+  let servicesToRemoveitem=[];
+  if (state.siteId === "549974" || state.siteId === "888809") {
+    servicesToRemoveitem = [
+      "Meet Your Baby - 25 Min 5D/HD + Baby's Growth $188",
+      "Meet Your Baby - 15 Min 5D/HD + Baby's Growth $158",
+      "Come back for free",
+      "Special Promo Ultrasound (G)",
+      "Membership + Visit  - $198",
+      "Membership Ultrasound -$30",
+      "Gender Determination  + Baby's Growth - $128  ",
+      "Gender Determination  + Baby's Growth - $128",
+      "CBFF + Baby's Growth",
+      "Special Promo 50 min (G)",
+      "Membership - $169",
+      "Early Pregnancy + Baby's Growth",
+    ];
+  }
+  else{
+    servicesToRemoveitem = [
+      "Meet Your Baby - 25 Min 5D/HD + Baby's Growth $168",
+      "Meet Your Baby - 15 Min 5D/HD + Baby's Growth $128",
+      "Come back for free",
+      "Special Promo Ultrasound (G)",
+      "Membership + Visit  - $198",
+      "Membership Ultrasound -$30",
+      "Gender Determination  + Baby's Growth - $108  ",
+      "Gender Determination  + Baby's Growth - $108",
+      "CBFF + Baby's Growth",
+      "Special Promo 50 min (G)",
+      "Membership - $169",
+      "Early Pregnancy + Baby's Growth",
+    ];
+  }
+  
   const filterServices = (services) => {
     return services.filter((item) => {
       return !servicesToRemoveitem.includes(item.label);
@@ -1647,11 +1667,25 @@ function App() {
       newSessionTypeName = "Meet Your Baby - 15 Min 5D/HD + Baby's Growth $158";
     }
     if (clientState.sessionTypeId === ultrasounds[1].value && addBabysGrowth) {
-      newSessionTypeId = getBGCombo(
-        "Gender Determination  + Baby's Growth - $128",
-        consultedUltrasounds
-      );
-      newSessionTypeName = "Gender Determination  + Baby's Growth - $128";
+      /*
+        * *AQUI* cambios de precio agregar sitios a medida que se van haciendo
+        * los cambios de precio en los sites. Cuando se termine se debe borrar 
+        * esta condicion y el else. Dejando solo el contenido del if como regla
+      */
+      if(state.siteId === "549974" || state.siteId === "888809"){
+        newSessionTypeId = getBGCombo(
+          "Gender Determination  + Baby's Growth - $128",
+          consultedUltrasounds
+        );
+        newSessionTypeName = "Gender Determination  + Baby's Growth - $128";
+      }
+      else{
+        newSessionTypeId = getBGCombo(
+          "Gender Determination  + Baby's Growth - $118",
+          consultedUltrasounds
+        );
+        newSessionTypeName = "Gender Determination  + Baby's Growth - $118";
+      }
     }
     setClientState((clientState) => ({
       ...clientState,
@@ -1888,18 +1922,46 @@ function App() {
     let newSessionTypeName = clientState.sessionTypeName;
 
     if (fixedServices.meetyourbaby25 && addBabysGrowth) {
-      newSessionTypeId = getBGCombo(
-        "Meet Your Baby - 25 Min 5D/HD + Baby's Growth $188",
-        consultedUltrasounds
-      );
-      newSessionTypeName = "Meet Your Baby - 25 Min 5D/HD + Baby's Growth $188";
+      /*
+        * *AQUI* cambios de precio agregar sitios a medida que se van haciendo
+        * los cambios de precio en los sites. Cuando se termine se debe borrar 
+        * esta condicion y el else. Dejando solo el contenido del if como regla
+      */
+      if(state.siteId === "549974" || state.siteId === "888809"){
+        newSessionTypeId = getBGCombo(
+          "Meet Your Baby - 25 Min 5D/HD + Baby's Growth $188",
+          consultedUltrasounds
+        );
+        newSessionTypeName = "Meet Your Baby - 25 Min 5D/HD + Baby's Growth $188";
+      }
+      else{
+        newSessionTypeId = getBGCombo(
+          "Meet Your Baby - 25 Min 5D/HD + Baby's Growth $178",
+          consultedUltrasounds
+        );
+        newSessionTypeName = "Meet Your Baby - 25 Min 5D/HD + Baby's Growth $178";
+      }
     }
     if (fixedServices.meetyourbaby15 && addBabysGrowth) {
-      newSessionTypeId = getBGCombo(
-        "Meet Your Baby - 15 Min 5D/HD + Baby's Growth $158",
-        consultedUltrasounds
-      );
-      newSessionTypeName = "Meet Your Baby - 15 Min 5D/HD + Baby's Growth $158";
+      /*
+        * *AQUI* cambios de precio agregar sitios a medida que se van haciendo
+        * los cambios de precio en los sites. Cuando se termine se debe borrar 
+        * esta condicion y el else. Dejando solo el contenido del if como regla
+      */
+      if(state.siteId === "549974" || state.siteId === "888809"){
+        newSessionTypeId = getBGCombo(
+          "Meet Your Baby - 15 Min 5D/HD + Baby's Growth $158",
+          consultedUltrasounds
+        );
+        newSessionTypeName = "Meet Your Baby - 15 Min 5D/HD + Baby's Growth $158";
+      }
+      else{
+        newSessionTypeId = getBGCombo(
+          "Meet Your Baby - 15 Min 5D/HD + Baby's Growth $138",
+          consultedUltrasounds
+        );
+        newSessionTypeName = "Meet Your Baby - 15 Min 5D/HD + Baby's Growth $138";
+      }
     }
     if (fixedServices.genderdetermination && addBabysGrowth) {
 
