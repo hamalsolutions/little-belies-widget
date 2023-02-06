@@ -158,7 +158,7 @@ const blocks = [
     appointment: {},
   },
 ];
-//TODO: Complete all text and translate
+// TODO: Complete all text and translate.
 const translations = {
   en: {
     "Please enter your information": "Please enter your information",
@@ -178,6 +178,8 @@ function App() {
     const trans = translations[params.get("lang") || "en"];
     return trans[text] || text;
   };
+  const [localTime, setLocalTime] = useState({ date: new Date });
+
   const [selectedBlock, setSelectBlock] = useState(null);
   const [showBG, setShowBG] = useState(false);
   const [showHB, setShowHB] = useState(false);
@@ -192,7 +194,7 @@ function App() {
     availabilityRequestStatus: "IDLE",
     appointmentRequestStatus: "IDLE",
     city: params.get("city") || "N/A",
-    message: "", 
+    message: "",
     siteId: params.get("id") || "490100", 
     latitude: params.get("latitude") || "0",
     longitude: params.get("longitude") || "0",
@@ -374,6 +376,8 @@ function App() {
   const [ultrasounds, setUltrasounds] = useState([]);
   const [consultedUltrasounds, setConsultedUltrasounds] = useState([]);
   const [weeks, setWeeks] = useState([]);
+  const [sitesInfo, setSitesInfo] = useState([]);
+
   const {
     control,
     watch,
@@ -408,14 +412,14 @@ function App() {
     setWindowWidth(width);
   };
   const servicesToRemoveitem = [
-    "Meet Your Baby - 25 Min 5D/HD + Baby's Growth $168",
-    "Meet Your Baby - 15 Min 5D/HD + Baby's Growth $128",
+    "Meet Your Baby - 25 Min 5D/HD + Baby's Growth $188",
+    "Meet Your Baby - 15 Min 5D/HD + Baby's Growth $158",
     "Come back for free",
     "Special Promo Ultrasound (G)",
     "Membership + Visit  - $198",
     "Membership Ultrasound -$30",
-    "Gender Determination  + Baby's Growth - $108  ",
-    "Gender Determination  + Baby's Growth - $108",
+    "Gender Determination  + Baby's Growth - $128  ",
+    "Gender Determination  + Baby's Growth - $128",
     "CBFF + Baby's Growth",
     "Special Promo 50 min (G)",
     "Membership - $169",
@@ -440,6 +444,52 @@ function App() {
     console.log("sending task to parent");
     window.parent.postMessage({ task: "google_track_booking", name, service, date, time }, parent_origin);
   };
+
+
+  const getSitesInfo = async () => {
+    try {
+      const getSitesData = {
+        method: "GET",
+        headers: {
+          "Content-type": "application/json; charset=UTF-8",
+        },
+      };
+      const response = await fetch(
+        `${process.env.REACT_APP_API_URL}/api/config/sites`,
+        getSitesData
+      );
+      const data = await response.json();
+      if (response.ok) {
+        const allSitesItem = data.sites.find(site => site.site === "0-0");
+        let sitesArray = []
+        if (allSitesItem !== undefined) {
+          sitesArray = data.sites.filter(site => site.site !== "0-0");
+        }
+        else {
+          sitesArray = data.sites;
+        }
+        setSitesInfo(sitesArray)
+      } else {
+        console.error(response);
+      }
+    } catch (error) {
+      console.error(JSON.stringify(error));
+    }
+  }
+
+  useEffect(() => {
+
+    const filterSite = sitesInfo.find((i) => i.site === `${state.siteId}-${state.locationId}`);
+    if (filterSite !== undefined) {
+      const date = new Date();
+      const timeZone = date.toLocaleString('en-US', { timeZone: filterSite?.timeZone });
+      setLocalTime((localTime) => ({
+        ...localTime,
+        date: timeZone
+      }));
+      console.log('localTime:', timeZone)
+    }
+  }, [sitesInfo, localTime.date])
 
   const hasBabyGrowth = (service, services) => {
     return services.find((item) => {
@@ -606,7 +656,7 @@ function App() {
                 massageRequest
               );
               const massageData = await massageResponse.json();
-              filterMassageData = massageData.services.filter((i) => {return i.seeOnLine === true});
+              filterMassageData = massageData.services.filter((i) => { return i.seeOnLine === true });
             }
             const ultrasounds = [];
             const massages = [];
@@ -668,6 +718,7 @@ function App() {
         console.error(JSON.stringify(error));
       }
     }
+    getSitesInfo();
     getServices();
     const arrayOfWeeks = [];
     arrayOfWeeks.push({
@@ -683,12 +734,20 @@ function App() {
     }
     setWeeks(arrayOfWeeks);
   }, []);
+
+  const getFirstAvailability = (availabilities) => {
+    return availabilities.reduce((a, b) => {
+      let minDate; if (a && b) a.startDateTime < b.startDateTime ? minDate = a : minDate = b;
+      return minDate;
+    }, {});
+  }
+
   // Gets the availability when the date changes
   useEffect(() => {
     if (state.authorization === "") {
       return;
     }
-    // console.log("Started working");
+    // console.log("Started working") ;
     const getAvailability = async () => {
       setState((state) => ({
         ...state,
@@ -722,7 +781,7 @@ function App() {
             room.appointments.forEach((appointment) => {
               const mutableAppointment = appointment;
               const segment = new Date(
-                mutableAppointment.StartDateTime
+                mutableAppointment.startDateTime
               ).toLocaleTimeString("en-US", {
                 hour: "2-digit",
                 minute: "2-digit",
@@ -731,6 +790,25 @@ function App() {
               appointments.push(mutableAppointment);
             });
 
+            const listApointments = [];
+            availabilityData.schedule.forEach((i) => {
+              listApointments.push(i.appointments[0])
+            });
+
+            const searchFirstAppointment = listApointments.reduce((acc, app) => {
+              acc[app?.startDateTime] = ++acc[app?.startDateTime] || 0;
+              return acc;
+            }, {});
+
+            const firstDatesMatches = listApointments.filter((app) => {
+              return searchFirstAppointment[app?.startDateTime];
+            });
+
+            let firstDates = {
+              matches: firstDatesMatches.length !== 0,
+              severalRooms: listApointments.length > 1
+            };
+            
             const roomReturn = {
               staffId: room.id,
               staffName: room.name,
@@ -738,6 +816,7 @@ function App() {
               availabilities: room.availabilities,
               roomBlocks: [],
               appointments: appointments,
+              firstDatesMatches: firstDates
             };
             return roomReturn;
           });
@@ -776,16 +855,70 @@ function App() {
               mutableBlock.blockDate = blockDate;
               mutableBlock.selected = false;
               let available = false;
+              let firstBlockTime;
+              const isToday = moment().format("MM/DD/YYYY"); 
+              const localStartTime = moment(localTime.date).format("YYYY-MM-DD[T]HH:mm:ss");
+              const localEndTime = moment(localTime.date).add(2, 'hours').format("YYYY-MM-DD[T]HH:mm:ss"); 
+
+              const selectedDateBlock = moment(state.startDate).format("MM/DD/YYYY"); 
+              const firstAppointment = room.appointments[0]?.startDateTime; 
+              const firstAvailability = getFirstAvailability(room.availabilities)?.startDateTime; 
+
+              const hourDifferenceAppt = moment(firstAppointment).diff(moment(localStartTime), 'hours');
+              const hourDifferenceBlocks = moment(blockDate).diff(moment(localStartTime), 'hours');
+
+              if (isToday === selectedDateBlock) { 
+                  
+                if (room.firstDatesMatches.severalRooms) {
+
+                  if (room.firstDatesMatches.matches) {
+                    if (blockDate > moment(localStartTime).toString()) {
+                      firstBlockTime = moment(firstAvailability).toString();
+                    }
+                  } 
+
+                  if (!room.firstDatesMatches.matches){
+                    if (blockDate > moment(localStartTime).toString()) {
+                        firstBlockTime = moment(firstAppointment).toString();
+                    }
+                  }
+                }
+
+                if (!room.firstDatesMatches.severalRooms) {
+
+                  if (firstAppointment !== firstAvailability) {
+                    if(hourDifferenceAppt <= 2 && blockDate > moment(localStartTime).toString()){
+                      firstBlockTime = moment(firstAppointment).toString();
+                    }else{ 
+                      if(hourDifferenceBlocks >= 2){
+                        firstBlockTime = moment(localEndTime).toString();
+                      }
+                    }
+                  }
+
+                  if (firstAppointment === firstAvailability) {
+                    if (blockDate > moment(localStartTime).toString() && blockDate > moment(firstAppointment).toString()) {
+                      firstBlockTime = moment(localStartTime).toString();
+                    }
+                  }
+                }
+              } 
+
+              if(isToday !== selectedDateBlock){
+                firstBlockTime = moment(state.startDate).add("08", "hours").add("30", "minutes").toString();
+              }
+
               room.availabilities.forEach((availabilityBlock) => {
                 available =
-                  available +
-                  moment(blockDate).isBetween(
-                    availabilityBlock.startDateTime,
-                    availabilityBlock.endDateTime,
-                    undefined,
-                    "[)"
-                  );
+                  available + (
+                    moment(blockDate).isBetween(
+                      availabilityBlock.startDateTime,
+                      availabilityBlock.endDateTime,
+                      undefined,
+                      "[)"
+                    ) * (blockDate > firstBlockTime)); 
               });
+
               room.unavailabilities.forEach((unavailabilityBlock) => {
                 available =
                   available *
@@ -809,25 +942,8 @@ function App() {
                 blockAppointment === undefined ? {} : blockAppointment;
 
               mutableBlock.available = Boolean(available);
-              // add time to date
-              var startMomentWithNowTime = moment(state.startDate);
-              var now = moment().format("MM/DD/YYYY");
-              if (now === startMomentWithNowTime.format("MM/DD/YYYY")) {
-                // console.log("IS TODAY")
-                var nowWithTime = moment();
-                startMomentWithNowTime = startMomentWithNowTime.set({
-                  hour: nowWithTime.hour(),
-                  minute: nowWithTime.minute(),
-                  second: nowWithTime.second(),
-                });
-              }
-              if (
-                blockAppointment === undefined &&
-                available &&
-                moment(blockDate).isAfter(
-                  startMomentWithNowTime.add(2, "hours")
-                )
-              ) {
+
+              if (blockAppointment === undefined && available) {
                 availableBlocks.push(mutableBlock);
               }
 
@@ -1163,10 +1279,12 @@ function App() {
           if (selectedOptionAddons) {
             nameListAddons = selectedOptionAddons.map((i) => { return i.value });
           }
+
           const dynamoPayload = {
             id: "" + bookAppointmentData.Appointment.Id,
             sessionTypeId: "" + bookAppointmentData.Appointment.SessionTypeId,
             sessionTypeName: clientState.sessionTypeName,
+            serviceName: clientState.sessionTypeName,
             locationId: "" + bookAppointmentData.Appointment.LocationId,
             staffId: "" + bookAppointmentData.Appointment.StaffId,
             clientId: "" + bookAppointmentData.Appointment.ClientId,
@@ -1174,12 +1292,17 @@ function App() {
             startDateTime: bookAppointmentData.Appointment.StartDateTime,
             status: bookAppointmentData.Appointment.Status,
             firstAppointment: bookAppointmentData.Appointment.FirstAppointment,
+            programId: bookAppointmentData.Appointment.ProgramId,
             addOns: nameListAddons,
-            bookDate: moment().format("MM/DD/YYYY"),
+            bookDate: moment(localTime.date).format("MM/DD/YYYY"),
+            account: true,
+            bookDateTime: moment(localTime.date).format("MM/DD/YYYY HH:mm:ss"), 
+            bookTimeUTC:  moment.utc(localTime.date).toISOString().split("T")[1], 
+            servicePrice: clientState.sessionTypeName.includes("$") ? parseInt(clientState.sessionTypeName.split("$")[1]) : 0,
             siteId: state.siteId,
             source: "online",
             cbff: false,
-            bookTime: moment().format("HH:mm")
+            bookTime: moment(localTime.date).format("HH:mm")
           };
           const putDynamo = {
             method: "PUT",
@@ -1362,6 +1485,7 @@ function App() {
         clientId: clientId === undefined ? "n/a" : clientId,
         dateTime: moment().format("YYYY-MM-DD[T]HH:mm:ss").toString(),
         step: 1,
+        language: state.language,
       };
       const leadRequest = {
         method: "POST",
@@ -1510,24 +1634,24 @@ function App() {
     // Changes the service in case of adding Babys Growth
     if (clientState.sessionTypeId === ultrasounds[3].value && addBabysGrowth) {
       newSessionTypeId = getBGCombo(
-        "Meet Your Baby - 25 Min 5D/HD + Baby's Growth $178",
+        "Meet Your Baby - 25 Min 5D/HD + Baby's Growth $188",
         consultedUltrasounds
       );
-      newSessionTypeName = "Meet Your Baby - 25 Min 5D/HD + Baby's Growth $178";
+      newSessionTypeName = "Meet Your Baby - 25 Min 5D/HD + Baby's Growth $188";
     }
     if (clientState.sessionTypeId === ultrasounds[2].value && addBabysGrowth) {
       newSessionTypeId = getBGCombo(
-        "Meet Your Baby - 15 Min 5D/HD + Baby's Growth $138",
+        "Meet Your Baby - 15 Min 5D/HD + Baby's Growth $158",
         consultedUltrasounds
       );
-      newSessionTypeName = "Meet Your Baby - 15 Min 5D/HD + Baby's Growth $138";
+      newSessionTypeName = "Meet Your Baby - 15 Min 5D/HD + Baby's Growth $158";
     }
     if (clientState.sessionTypeId === ultrasounds[1].value && addBabysGrowth) {
       newSessionTypeId = getBGCombo(
-        "Gender Determination  + Baby's Growth - $118",
+        "Gender Determination  + Baby's Growth - $128",
         consultedUltrasounds
       );
-      newSessionTypeName = "Gender Determination  + Baby's Growth - $118";
+      newSessionTypeName = "Gender Determination  + Baby's Growth - $128";
     }
     setClientState((clientState) => ({
       ...clientState,
@@ -1763,38 +1887,38 @@ function App() {
     let newSessionTypeId = clientState.sessionTypeId;
     let newSessionTypeName = clientState.sessionTypeName;
 
-      if (fixedServices.meetyourbaby25 && addBabysGrowth) {
-        newSessionTypeId = getBGCombo(
-          "Meet Your Baby - 25 Min 5D/HD + Baby's Growth $178",
-          consultedUltrasounds
-        );
-        newSessionTypeName = "Meet Your Baby - 25 Min 5D/HD + Baby's Growth $178";
-      }
-      if (fixedServices.meetyourbaby15 && addBabysGrowth) {
-        newSessionTypeId = getBGCombo(
-          "Meet Your Baby - 15 Min 5D/HD + Baby's Growth $138",
-          consultedUltrasounds
-        );
-        newSessionTypeName = "Meet Your Baby - 15 Min 5D/HD + Baby's Growth $138";
-      }
-      if (fixedServices.genderdetermination && addBabysGrowth) {
+    if (fixedServices.meetyourbaby25 && addBabysGrowth) {
+      newSessionTypeId = getBGCombo(
+        "Meet Your Baby - 25 Min 5D/HD + Baby's Growth $188",
+        consultedUltrasounds
+      );
+      newSessionTypeName = "Meet Your Baby - 25 Min 5D/HD + Baby's Growth $188";
+    }
+    if (fixedServices.meetyourbaby15 && addBabysGrowth) {
+      newSessionTypeId = getBGCombo(
+        "Meet Your Baby - 15 Min 5D/HD + Baby's Growth $158",
+        consultedUltrasounds
+      );
+      newSessionTypeName = "Meet Your Baby - 15 Min 5D/HD + Baby's Growth $158";
+    }
+    if (fixedServices.genderdetermination && addBabysGrowth) {
 
-        const costBabysGrowth = 29
-        const costGenderDetermination = seletedService.label.match(/(\d+)/g);
-        const costGenderPlusBabysGrowth = parseFloat(costGenderDetermination[0]) + costBabysGrowth;
+      const costBabysGrowth = 29
+      const costGenderDetermination = seletedService.label.match(/(\d+)/g);
+      const costGenderPlusBabysGrowth = parseFloat(costGenderDetermination[0]) + costBabysGrowth;
 
-        newSessionTypeId = getBGCombo(
-          `Gender Determination  + Baby's Growth - $${costGenderPlusBabysGrowth}  `,
-          consultedUltrasounds
-        );
-        newSessionTypeName = `Gender Determination  + Baby's Growth - $${costGenderPlusBabysGrowth}  `;
+      newSessionTypeId = getBGCombo(
+        `Gender Determination  + Baby's Growth - $${costGenderPlusBabysGrowth}  `,
+        consultedUltrasounds
+      );
+      newSessionTypeName = `Gender Determination  + Baby's Growth - $${costGenderPlusBabysGrowth}  `;
 
-      }
-      setClientState((clientState) => ({
-        ...clientState,
-        sessionTypeId: newSessionTypeId,
-        sessionTypeName: newSessionTypeName,
-      }));
+    }
+    setClientState((clientState) => ({
+      ...clientState,
+      sessionTypeId: newSessionTypeId,
+      sessionTypeName: newSessionTypeName,
+    }));
   }, [
     sendForm,
     clientState.sessionTypeName,
