@@ -412,14 +412,14 @@ function App() {
     setWindowWidth(width);
   };
   const servicesToRemoveitem = [
-    "Meet Your Baby - 25 Min 5D/HD + Baby's Growth $168",
-    "Meet Your Baby - 15 Min 5D/HD + Baby's Growth $128",
+    "Meet Your Baby - 25 Min 5D/HD + Baby's Growth $188",
+    "Meet Your Baby - 15 Min 5D/HD + Baby's Growth $158",
     "Come back for free",
     "Special Promo Ultrasound (G)",
     "Membership + Visit  - $198",
     "Membership Ultrasound -$30",
-    "Gender Determination  + Baby's Growth - $108  ",
-    "Gender Determination  + Baby's Growth - $108",
+    "Gender Determination  + Baby's Growth - $128  ",
+    "Gender Determination  + Baby's Growth - $128",
     "CBFF + Baby's Growth",
     "Special Promo 50 min (G)",
     "Membership - $169",
@@ -1634,24 +1634,24 @@ function App() {
     // Changes the service in case of adding Babys Growth
     if (clientState.sessionTypeId === ultrasounds[3].value && addBabysGrowth) {
       newSessionTypeId = getBGCombo(
-        "Meet Your Baby - 25 Min 5D/HD + Baby's Growth $178",
+        "Meet Your Baby - 25 Min 5D/HD + Baby's Growth $188",
         consultedUltrasounds
       );
-      newSessionTypeName = "Meet Your Baby - 25 Min 5D/HD + Baby's Growth $178";
+      newSessionTypeName = "Meet Your Baby - 25 Min 5D/HD + Baby's Growth $188";
     }
     if (clientState.sessionTypeId === ultrasounds[2].value && addBabysGrowth) {
       newSessionTypeId = getBGCombo(
-        "Meet Your Baby - 15 Min 5D/HD + Baby's Growth $138",
+        "Meet Your Baby - 15 Min 5D/HD + Baby's Growth $158",
         consultedUltrasounds
       );
-      newSessionTypeName = "Meet Your Baby - 15 Min 5D/HD + Baby's Growth $138";
+      newSessionTypeName = "Meet Your Baby - 15 Min 5D/HD + Baby's Growth $158";
     }
     if (clientState.sessionTypeId === ultrasounds[1].value && addBabysGrowth) {
       newSessionTypeId = getBGCombo(
-        "Gender Determination  + Baby's Growth - $118",
+        "Gender Determination  + Baby's Growth - $128",
         consultedUltrasounds
       );
-      newSessionTypeName = "Gender Determination  + Baby's Growth - $118";
+      newSessionTypeName = "Gender Determination  + Baby's Growth - $128";
     }
     setClientState((clientState) => ({
       ...clientState,
@@ -1889,17 +1889,17 @@ function App() {
 
     if (fixedServices.meetyourbaby25 && addBabysGrowth) {
       newSessionTypeId = getBGCombo(
-        "Meet Your Baby - 25 Min 5D/HD + Baby's Growth $178",
+        "Meet Your Baby - 25 Min 5D/HD + Baby's Growth $188",
         consultedUltrasounds
       );
-      newSessionTypeName = "Meet Your Baby - 25 Min 5D/HD + Baby's Growth $178";
+      newSessionTypeName = "Meet Your Baby - 25 Min 5D/HD + Baby's Growth $188";
     }
     if (fixedServices.meetyourbaby15 && addBabysGrowth) {
       newSessionTypeId = getBGCombo(
-        "Meet Your Baby - 15 Min 5D/HD + Baby's Growth $138",
+        "Meet Your Baby - 15 Min 5D/HD + Baby's Growth $158",
         consultedUltrasounds
       );
-      newSessionTypeName = "Meet Your Baby - 15 Min 5D/HD + Baby's Growth $138";
+      newSessionTypeName = "Meet Your Baby - 15 Min 5D/HD + Baby's Growth $158";
     }
     if (fixedServices.genderdetermination && addBabysGrowth) {
 
