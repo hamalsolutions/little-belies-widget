@@ -412,6 +412,11 @@ function App() {
     setWindowWidth(width);
   };
   let servicesToRemoveitem=[];
+  /*
+    * *AQUI* cambios de precio agregar sitios a medida que se van haciendo
+    * los cambios de precio en los sites. Cuando se termine se debe borrar 
+    * esta condicion y el else. Dejando solo el contenido del if como regla
+  */
   if (state.siteId === "549974" || state.siteId === "888809") {
     servicesToRemoveitem = [
       "Meet Your Baby - 25 Min 5D/HD + Baby's Growth $188",
