@@ -22,6 +22,7 @@ import {
 import ReCAPTCHA from "react-google-recaptcha";
 import "./App.css";
 import "./styles/info.css";
+import * as crypto from 'crypto-js';
 
 
 const blocks = [
@@ -434,8 +435,8 @@ function App() {
   const removePrice = (service) => {
     return service.substring(0, service.lastIndexOf("-")).trim();
   };
-  const parent_origin = 'https://test.littlebelliesspa.com'
-  // const parent_origin = "https://www.littlebelliesspa.com";
+  const parent_origin = `${process.env.REACT_APP_FOLLOWING_URL}`;
+
   const scrollParenTop = () => {
     window.parent.postMessage({ task: "scroll_top" }, parent_origin);
   };
@@ -586,13 +587,17 @@ function App() {
           Username: `${process.env.REACT_APP_USER_NAME}`,
           Password: `${process.env.REACT_APP_PASSWORD}`,
         };
+        
+        const key = process.env.REACT_APP_ENCRYPTION_KEY;
+        const encrypted = crypto.AES.encrypt(JSON.stringify(authPayload), key).toString();
+        const body = {data: encrypted}
         const authRequest = {
           method: "PUT",
           headers: {
             "Content-type": "application/json; charset=UTF-8",
             siteid: state.siteId,
           },
-          body: JSON.stringify(authPayload),
+          body: JSON.stringify(body),
         };
         const authResponse = await fetch(
           `${process.env.REACT_APP_API_URL}/api/userToken/`,
