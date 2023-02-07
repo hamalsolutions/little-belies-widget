@@ -8,7 +8,7 @@ import StepProgress from "../src/components/stepProgress"
 import RegisterForm from "../src/components/registerForm"
 import SelectTimeAppointment from "../src/components/selectTimeAppointment"
 import BookAppointment from "../src/components/boookAppointment"
-import { blocks, removeTags } from "../src/config/constans.js"
+import { blocks } from "../src/config/constans.js"
 import { useForm } from "react-hook-form";
 
 function App() {
@@ -725,14 +725,13 @@ function App() {
           clientState={clientState}
           addHeartbeatBuddies={addHeartbeatBuddies}
           add8kRealisticView={add8kRealisticView}
-          removeTags={removeTags}
           setStepThree={setStepThree}
           googleTrackBooking={googleTrackBooking}
           setState={setState}
           setClientState={setClientState}
           selectedOptionAddons={selectedOptionAddons}
           localTime={localTime}
-          leadState={leadState}
+          leadState={leadState} 
           setLeadState={setLeadState}
           previousStep={previousStep}
         />

@@ -3,13 +3,13 @@ import moment from "moment";
 import { PropTypes } from "prop-types";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {faSpinner} from "@fortawesome/free-solid-svg-icons";
+import { removeTags } from "../config/constans"
 
 function BookAppointment({
   state,
   clientState,
   addHeartbeatBuddies,
   add8kRealisticView,
-  removeTags,
   setStepThree,
   googleTrackBooking,
   setState,
@@ -471,7 +471,6 @@ BookAppointment.propTypes = {
   clientState: PropTypes.object.isRequired,
   addHeartbeatBuddies: PropTypes.bool.isRequired,
   add8kRealisticView: PropTypes.bool.isRequired,
-  removeTags : PropTypes.func.isRequired,
   setStepThree: PropTypes.func.isRequired,
   googleTrackBooking: PropTypes.func.isRequired,
   setState: PropTypes.func.isRequired,
