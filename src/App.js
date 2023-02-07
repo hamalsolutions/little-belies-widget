@@ -10,6 +10,9 @@ import SelectTimeAppointment from "../src/components/selectTimeAppointment"
 import BookAppointment from "../src/components/boookAppointment"
 import { blocks } from "../src/config/constans.js"
 import { useForm } from "react-hook-form";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { Controller } from "react-hook-form";
+import { faInfo } from "@fortawesome/free-solid-svg-icons";
 
 function App() {
   const params = new URLSearchParams(window.location.search);
@@ -58,6 +61,7 @@ function App() {
     clientObject: {},
     clientIsEqual: undefined,
   });
+ 
   const [availableBlocks, setAvailableBlocks] = useState([]);
   const [services, setServices] = useState([]);
   const [selectedOptionAddons, setSelectedOptionAddons] = useState(null);
@@ -70,6 +74,25 @@ function App() {
   const [consultedUltrasounds, setConsultedUltrasounds] = useState([]);
   const [weeks, setWeeks] = useState([]);
   const [sitesInfo, setSitesInfo] = useState([]);
+  const [sendForm, setSendForm] = useState(false);
+  const [fixedServices, setFixedServices] = useState({
+    specialPromotion25min: "",
+    genderdetermination: "",
+    earlypregnancy: "",
+    meetyourbaby25: "",
+    meetyourbaby15: "",
+  });
+  const [hoverIndex8kRealisticView, setHoverIndex8kRealisticView] = useState(false);
+  const [hoverIndexBabyGrow, setHoverIndexBabyGrow] = useState(false);
+  const [hoverIndexHearthbeat, setHoverIndexHearthbeat] = useState(false);
+  const [modalBabyGrow, setModalBabyGrow] = useState(false);
+  const [modalHearthbeat, setModalHearthbeat] = useState(false);
+  const [modal8kRealisticView, setModal8kRealisticView] = useState(false);
+  const [clickButtonForm, setClickButtonForm] = useState(false);
+  const [addBabysGrowth, setAddBabysGrowth] = useState(false);
+
+  const [seletedService, setSeletedService] = useState(null)
+  const [addOns, setAddOns] = useState();
 
   const [leadState, setLeadState] = useState({
     clientFound: false,
@@ -668,6 +691,559 @@ function App() {
     setWindowWidth(width);
   };
 
+  const getBGCombo = (serviceName, servicesArray) => {
+    const sessionTypeName = serviceName;
+    let purifiedServiceName = "";
+    let serviceId = "";
+    const regex = /[-.()+\s]/g;
+
+    if (sessionTypeName.toLowerCase().includes("$")) {
+      const indexPrice = sessionTypeName.toLowerCase().indexOf("$");
+      const remaining = sessionTypeName.toLowerCase().slice(0, indexPrice);
+      purifiedServiceName = remaining.replace(regex, "");
+    }
+
+    servicesArray.forEach((serviceItem) => {
+      if (serviceItem.name.toLowerCase().includes("$")) {
+        const indexAddon = serviceItem.name.toLowerCase().indexOf("$");
+        const remainingConsulted = serviceItem.name
+          .toLowerCase()
+          .slice(0, indexAddon);
+        const purifiedConsulted = remainingConsulted.replace(regex, "");
+        if (purifiedServiceName === purifiedConsulted) {
+          serviceId = serviceItem.sessionTypeId;
+        }
+      }
+    });
+    return serviceId;
+  };
+  
+  const onFormSubmit = async (data) => {
+    scrollParenTop();
+    let sessionTypeId = data.service.value;
+    let sessionTypeName = data.service.label;
+
+    setClientState((clientState) => ({
+      ...clientState,
+      firstName: data.firstName,
+      lastName: data.lastName,
+      email: data.email,
+      phone: data.phone.replace(/[^0-9]/gi, ''),
+      weeks: data.weeks.label,
+      sessionTypeId: sessionTypeId,
+      sessionTypeName: sessionTypeName,
+      language: state.language,
+    }));
+
+    setState((state) => ({
+      ...state,
+      // step: "addons",
+      step: "availability",
+    }));
+
+    if (clientState.clientRequestStatus === "loading") {
+      return;
+    }
+    try {
+      let clientId = "n/a";
+      setClientState((clientState) => ({
+        ...clientState,
+        clientRequestStatus: "loading",
+      }));
+      const searchClientsRequest = {
+        method: "GET",
+        headers: {
+          "Content-type": "application/json; charset=UTF-8",
+          authorization: state.authorization,
+          siteid: state.siteId,
+        },
+      };
+      const searchClientsResponse = await fetch(
+        `${process.env.REACT_APP_API_URL}/api/clients/clients?searchText=${data.phone.replace(/[^0-9]/gi, '')}`,
+        searchClientsRequest
+      );
+      const searchClientsData = await searchClientsResponse.json();
+      if (searchClientsResponse.ok) {
+
+        setSendForm(true)
+
+        if (
+          data.firstName + " " + data.lastName ===
+          searchClientsData.clients[0].name &&
+          searchClientsData.clients[0].email === data.email &&
+          searchClientsData.clients[0].phone.replace(/[^0-9]/gi, '') === data.phone.replace(/[^0-9]/gi, '')
+        ) {
+          setClientState((clientState) => ({
+            ...clientState,
+            clientRequestStatus: "CLIENT-FOUND",
+            clientObject: searchClientsData.clients[0],
+            searchResults: searchClientsData.clients,
+          }));
+          clientId = searchClientsData.clients[0].clientId;
+        } else {
+          setClientState((clientState) => ({
+            ...clientState,
+            clientRequestStatus: "CLIENT-FOUND-DIFFERENT",
+            clientObject: searchClientsData.clients[0],
+            searchResults: searchClientsData.clients,
+          }));
+          clientId = searchClientsData.clients[0].clientId;
+          setLeadState((leadState) => ({
+            ...leadState,
+            clientFound: false,
+          }));
+        }
+      } else {
+        setClientState((clientState) => ({
+          ...clientState,
+          clientRequestStatus: "CLIENT-NOT-FOUND",
+          searchResults: [],
+        }));
+        setLeadState((leadState) => ({
+          ...leadState,
+          clientFound: false,
+        }));
+      }
+      const leadPayload = {
+        siteId: state.siteId,
+        name: data.firstName + " " + data.lastName,
+        mobilePhone: data.phone.replace(/[^0-9]/gi, ''),
+        email: data.email,
+        service: sessionTypeName,
+        clientId: clientId === undefined ? "n/a" : clientId,
+        dateTime: moment().format("YYYY-MM-DD[T]HH:mm:ss").toString(),
+        step: 1,
+        language: state.language,
+      };
+      const leadRequest = {
+        method: "POST",
+        headers: {
+          "Content-type": "application/json; charset=UTF-8",
+          authorization: state.authorization,
+          siteid: state.siteId,
+        },
+        body: JSON.stringify(leadPayload),
+      };
+      const leadResponse = await fetch(
+        `${process.env.REACT_APP_API_URL}/api/book/clients`,
+        leadRequest
+      );
+      const leadData = await leadResponse.json();
+      if (leadResponse.ok) {
+        setLeadState((leadState) => ({
+          ...leadState,
+          clientFound: true,
+          leadRegistered: true,
+          partititonKey: leadData.partititonKey,
+          orderKey: leadData.orderKey,
+        }));
+      } else {
+        setLeadState((leadState) => ({
+          ...leadState,
+          clientFound: true,
+          leadRegistered: false, 
+        }));
+        console.log("Error registering lead");
+        console.error(leadData);
+      }
+    } catch (error) {
+      setState((state) => ({
+        ...state,
+        status: "error",
+        message: "Client request Error: " + JSON.stringify(error.message),
+      }));
+    }
+  };
+
+  const onChangeServices = (service) => {
+    setSeletedService(service)
+    setAddBabysGrowth(false);
+    setAddHeartbeatBuddies(false);
+    setAdd8kRealisticView(false)
+  };
+
+  const handleAddonsSelected = (e) => {
+    const addons = e;
+    setSelectedOptionAddons(addons);
+    setHoverIndexBabyGrow(false)
+    setHoverIndexHearthbeat(false)
+    setHoverIndex8kRealisticView(false)
+  };
+
+  const handleFixedServices = () => {
+    
+    const service = {
+      specialPromotion25min: seletedService ? seletedService?.label?.toLowerCase().replace(/[-.()+\s]/g, "").search("specialpromotion25min") : "",
+      genderdetermination: seletedService ? seletedService?.label?.toLowerCase().replace(/[-.()+\s]/g, "").search("genderdetermination") : "",
+      earlypregnancy: seletedService ? seletedService?.label?.toLowerCase().replace(/[-.()+\s]/g, "").search("earlypregnancy") : "",
+      meetyourbaby25: seletedService ? seletedService?.label?.toLowerCase().replace(/[-.()+\s]/g, "").search("meetyourbaby25") : "",
+      meetyourbaby15: seletedService ? seletedService?.label?.toLowerCase().replace(/[-.()+\s]/g, "").search("meetyourbaby15") : "",
+    }
+    setFixedServices((fixedServices) => ({
+      ...fixedServices,
+      specialPromotion25min: service.specialPromotion25min === 0,
+      genderdetermination: service.genderdetermination === 0,
+      earlypregnancy: service.earlypregnancy === 0,
+      meetyourbaby25: service.meetyourbaby25 === 0,
+      meetyourbaby15: service.meetyourbaby15 === 0,
+    }));
+  }
+  useEffect(() => {
+    handleFixedServices();
+  }, [seletedService,services]);
+
+  useEffect(() => {
+
+    if (selectedOptionAddons) {
+
+      let formattingSelectedOptionAddons;
+
+      if (fixedServices.genderdetermination) {
+
+        formattingSelectedOptionAddons = selectedOptionAddons.filter((i) => { return i.value !== "8K Realistic View" })
+        setSelectedOptionAddons(formattingSelectedOptionAddons)
+
+      } else if (fixedServices.earlypregnancy || fixedServices.specialPromotion25min) {
+
+        formattingSelectedOptionAddons = selectedOptionAddons.filter((i) => { return i.value !== "Baby's Growth" && i.value !== "8K Realistic View" })
+        setSelectedOptionAddons(formattingSelectedOptionAddons)
+
+      } else if (fixedServices.meetyourbaby25 || fixedServices.meetyourbaby15) {
+
+        setSelectedOptionAddons(selectedOptionAddons)
+
+      }else {
+        setSelectedOptionAddons([])
+      }
+    }
+  }, [seletedService, fixedServices]);
+
+  const addOnsToMeetYourBaby = [
+    {
+      value: "Heartbeat Buddies",
+      label: (
+        <div className="d-flex col-12"
+        >
+          <div className="col-11">
+            <span>Heartbeat Buddies</span>
+          </div>
+          <div className="col-1"
+            onMouseOver={() => setHoverIndexHearthbeat(true)}
+            onMouseLeave={() => setHoverIndexHearthbeat(false)}
+            style={{ cursor: "pointer" }}
+          >
+            <FontAwesomeIcon icon={faInfo}
+              onClick={(e) => { setModalHearthbeat(true) }}
+            />
+          </div>
+        </div>
+      )
+    },
+    {
+      value: "Baby's Growth",
+      label: (
+        <div className="col-12 d-flex">
+          <div className="col-11">
+            <span>Baby's Growth</span>
+          </div>
+          <div className="col-1"
+            onMouseOver={() => setHoverIndexBabyGrow(true)}
+            onMouseLeave={() => setHoverIndexBabyGrow(false)}
+            style={{ cursor: "pointer" }}
+          >
+            <FontAwesomeIcon icon={faInfo}
+              onClick={(e) => setModalBabyGrow(true)}
+            />
+          </div>
+        </div>
+      )
+    },
+    {
+      value: "8K Realistic View",
+      label: (
+        <div className="col-12 d-flex">
+          <div className="col-11">
+            <span>8K Realistic View</span>
+          </div>
+          <div className="col-1"
+            onMouseOver={() => setHoverIndex8kRealisticView(true)}
+            onMouseLeave={() => setHoverIndex8kRealisticView(false)}
+            style={{ cursor: "pointer" }}
+          >
+            <FontAwesomeIcon icon={faInfo}
+              onClick={(e) => setModal8kRealisticView(true)}
+            />
+          </div>
+        </div>
+      )
+    }
+  ];
+  const addOnsToGenderDetermination = [
+    {
+      value: "Heartbeat Buddies",
+      label: (
+        <div className="d-flex col-12"
+        >
+          <div className="col-11">
+            <span>Heartbeat Buddies</span>
+          </div>
+          <div className="col-1"
+            onMouseOver={() => setHoverIndexHearthbeat(true)}
+            onMouseLeave={() => setHoverIndexHearthbeat(false)}
+            style={{ cursor: "pointer" }}
+          >
+            <FontAwesomeIcon icon={faInfo}
+              onClick={(e) => { setModalHearthbeat(true) }}
+            />
+          </div>
+        </div>
+      )
+    },
+    {
+      value: "Baby's Growth",
+      label: (
+        <div className="col-12 d-flex">
+          <div className="col-11">
+            <span>Baby's Growth</span>
+          </div>
+          <div className="col-1"
+            onMouseOver={() => setHoverIndexBabyGrow(true)}
+            onMouseLeave={() => setHoverIndexBabyGrow(false)}
+            style={{ cursor: "pointer" }}
+          >
+            <FontAwesomeIcon icon={faInfo}
+              onClick={(e) => setModalBabyGrow(true)}
+            />
+          </div>
+        </div>
+      )
+    }
+  ];
+  const addOnsToEarlyPregnancy = [
+    {
+      value: "Heartbeat Buddies",
+      label: (
+        <div className="d-flex col-12"
+        >
+          <div className="col-11">
+            <span>Heartbeat Buddies</span>
+          </div>
+          <div className="col-1"
+            onMouseOver={() => setHoverIndexHearthbeat(true)}
+            onMouseLeave={() => setHoverIndexHearthbeat(false)}
+            style={{ cursor: "pointer" }}
+          >
+            <FontAwesomeIcon icon={faInfo}
+              onClick={(e) => setModalHearthbeat(true)}
+            />
+          </div>
+        </div>
+      )
+    }];
+  
+  useEffect(() => {
+
+    let babyGrow;
+    let hearthbeat;
+    let realisticView;
+
+    if (selectedOptionAddons) {
+      babyGrow = selectedOptionAddons.find(i => i.value === "Baby's Growth");
+      hearthbeat = selectedOptionAddons.find(i => i.value === "Heartbeat Buddies");
+      realisticView = selectedOptionAddons.find(i => i.value === "8K Realistic View");
+    }    
+    if (fixedServices.genderdetermination) {
+
+      setAddOns(addOnsToGenderDetermination)
+
+      if (realisticView === undefined) setAdd8kRealisticView(false);
+
+      if (hearthbeat === undefined) {
+        setAddHeartbeatBuddies(false)
+        addOnsToGenderDetermination[0].label = addOnsToGenderDetermination[0].label;
+      } else {
+        setAddHeartbeatBuddies(true);
+        hearthbeat.label = <span>Heartbeat Buddies</span>;
+      }
+      if (babyGrow === undefined) {
+        setAddBabysGrowth(false)
+        addOnsToGenderDetermination[1].label = addOnsToGenderDetermination[1].label;
+      } else {
+        setAddBabysGrowth(true)
+        babyGrow.label = <span>Baby's Growth</span>;
+      }
+
+    } else if (fixedServices.meetyourbaby25 || fixedServices.meetyourbaby15) {
+
+      setAddOns(addOnsToMeetYourBaby)
+
+      if (hearthbeat === undefined) {
+        setAddHeartbeatBuddies(false)
+        addOnsToMeetYourBaby[0].label = addOnsToMeetYourBaby[0].label;
+      } else {
+        setAddHeartbeatBuddies(true);
+        hearthbeat.label = <span>Heartbeat Buddies</span>;
+      }
+      if (babyGrow === undefined) {
+        setAddBabysGrowth(false)
+        addOnsToMeetYourBaby[1].label = addOnsToMeetYourBaby[1].label;
+      } else {
+        setAddBabysGrowth(true)
+        babyGrow.label = <span>Baby's Growth</span>;
+      }
+      if (realisticView === undefined) {
+        setAdd8kRealisticView(false)
+        addOnsToMeetYourBaby[2].label = addOnsToMeetYourBaby[2].label;
+      } else {
+        setAdd8kRealisticView(true)
+        realisticView.label = <span>8K Realistic View</span>;
+      }
+
+    }
+    else if (fixedServices.earlypregnancy || fixedServices.specialPromotion25min) {
+
+      setAddOns(addOnsToEarlyPregnancy)
+
+      if (babyGrow === undefined) setAddBabysGrowth(false);
+
+      if (realisticView === undefined) setAdd8kRealisticView(false);
+
+      if (hearthbeat === undefined) {
+        setAddHeartbeatBuddies(false)
+        addOnsToEarlyPregnancy[0].label = addOnsToEarlyPregnancy[0].label;
+      } else {
+        setAddHeartbeatBuddies(true);
+        hearthbeat.label = <span>Heartbeat Buddies</span>;
+      }
+
+    } else {
+      setAddHeartbeatBuddies(false)
+      setAdd8kRealisticView(false)
+      setAddBabysGrowth(false)
+      setAddOns([]);
+    }
+  }, [
+    seletedService,
+    selectedOptionAddons,
+    fixedServices,
+    ultrasounds
+  ]);
+
+  useEffect(() => {
+    let newSessionTypeId = clientState.sessionTypeId;
+    let newSessionTypeName = clientState.sessionTypeName;
+    const costBabysGrowth = 29; 
+
+    if (fixedServices.meetyourbaby25 && addBabysGrowth) {
+      const costMeetYourbaby25 = seletedService.label.match(/(\d+)/g);
+      const costMeetYourbaby25PlusBabysGrowth = parseFloat(costMeetYourbaby25[2]) + costBabysGrowth;
+
+      newSessionTypeId = getBGCombo(
+        `Meet Your Baby - 25 Min 5D/HD + Baby's Growth $${costMeetYourbaby25PlusBabysGrowth}`,
+        consultedUltrasounds
+      );
+      newSessionTypeName = `Meet Your Baby - 25 Min 5D/HD + Baby's Growth $${costMeetYourbaby25PlusBabysGrowth}`;
+    }
+
+    if (fixedServices.meetyourbaby15 && addBabysGrowth) {
+      const costMeetYourbaby15 = seletedService.label.match(/(\d+)/g);
+      const costMeetYourbaby15PlusBabysGrowth = parseFloat(costMeetYourbaby15[2]) + costBabysGrowth;
+
+      newSessionTypeId = getBGCombo(
+        `Meet Your Baby - 15 Min 5D/HD + Baby's Growth $${costMeetYourbaby15PlusBabysGrowth}`,
+        consultedUltrasounds
+      );
+      newSessionTypeName = `Meet Your Baby - 15 Min 5D/HD + Baby's Growth $${costMeetYourbaby15PlusBabysGrowth}`;
+    }
+
+    if (fixedServices.genderdetermination && addBabysGrowth) {
+
+      const costGenderDetermination = seletedService.label.match(/(\d+)/g);
+      const costGenderPlusBabysGrowth = parseFloat(costGenderDetermination[0]) + costBabysGrowth;
+
+      newSessionTypeId = getBGCombo(
+        `Gender Determination  + Baby's Growth - $${costGenderPlusBabysGrowth}  `,
+        consultedUltrasounds
+      );
+      newSessionTypeName = `Gender Determination  + Baby's Growth - $${costGenderPlusBabysGrowth}  `;
+    }
+
+    setClientState((clientState) => ({
+      ...clientState,
+      sessionTypeId: newSessionTypeId,
+      sessionTypeName: newSessionTypeName,
+    }));
+  }, [
+    sendForm,
+    clientState.sessionTypeName,
+    clientState.sessionTypeId,
+    addBabysGrowth,
+    seletedService,
+    fixedServices
+  ]);
+
+  useEffect(() => {
+    let formattingSelectedOptionAddons;
+    if (modalHearthbeat) {
+      formattingSelectedOptionAddons = selectedOptionAddons.filter((i) => { return i.value !== "Heartbeat Buddies" })
+      setSelectedOptionAddons(formattingSelectedOptionAddons)
+      setAddHeartbeatBuddies(false)
+    }
+    if (modalBabyGrow) {
+      formattingSelectedOptionAddons = selectedOptionAddons.filter((i) => { return i.value !== "Baby's Growth" })
+      setSelectedOptionAddons(formattingSelectedOptionAddons)
+      setAddBabysGrowth(false)
+    }
+    if (modal8kRealisticView) {
+      formattingSelectedOptionAddons = selectedOptionAddons.filter((i) => { return i.value !== "8K Realistic View" })
+      setSelectedOptionAddons(formattingSelectedOptionAddons)
+      setAdd8kRealisticView(false)
+    }
+  }, [modalBabyGrow, modalHearthbeat, modal8kRealisticView])
+
+
+  useEffect(() => {
+    let val = false;
+    if (errors.firstName) {
+      val = true;
+    }
+    if (errors.lastName) {
+      val = true;
+    }
+    if (errors.email) {
+      val = true;
+    }
+    if (errors.phone) {
+      val = true;
+    }
+    if (errors.weeks) {
+      val = true;
+    }
+    if (errors.service) {
+      val = true;
+    }
+    if (errors.temsCheckbox) {
+      val = true;
+    }
+    if (clickButtonForm) {
+      if (val) {
+        setStepOne("invalid")
+      } else {
+        setStepOne("success");
+      }
+    }
+
+  }, [
+    errors.firstName,
+    errors.lastName,
+    errors.email,
+    errors.phone,
+    errors.weeks,
+    errors.service,
+    errors.temsCheckbox,
+    clickButtonForm
+  ])
+
 
   return (
     <div className="container">
@@ -679,28 +1255,34 @@ function App() {
       />
 
       {state.step === "registerForm" && (
-        <RegisterForm
-          scrollParenTop={scrollParenTop}
-          setClientState={setClientState}
-          state={state}
-          setState={setState}
-          clientState={clientState} 
-          setLeadState={setLeadState}
-          params={params}
-          weeks={weeks}
-          services={services}
-          selectedOptionAddons={selectedOptionAddons}
-          setStepOne={setStepOne}
-          control={control}
-          register={register}
-          handleSubmit={handleSubmit}
-          errors={errors}
-          setSelectedOptionAddons={setSelectedOptionAddons}
-          ultrasounds={ultrasounds}
-          setAddHeartbeatBuddies={setAddHeartbeatBuddies}
-          setAdd8kRealisticView={setAdd8kRealisticView}
-          consultedUltrasounds={consultedUltrasounds}
-        />
+         <RegisterForm
+         state={state}
+         setState={setState}
+         params={params}
+         weeks={weeks}
+         services={services}
+         selectedOptionAddons={selectedOptionAddons}
+         control={control}
+         register={register}
+         handleSubmit={handleSubmit}
+         errors={errors}
+         Controller={Controller}
+         onFormSubmit={onFormSubmit}
+         onChangeServices={onChangeServices}
+         handleAddonsSelected={handleAddonsSelected}
+         width={width}
+         addOns={addOns}
+         hoverIndexBabyGrow={hoverIndexBabyGrow}
+         hoverIndexHearthbeat={hoverIndexHearthbeat}
+         hoverIndex8kRealisticView={hoverIndex8kRealisticView}
+         modalHearthbeat={modalHearthbeat}
+         setModalHearthbeat={setModalHearthbeat}
+         modalBabyGrow={modalBabyGrow}
+         setModalBabyGrow={setModalBabyGrow}
+         modal8kRealisticView={modal8kRealisticView}
+         setModal8kRealisticView={setModal8kRealisticView}
+         setClickButtonForm={setClickButtonForm}
+         />
       )}
 
       {state.step === "availability" && (
