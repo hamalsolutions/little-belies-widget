@@ -4,10 +4,10 @@ import Select from "react-select";
 import moment from "moment";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Controller } from "react-hook-form";
-import BabyGrow from "../components/modals/babyGrow";
-import HearthBeat from "../components/modals/hearthBeat";
-import RealisticView from "../components/modals/8kRealisticView";
-import Terms from "../components/modals/terms";
+import BabyGrow from "./modals/babyGrow";
+import HearthBeat from "./modals/hearthBeat";
+import RealisticView from "./modals/8kRealisticView";
+import Terms from "./modals/terms";
 import { faInfo } from "@fortawesome/free-solid-svg-icons";
 
 function RegisterForm({
@@ -264,21 +264,7 @@ function RegisterForm({
     return serviceId;
   };
 
-  const onChangeServices = (service) => {
-    setSeletedService(service)
-    setAddBabysGrowth(false);
-    setAddHeartbeatBuddies(false);
-    setAdd8kRealisticView(false)
-  };
-
-  const handleAddonsSelected = (e) => {
-    const addons = e;
-    setSelectedOptionAddons(addons);
-    setHoverIndexBabyGrow(false)
-    setHoverIndexHearthbeat(false)
-    setHoverIndex8kRealisticView(false)
-  }
-
+ 
   const onFormSubmit = async (data) => {
     scrollParenTop();
     let sessionTypeId = data.service.value;
@@ -415,6 +401,21 @@ function RegisterForm({
     }
   };
 
+  const onChangeServices = (service) => {
+    setSeletedService(service)
+    setAddBabysGrowth(false);
+    setAddHeartbeatBuddies(false);
+    setAdd8kRealisticView(false)
+  };
+
+  const handleAddonsSelected = (e) => {
+    const addons = e;
+    setSelectedOptionAddons(addons);
+    setHoverIndexBabyGrow(false)
+    setHoverIndexHearthbeat(false)
+    setHoverIndex8kRealisticView(false)
+  };
+
   const handleFixedServices = () => {
     
     const service = {
@@ -436,6 +437,32 @@ function RegisterForm({
   useEffect(() => {
     handleFixedServices();
   }, [seletedService,services]);
+
+  useEffect(() => {
+
+    if (selectedOptionAddons) {
+
+      let formattingSelectedOptionAddons;
+
+      if (fixedServices.genderdetermination) {
+
+        formattingSelectedOptionAddons = selectedOptionAddons.filter((i) => { return i.value !== "8K Realistic View" })
+        setSelectedOptionAddons(formattingSelectedOptionAddons)
+
+      } else if (fixedServices.earlypregnancy || fixedServices.specialPromotion25min) {
+
+        formattingSelectedOptionAddons = selectedOptionAddons.filter((i) => { return i.value !== "Baby's Growth" && i.value !== "8K Realistic View" })
+        setSelectedOptionAddons(formattingSelectedOptionAddons)
+
+      } else if (fixedServices.meetyourbaby25 || fixedServices.meetyourbaby15) {
+
+        setSelectedOptionAddons(selectedOptionAddons)
+
+      } else {
+        setSelectedOptionAddons([])
+      }
+    }
+  }, [seletedService, fixedServices]);
 
   
   useEffect(() => {
@@ -518,7 +545,7 @@ function RegisterForm({
       setAddHeartbeatBuddies(false)
       setAdd8kRealisticView(false)
       setAddBabysGrowth(false)
-      setAddOns([])
+      setAddOns([]);
     }
 
   }, [
@@ -526,32 +553,12 @@ function RegisterForm({
     selectedOptionAddons,
     fixedServices,
     ultrasounds
-  ])
+  ]);
 
   useEffect(() => {
-    let formattingSelectedOptionAddons;
-    if (modalHearthbeat) {
-      formattingSelectedOptionAddons = selectedOptionAddons.filter((i) => { return i.value !== "Heartbeat Buddies" })
-      setSelectedOptionAddons(formattingSelectedOptionAddons)
-      setAddHeartbeatBuddies(false)
-    }
-    if (modalBabyGrow) {
-      formattingSelectedOptionAddons = selectedOptionAddons.filter((i) => { return i.value !== "Baby's Growth" })
-      setSelectedOptionAddons(formattingSelectedOptionAddons)
-      setAddBabysGrowth(false)
-    }
-    if (modal8kRealisticView) {
-      formattingSelectedOptionAddons = selectedOptionAddons.filter((i) => { return i.value !== "8K Realistic View" })
-      setSelectedOptionAddons(formattingSelectedOptionAddons)
-      setAdd8kRealisticView(false)
-    }
-  }, [modalBabyGrow, modalHearthbeat, modal8kRealisticView])
-
-
-   useEffect(() => {
     let newSessionTypeId = clientState.sessionTypeId;
     let newSessionTypeName = clientState.sessionTypeName;
-    const costBabysGrowth = 29;
+    const costBabysGrowth = 29; 
 
     if (fixedServices.meetyourbaby25 && addBabysGrowth) {
       const costMeetYourbaby25 = seletedService.label.match(/(\d+)/g);
@@ -602,30 +609,23 @@ function RegisterForm({
   ]);
 
   useEffect(() => {
-
-    if (selectedOptionAddons) {
-
-      let formattingSelectedOptionAddons;
-
-      if (fixedServices.genderdetermination) {
-
-        formattingSelectedOptionAddons = selectedOptionAddons.filter((i) => { return i.value !== "8K Realistic View" })
-        setSelectedOptionAddons(formattingSelectedOptionAddons)
-
-      } else if (fixedServices.earlypregnancy || fixedServices.specialPromotion25min) {
-
-        formattingSelectedOptionAddons = selectedOptionAddons.filter((i) => { return i.value !== "Baby's Growth" && i.value !== "8K Realistic View" })
-        setSelectedOptionAddons(formattingSelectedOptionAddons)
-
-      } else if (fixedServices.meetyourbaby25 || fixedServices.meetyourbaby15) {
-
-        setSelectedOptionAddons(selectedOptionAddons)
-
-      } else {
-        setSelectedOptionAddons([])
-      }
+    let formattingSelectedOptionAddons;
+    if (modalHearthbeat) {
+      formattingSelectedOptionAddons = selectedOptionAddons.filter((i) => { return i.value !== "Heartbeat Buddies" })
+      setSelectedOptionAddons(formattingSelectedOptionAddons)
+      setAddHeartbeatBuddies(false)
     }
-  }, [seletedService, fixedServices]);
+    if (modalBabyGrow) {
+      formattingSelectedOptionAddons = selectedOptionAddons.filter((i) => { return i.value !== "Baby's Growth" })
+      setSelectedOptionAddons(formattingSelectedOptionAddons)
+      setAddBabysGrowth(false)
+    }
+    if (modal8kRealisticView) {
+      formattingSelectedOptionAddons = selectedOptionAddons.filter((i) => { return i.value !== "8K Realistic View" })
+      setSelectedOptionAddons(formattingSelectedOptionAddons)
+      setAdd8kRealisticView(false)
+    }
+  }, [modalBabyGrow, modalHearthbeat, modal8kRealisticView])
 
 
   useEffect(() => {

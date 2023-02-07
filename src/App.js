@@ -5,7 +5,7 @@ import ReCAPTCHA from "react-google-recaptcha";
 import "./App.css";
 import "./styles/info.css";
 import StepProgress from "../src/components/stepProgress"
-import RegisterForm from "../src/components/form"
+import RegisterForm from "../src/components/registerForm"
 import SelectTimeAppointment from "../src/components/selectTimeAppointment"
 import BookAppointment from "../src/components/boookAppointment"
 import { blocks, removeTags } from "../src/config/constans.js"
