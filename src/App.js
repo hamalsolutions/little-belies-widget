@@ -13,6 +13,7 @@ import { useForm } from "react-hook-form";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Controller } from "react-hook-form";
 import { faInfo } from "@fortawesome/free-solid-svg-icons";
+import * as crypto from 'crypto-js';
 
 function App() {
   const params = new URLSearchParams(window.location.search);
@@ -103,8 +104,7 @@ function App() {
     orderKey: "",
   });
 
-  const parent_origin = 'https://test.littlebelliesspa.com'
-  // const parent_origin = "https://www.littlebelliesspa.com";
+  const parent_origin = `${process.env.REACT_APP_FOLLOWING_URL}`;
   const scrollParenTop = () => {
     window.parent.postMessage({ task: "scroll_top" }, parent_origin);
   };
@@ -214,13 +214,17 @@ function App() {
           Username: `${process.env.REACT_APP_USER_NAME}`,
           Password: `${process.env.REACT_APP_PASSWORD}`,
         };
+        
+        const key = process.env.REACT_APP_ENCRYPTION_KEY;
+        const encrypted = crypto.AES.encrypt(JSON.stringify(authPayload), key).toString();
+        const body = {data: encrypted}
         const authRequest = {
           method: "PUT",
           headers: {
             "Content-type": "application/json; charset=UTF-8",
             siteid: state.siteId,
           },
-          body: JSON.stringify(authPayload),
+          body: JSON.stringify(body),
         };
         const authResponse = await fetch(
           `${process.env.REACT_APP_API_URL}/api/userToken/`,
