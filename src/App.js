@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
 import moment from "moment";
-import ReCAPTCHA from "react-google-recaptcha";
 import "./App.css";
 import "./styles/info.css";
 import StepProgress from "../src/components/stepProgress"
