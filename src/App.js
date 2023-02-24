@@ -60,6 +60,7 @@ function App() {
     searchResults: [],
     clientObject: {},
     clientIsEqual: undefined,
+    ipAddress: ""
   });
  
   const [availableBlocks, setAvailableBlocks] = useState([]);

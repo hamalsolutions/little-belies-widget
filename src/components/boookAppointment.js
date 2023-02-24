@@ -1,9 +1,10 @@
-import React from "react"
+import React, {useEffect} from "react"
 import moment from "moment";
 import { PropTypes } from "prop-types";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {faSpinner} from "@fortawesome/free-solid-svg-icons";
-import { removeTags } from "../config/constans"
+import { removeTags } from "../config/constans";
+import {getIp} from "../services/external";
 
 function BookAppointment({
   state,
@@ -22,6 +23,14 @@ function BookAppointment({
 }){
 
   const bypass = false;
+
+  useEffect(async () => {
+    const ip = await getIp();
+    setClientState((clientState) => ({
+          ...clientState,
+          ipAddress: ip,
+        }));
+  },[]);
 
   const bookAppointment = async () => {
     setStepThree("success");
@@ -216,6 +225,7 @@ function BookAppointment({
             siteId: state.siteId,
             source: "online",
             cbff: false,
+            ipAddress: clientState.ipAddress,
             bookTime: moment(localTime.date).format("HH:mm")
           };
           const putDynamo = {
