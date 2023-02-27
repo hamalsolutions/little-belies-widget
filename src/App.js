@@ -28,7 +28,7 @@ function App() {
     appointmentRequestStatus: "IDLE",
     city: params.get("city") || "N/A",
     message: "",
-    siteId: params.get("id") || "5729354",
+    siteId: params.get("id") || "490100",
     latitude: params.get("latitude") || "0",
     longitude: params.get("longitude") || "0",
     language: languageList[params.get("lang")] || "English",
@@ -212,8 +212,9 @@ function App() {
         ...state,
         startDate: moment().isoWeekday(4).format("MM/DD/YYYY").toString()
       }));
-      console.log('date 5729354',moment().isoWeekday(4).format("MM/DD/YYYY").toString())
+      console.log('5729354',moment().isoWeekday(4).format("MM/DD/YYYY").toString())
     }
+    console.log('no entra al condicional');
   },[state.siteId]);
   // Loads the dropdown values and set the states for that display on first load
   useEffect(() => {
