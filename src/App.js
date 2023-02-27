@@ -210,7 +210,7 @@ function App() {
     if(state.siteId === "5729354"){
       setState((state) => ({
         ...state,
-        startDate: moment().isoWeekday(4).format("MM/DD/YYYY").toString()
+        startDate: moment().isoWeekday(5).format("MM/DD/YYYY").toString()
       }));
     }
   },[state.siteId]);
