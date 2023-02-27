@@ -212,10 +212,8 @@ function App() {
         ...state,
         startDate: moment().isoWeekday(4).format("MM/DD/YYYY").toString()
       }));
-      console.log('5729354',moment().isoWeekday(4).format("MM/DD/YYYY").toString())
     }
-    console.log('no entra al condicional');
-  },[state.siteId]);
+  },[]);
   // Loads the dropdown values and set the states for that display on first load
   useEffect(() => {
     async function getServices() {
