@@ -28,7 +28,7 @@ function App() {
     appointmentRequestStatus: "IDLE",
     city: params.get("city") || "N/A",
     message: "",
-    siteId: params.get("id") || "490100",
+    siteId: params.get("id") || "5729354",
     latitude: params.get("latitude") || "0",
     longitude: params.get("longitude") || "0",
     language: languageList[params.get("lang")] || "English",
@@ -213,7 +213,7 @@ function App() {
         startDate:  moment().day(4).format("MM/DD/YYYY").toString()
       }))
     }
-  },[state.startDate]);
+  },[state.siteId]);
   // Loads the dropdown values and set the states for that display on first load
   useEffect(() => {
     async function getServices() {
