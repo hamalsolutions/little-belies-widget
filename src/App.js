@@ -223,7 +223,7 @@ function App() {
         startDate: moment().isoWeekday(4).format("MM/DD/YYYY").toString()
       }));
     }
-    console.log('p',state.siteId);
+    console.log('p ',state.siteId);
   },[state.siteId]);
   // Loads the dropdown values and set the states for that display on first load
   useEffect(() => {
