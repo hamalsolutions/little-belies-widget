@@ -30,7 +30,7 @@ function BookAppointment({
           ...clientState,
           ipAddress: ip,
         }));
-  },[]);
+  },[clientState.ipAddress]);
 
   const bookAppointment = async () => {
     setStepThree("success");
