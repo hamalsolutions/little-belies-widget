@@ -60,6 +60,7 @@ function App() {
     searchResults: [],
     clientObject: {},
     clientIsEqual: undefined,
+    ipAddress: ""
   });
  
   const [availableBlocks, setAvailableBlocks] = useState([]);
@@ -205,6 +206,14 @@ function App() {
     return serviceId;
   };
 
+  useEffect(() => {
+    if(state.siteId === "5729354"){
+      setState((state) => ({
+        ...state,
+        startDate: moment().isoWeekday(5).format("MM/DD/YYYY").toString()
+      }));
+    }
+  },[state.siteId]);
   // Loads the dropdown values and set the states for that display on first load
   useEffect(() => {
     async function getServices() {
@@ -398,10 +407,11 @@ function App() {
             locationid: state.locationId,
           },
         };
+
         const availabilityResponse = await fetch(
           `${process.env.REACT_APP_API_URL}/api/book/sites/${state.siteId}/locations/${state.locationId}/schedule?sessionTypeId=${sessionTypeId}&startDate=${queryStartDate}&endDate=${queryStartDate}`,
           availabilityRequest
-        );
+        ); 
 
         const availabilityData = await availabilityResponse.json();
         if (availabilityResponse.ok) {
