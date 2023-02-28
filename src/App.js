@@ -207,10 +207,12 @@ function App() {
   };
 
   useEffect(() => {
-    if(state.siteId === "5729354"){
+    if(state.siteId === "5729354"){ 
+      const today = moment().format("MM/DD/YYYY").toString();
+      const dayFriday = moment().isoWeekday(5).format("MM/DD/YYYY").toString();
       setState((state) => ({
         ...state,
-        startDate: moment().isoWeekday(5).format("MM/DD/YYYY").toString()
+        startDate: today > dayFriday ? today : dayFriday
       }));
     }
   },[state.siteId]);
