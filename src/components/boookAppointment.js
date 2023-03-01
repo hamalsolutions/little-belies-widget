@@ -225,6 +225,7 @@ function BookAppointment({
             siteId: state.siteId,
             source: "online",
             cbff: false,
+            clientName: `${clientState.firstName}  ${clientState.lastName}`,
             ipAddress: clientState.ipAddress,
             bookTime: moment(localTime.date).format("HH:mm")
           };
