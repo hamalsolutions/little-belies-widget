@@ -626,8 +626,8 @@ function App() {
                 : 0
           );
 
-          setFirstLoad(false);
           setAvailableBlocks(sortedBlocks);
+          setFirstLoad(false);
 
           setState((state) => ({
             ...state,
