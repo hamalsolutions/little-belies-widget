@@ -95,7 +95,7 @@ function SelectTimeAppointment({
         onSelectedDay(nextDay);
       }, 500);
     }
-  }, [availableBlocks]);
+  }, [availableBlocks, firstLoad]);
 
   const blockSelected = async () => {
     scrollParenTop();
