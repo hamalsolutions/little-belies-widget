@@ -283,7 +283,7 @@ function App() {
               return 0;
             });
 
-            if (state.siteId === "557418" || state.siteId === "902886" || state.siteId === "5721382") {
+            if (state.siteId === "557418" || state.siteId === "902886" || state.siteId === "5721382" || state.siteId === "5721159") {
               const massageRequest = {
                 method: "GET",
                 headers: {
@@ -333,7 +333,7 @@ function App() {
             setUltrasounds(ultrasounds);
             setConsultedUltrasounds(ultrasoundsData.services);
 
-            if (state.siteId === "557418" || state.siteId === "902886" || state.siteId === "5721382") {
+            if (state.siteId === "557418" || state.siteId === "902886" || state.siteId === "5721382" || state.siteId === "5721159") {
               filterMassageData.forEach((item) => {
                 const mutableItem = {
                   value: item.sessionTypeId,
