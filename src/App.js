@@ -371,6 +371,7 @@ function App() {
 		getSitesInfo();
 		getServices();
 		const arrayOfWeeks = [];
+		//comments
 		arrayOfWeeks.push({
 			value: "I don't know",
 			label: "I don't know",
