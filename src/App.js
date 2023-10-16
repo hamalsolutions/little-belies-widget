@@ -498,6 +498,7 @@ function App() {
 							const selectedDateBlock = moment(state.startDate).format("MM/DD/YYYY");
 							const firstAppointment = room.appointments[0]?.startDateTime;
 							const firstAvailability = getFirstAvailability(room.availabilities)?.startDateTime;
+							console.log("firstAppointment-->", firstAppointment, " firstAvailability--> ", firstAvailability);
 
 							const hourDifferenceAppt = moment(firstAppointment).diff(moment(localStartTime), "hours");
 							const hourDifferenceBlocks = moment(blockDate).diff(moment(localStartTime), "hours");
@@ -540,7 +541,7 @@ function App() {
 							} else {
 								firstBlockTime = moment(state.startDate).add("08", "hours").add("30", "minutes").toString();
 							}
-
+							console.log({ room });
 							room.availabilities.forEach((availabilityBlock) => {
 								available =
 									available +
