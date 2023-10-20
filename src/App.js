@@ -550,7 +550,7 @@ function App() {
 										undefined,
 										"[)"
 									) *
-										(blockDate > firstBlockTime);
+										(blockDate >= firstBlockTime);
 							});
 
 							room.unavailabilities.forEach((unavailabilityBlock) => {
