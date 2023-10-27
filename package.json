@@ -1,6 +1,6 @@
 {
   "name": "little-belies-widget",
-  "version": "0.1.4",
+  "version": "0.1.6",
   "private": true,
   "dependencies": {
     "@fortawesome/fontawesome-svg-core": "^1.2.36",
