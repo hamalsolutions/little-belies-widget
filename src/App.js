@@ -18,7 +18,7 @@ function App() {
   const params = new URLSearchParams(window.location.search);
   const languageList = { en: "English", es: "Spanish" };
   const [firstLoad, setFirstLoad] = useState(true);
-  const [localTime, setLocalTime] = useState({ date: new Date });
+  const [localTime, setLocalTime] = useState({ date: new Date() });
   const [selectedBlock, setSelectBlock] = useState(null);
   const [width, setWindowWidth] = useState(0);
   const [state, setState] = useState({
@@ -555,7 +555,7 @@ function App() {
                       availabilityBlock.endDateTime,
                       undefined,
                       "[)"
-                    ) * (blockDate > firstBlockTime));
+                    ) * (blockDate >= firstBlockTime));
               });
 
               room.unavailabilities.forEach((unavailabilityBlock) => {
