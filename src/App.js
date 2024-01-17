@@ -202,16 +202,16 @@ function App() {
 		return serviceId;
 	};
 
-	useEffect(() => {
-		if (state.siteId === "5731081") {
-			const today = moment().format("MM/DD/YYYY").toString();
-			const dayFriday = moment("03/31/2023").format("MM/DD/YYYY").toString();
-			setState((state) => ({
-				...state,
-				startDate: today > dayFriday ? today : dayFriday,
-			}));
-		}
-	}, [state.siteId]);
+	// useEffect(() => {
+	// 	if (state.siteId === "5731081") { 
+	// 		const today = moment().format("MM/DD/YYYY").toString();
+	// 		const dayFriday = moment("03/31/2023").format("MM/DD/YYYY").toString();
+	// 		setState((state) => ({
+	// 			...state,
+	// 			startDate: today > dayFriday ? today : dayFriday,
+	// 		}));
+	// 	}
+	// }, [state.siteId]);
 	// Loads the dropdown values and set the states for that display on first load
 	useEffect(() => {
 		async function getServices() {
@@ -550,7 +550,7 @@ function App() {
 										undefined,
 										"[)"
 									) *
-										(blockDate >= firstBlockTime);
+									(blockDate >= firstBlockTime);
 							});
 
 							room.unavailabilities.forEach((unavailabilityBlock) => {
@@ -859,33 +859,33 @@ function App() {
 		const service = {
 			specialPromotion25min: seletedService
 				? seletedService?.label
-						?.toLowerCase()
-						.replace(/[-.()+\s]/g, "")
-						.search("specialpromotion25min")
+					?.toLowerCase()
+					.replace(/[-.()+\s]/g, "")
+					.search("specialpromotion25min")
 				: "",
 			genderdetermination: seletedService
 				? seletedService?.label
-						?.toLowerCase()
-						.replace(/[-.()+\s]/g, "")
-						.search("genderdetermination")
+					?.toLowerCase()
+					.replace(/[-.()+\s]/g, "")
+					.search("genderdetermination")
 				: "",
 			earlypregnancy: seletedService
 				? seletedService?.label
-						?.toLowerCase()
-						.replace(/[-.()+\s]/g, "")
-						.search("earlypregnancy")
+					?.toLowerCase()
+					.replace(/[-.()+\s]/g, "")
+					.search("earlypregnancy")
 				: "",
 			meetyourbaby25: seletedService
 				? seletedService?.label
-						?.toLowerCase()
-						.replace(/[-.()+\s]/g, "")
-						.search("meetyourbaby25")
+					?.toLowerCase()
+					.replace(/[-.()+\s]/g, "")
+					.search("meetyourbaby25")
 				: "",
 			meetyourbaby15: seletedService
 				? seletedService?.label
-						?.toLowerCase()
-						.replace(/[-.()+\s]/g, "")
-						.search("meetyourbaby15")
+					?.toLowerCase()
+					.replace(/[-.()+\s]/g, "")
+					.search("meetyourbaby15")
 				: "",
 		};
 		setFixedServices((fixedServices) => ({
