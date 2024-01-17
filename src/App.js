@@ -206,8 +206,8 @@ function App() {
 		return serviceId;
 	};
 
-	// useEffect(() => {
-	// 	if (state.siteId === "5731081") {
+	// useEffect(() => { 
+	// 	if (state.siteId === "5731081") { //phoenix
 	// 		const today = moment().format("MM/DD/YYYY").toString();
 	// 		const dayFriday = moment("03/31/2023").format("MM/DD/YYYY").toString();
 	// 		setState((state) => ({
