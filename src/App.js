@@ -60,7 +60,7 @@ function App() {
 		searchResults: [],
 		clientObject: {},
 		clientIsEqual: undefined,
-		ipAddress: "",
+		ipAddress: ""
 	});
 
 	const [availableBlocks, setAvailableBlocks] = useState([]);
@@ -92,7 +92,7 @@ function App() {
 	const [clickButtonForm, setClickButtonForm] = useState(false);
 	const [addBabysGrowth, setAddBabysGrowth] = useState(false);
 
-	const [seletedService, setSeletedService] = useState(null);
+	const [seletedService, setSeletedService] = useState(null)
 	const [addOns, setAddOns] = useState();
 
 	const [leadState, setLeadState] = useState({
@@ -122,36 +122,40 @@ function App() {
 					"Content-type": "application/json; charset=UTF-8",
 				},
 			};
-			const response = await fetch(`${process.env.REACT_APP_API_URL}/api/config/sites`, getSitesData);
+			const response = await fetch(
+				`${process.env.REACT_APP_API_URL}/api/config/sites`,
+				getSitesData
+			);
 			const data = await response.json();
 			if (response.ok) {
-				const allSitesItem = data.sites.find((site) => site.site === "0-0");
-				let sitesArray = [];
+				const allSitesItem = data.sites.find(site => site.site === "0-0");
+				let sitesArray = []
 				if (allSitesItem !== undefined) {
-					sitesArray = data.sites.filter((site) => site.site !== "0-0");
-				} else {
+					sitesArray = data.sites.filter(site => site.site !== "0-0");
+				}
+				else {
 					sitesArray = data.sites;
 				}
-				setSitesInfo(sitesArray);
+				setSitesInfo(sitesArray)
 			} else {
 				console.error(response);
 			}
 		} catch (error) {
 			console.error(JSON.stringify(error));
 		}
-	};
+	}
 
 	useEffect(() => {
 		const filterSite = sitesInfo.find((i) => i.site === `${state.siteId}-${state.locationId}`);
 		if (filterSite !== undefined) {
 			const date = new Date();
-			const timeZone = date.toLocaleString("en-US", { timeZone: filterSite?.timeZone });
+			const timeZone = date.toLocaleString('en-US', { timeZone: filterSite?.timeZone });
 			setLocalTime((localTime) => ({
 				...localTime,
-				date: timeZone,
+				date: timeZone
 			}));
 		}
-	}, [sitesInfo, localTime.date]);
+	}, [sitesInfo, localTime.date])
 
 	const getPrice = (service) => {
 		return parseInt(service.split("$")[1]);
@@ -202,16 +206,16 @@ function App() {
 		return serviceId;
 	};
 
-	// useEffect(() => {
-	// 	if (state.siteId === "5731081") { 
-	// 		const today = moment().format("MM/DD/YYYY").toString();
-	// 		const dayFriday = moment("03/31/2023").format("MM/DD/YYYY").toString();
-	// 		setState((state) => ({
-	// 			...state,
-	// 			startDate: today > dayFriday ? today : dayFriday,
-	// 		}));
-	// 	}
-	// }, [state.siteId]);
+	useEffect(() => {
+		if (state.siteId === "5731081") {
+			const today = moment().format("MM/DD/YYYY").toString();
+			const dayFriday = moment("03/31/2023").format("MM/DD/YYYY").toString();
+			setState((state) => ({
+				...state,
+				startDate: today > dayFriday ? today : dayFriday
+			}));
+		}
+	}, [state.siteId]);
 	// Loads the dropdown values and set the states for that display on first load
 	useEffect(() => {
 		async function getServices() {
@@ -223,7 +227,7 @@ function App() {
 
 				const key = process.env.REACT_APP_ENCRYPTION_KEY;
 				const encrypted = crypto.AES.encrypt(JSON.stringify(authPayload), key).toString();
-				const body = { data: encrypted };
+				const body = { data: encrypted }
 				const authRequest = {
 					method: "PUT",
 					headers: {
@@ -232,7 +236,10 @@ function App() {
 					},
 					body: JSON.stringify(body),
 				};
-				const authResponse = await fetch(`${process.env.REACT_APP_API_URL}/api/userToken/`, authRequest);
+				const authResponse = await fetch(
+					`${process.env.REACT_APP_API_URL}/api/userToken/`,
+					authRequest
+				);
 				const authData = await authResponse.json();
 				if (authResponse.ok) {
 					setState((state) => ({
@@ -255,36 +262,28 @@ function App() {
 					const ultrasoundsData = await ultrasoundResponse.json();
 					let filterMassageData;
 					if (ultrasoundResponse.ok) {
+
 						const servicesUltrasounds = [...ultrasoundsData.services];
 
-						const filterServicesBySeeOnline = servicesUltrasounds
-							.filter((i) => {
-								if (state.siteId === "557418" && state.locationId === "2") {
-									let specialpromotion25min = i.name
-										.toLowerCase()
-										.replace(/[-.()+\s]/g, "")
-										.search("specialpromotion25min");
-									if (specialpromotion25min !== 0) return i.seeOnLine === true;
-								} else {
-									return i.seeOnLine === true;
-								}
-							})
-							.map((i) => {
-								return i.name;
-							})
-							.sort((a, b) => {
-								if (a > b) return 1;
-								if (a < b) return -1;
-								return 0;
-							});
+						const filterServicesBySeeOnline = servicesUltrasounds.filter((i) => {
+							if (state.siteId === "557418" && state.locationId === "2") {
 
-						if (
-							state.siteId === "557418" ||
-							state.siteId === "902886" ||
-							state.siteId === "5721382" ||
-							state.siteId === "5721159" ||
-							state.siteId === "888809"
-						) {
+								let specialpromotion25min = i.name.toLowerCase().replace(/[-.()+\s]/g, "").search("specialpromotion25min");
+								if (specialpromotion25min !== 0) return i.seeOnLine === true
+
+							} else {
+								return i.seeOnLine === true
+							}
+
+						}).map((i) => {
+							return i.name
+						}).sort((a, b) => {
+							if (a > b) return 1
+							if (a < b) return -1
+							return 0;
+						});
+
+						if (state.siteId === "557418" || state.siteId === "902886" || state.siteId === "5721382" || state.siteId === "5721159" || state.siteId === "888809") {
 							const massageRequest = {
 								method: "GET",
 								headers: {
@@ -299,9 +298,7 @@ function App() {
 								massageRequest
 							);
 							const massageData = await massageResponse.json();
-							filterMassageData = massageData.services.filter((i) => {
-								return i.seeOnLine === true;
-							});
+							filterMassageData = massageData.services.filter((i) => { return i.seeOnLine === true });
 						}
 						const ultrasounds = [];
 						const massages = [];
@@ -315,7 +312,7 @@ function App() {
 									sessionTypeId: serviceTypeId,
 									name: service,
 									price: servicePrice,
-								};
+								}
 								existingServices.push(serviceObject);
 							}
 						});
@@ -332,16 +329,11 @@ function App() {
 							ultrasounds.push(mutableItem);
 						});
 
+
 						setUltrasounds(ultrasounds);
 						setConsultedUltrasounds(ultrasoundsData.services);
 
-						if (
-							state.siteId === "557418" ||
-							state.siteId === "902886" ||
-							state.siteId === "5721382" ||
-							state.siteId === "5721159" ||
-							state.siteId === "888809"
-						) {
+						if (state.siteId === "557418" || state.siteId === "902886" || state.siteId === "5721382" || state.siteId === "5721159" || state.siteId === "888809") {
 							filterMassageData.forEach((item) => {
 								const mutableItem = {
 									value: item.sessionTypeId,
@@ -371,7 +363,6 @@ function App() {
 		getSitesInfo();
 		getServices();
 		const arrayOfWeeks = [];
-		//comments
 		arrayOfWeeks.push({
 			value: "I don't know",
 			label: "I don't know",
@@ -388,11 +379,10 @@ function App() {
 
 	const getFirstAvailability = (availabilities) => {
 		return availabilities.reduce((a, b) => {
-			let minDate;
-			if (a && b) a.startDateTime < b.startDateTime ? (minDate = a) : (minDate = b);
+			let minDate; if (a && b) a.startDateTime < b.startDateTime ? minDate = a : minDate = b;
 			return minDate;
 		}, {});
-	};
+	}
 
 	useEffect(() => {
 		if (state.authorization === "") {
@@ -406,7 +396,9 @@ function App() {
 
 			try {
 				const sessionTypeId = "" + clientState.sessionTypeId;
-				const queryStartDate = moment(state.startDate).format("MM/DD/YYYY").toString();
+				const queryStartDate = moment(state.startDate)
+					.format("MM/DD/YYYY")
+					.toString();
 
 				const availabilityRequest = {
 					method: "GET",
@@ -429,7 +421,9 @@ function App() {
 						const appointments = [];
 						room.appointments.forEach((appointment) => {
 							const mutableAppointment = appointment;
-							const segment = new Date(mutableAppointment.startDateTime).toLocaleTimeString("en-US", {
+							const segment = new Date(
+								mutableAppointment.startDateTime
+							).toLocaleTimeString("en-US", {
 								hour: "2-digit",
 								minute: "2-digit",
 							});
@@ -439,7 +433,7 @@ function App() {
 
 						const listApointments = [];
 						availabilityData.schedule.forEach((i) => {
-							listApointments.push(i.appointments[0]);
+							listApointments.push(i.appointments[0])
 						});
 
 						const searchFirstAppointment = listApointments.reduce((acc, app) => {
@@ -453,7 +447,7 @@ function App() {
 
 						let firstDates = {
 							matches: firstDatesMatches.length !== 0,
-							severalRooms: listApointments.length > 1,
+							severalRooms: listApointments.length > 1
 						};
 
 						const roomReturn = {
@@ -463,7 +457,7 @@ function App() {
 							availabilities: room.availabilities,
 							roomBlocks: [],
 							appointments: appointments,
-							firstDatesMatches: firstDates,
+							firstDatesMatches: firstDates
 						};
 						return roomReturn;
 					});
@@ -475,35 +469,49 @@ function App() {
 						const roomBlocks = mutableBlocks.map((block) => {
 							const mutableBlock = { ...block };
 							const addTwelve = mutableBlock.segment.includes("PM");
-							const rawHours = parseInt(mutableBlock.segment.split(" ")[0].split(":")[0]);
-							const hours = addTwelve && rawHours !== 12 ? rawHours + 12 : rawHours;
-							const minutes = parseInt(mutableBlock.segment.split(" ")[0].split(":")[1]);
-							const stringDate = moment(state.startDate).format("MM/DD/YYYY").toString();
+							const rawHours = parseInt(
+								mutableBlock.segment.split(" ")[0].split(":")[0]
+							);
+							const hours =
+								addTwelve && rawHours !== 12 ? rawHours + 12 : rawHours;
+							const minutes = parseInt(
+								mutableBlock.segment.split(" ")[0].split(":")[1]
+							);
+							const stringDate = moment(state.startDate)
+								.format("MM/DD/YYYY")
+								.toString();
 							const startDateTime = moment(stringDate)
 								.add(hours, "hours")
 								.add(minutes, "minutes")
 								.format("YYYY-MM-DD[T]HH:mm:ss");
-							const endDateTime = moment(startDateTime).add(30, "minutes").format("YYYY-MM-DD[T]HH:mm:ss");
+							const endDateTime = moment(startDateTime)
+								.add(30, "minutes")
+								.format("YYYY-MM-DD[T]HH:mm:ss");
 							mutableBlock.startDateTime = startDateTime;
 							mutableBlock.endDateTime = endDateTime;
-							const blockDate = moment(stringDate).add(hours, "hours").add(minutes, "minutes").toString();
+							const blockDate = moment(stringDate)
+								.add(hours, "hours")
+								.add(minutes, "minutes")
+								.toString();
 							mutableBlock.blockDate = blockDate;
 							mutableBlock.selected = false;
 							let available = false;
 							let firstBlockTime;
 							const isToday = moment().format("MM/DD/YYYY");
 							const localStartTime = moment(localTime.date).format("YYYY-MM-DD[T]HH:mm:ss");
-							const localEndTime = moment(localTime.date).add(2, "hours").format("YYYY-MM-DD[T]HH:mm:ss");
+							const localEndTime = moment(localTime.date).add(2, 'hours').format("YYYY-MM-DD[T]HH:mm:ss");
 
 							const selectedDateBlock = moment(state.startDate).format("MM/DD/YYYY");
 							const firstAppointment = room.appointments[0]?.startDateTime;
 							const firstAvailability = getFirstAvailability(room.availabilities)?.startDateTime;
 
-							const hourDifferenceAppt = moment(firstAppointment).diff(moment(localStartTime), "hours");
-							const hourDifferenceBlocks = moment(blockDate).diff(moment(localStartTime), "hours");
+							const hourDifferenceAppt = moment(firstAppointment).diff(moment(localStartTime), 'hours');
+							const hourDifferenceBlocks = moment(blockDate).diff(moment(localStartTime), 'hours');
 
 							if (isToday === selectedDateBlock) {
+
 								if (room.firstDatesMatches.severalRooms) {
+
 									if (room.firstDatesMatches.matches) {
 										if (blockDate > moment(localStartTime).toString()) {
 											firstBlockTime = moment(firstAvailability).toString();
@@ -518,6 +526,7 @@ function App() {
 								}
 
 								if (!room.firstDatesMatches.severalRooms) {
+
 									if (firstAppointment !== firstAvailability) {
 										if (hourDifferenceAppt <= 2 && blockDate > moment(localStartTime).toString()) {
 											firstBlockTime = moment(firstAppointment).toString();
@@ -529,10 +538,7 @@ function App() {
 									}
 
 									if (firstAppointment === firstAvailability) {
-										if (
-											blockDate > moment(localStartTime).toString() &&
-											blockDate > moment(firstAppointment).toString()
-										) {
+										if (blockDate > moment(localStartTime).toString() && blockDate > moment(firstAppointment).toString()) {
 											firstBlockTime = moment(localStartTime).toString();
 										}
 									}
@@ -543,14 +549,13 @@ function App() {
 
 							room.availabilities.forEach((availabilityBlock) => {
 								available =
-									available +
-									moment(blockDate).isBetween(
-										availabilityBlock.startDateTime,
-										availabilityBlock.endDateTime,
-										undefined,
-										"[)"
-									) *
-									(blockDate >= firstBlockTime);
+									available + (
+										moment(blockDate).isBetween(
+											availabilityBlock.startDateTime,
+											availabilityBlock.endDateTime,
+											undefined,
+											"[)"
+										) * (blockDate >= firstBlockTime));
 							});
 
 							room.unavailabilities.forEach((unavailabilityBlock) => {
@@ -564,10 +569,16 @@ function App() {
 									);
 							});
 							const blockAppointment = room.appointments.find((appointment) =>
-								moment(blockDate).isBetween(appointment.startDateTime, appointment.endDateTime, undefined, "[)")
+								moment(blockDate).isBetween(
+									appointment.startDateTime,
+									appointment.endDateTime,
+									undefined,
+									"[)"
+								)
 							);
 
-							mutableBlock.appointment = blockAppointment === undefined ? {} : blockAppointment;
+							mutableBlock.appointment =
+								blockAppointment === undefined ? {} : blockAppointment;
 
 							mutableBlock.available = Boolean(available);
 
@@ -592,7 +603,9 @@ function App() {
 					const availableBlocksForDisplay = [];
 					displayableRooms.forEach((room) => {
 						room.availableBlocks.forEach((block) => {
-							const foundedBlock = availableBlocksForDisplay.find((availableBlock) => availableBlock.id === block.id);
+							const foundedBlock = availableBlocksForDisplay.find(
+								(availableBlock) => availableBlock.id === block.id
+							);
 							if (foundedBlock !== undefined) {
 								const mutableBlock = foundedBlock;
 								mutableBlock.staffId.push(room.staffId);
@@ -605,11 +618,14 @@ function App() {
 							}
 						});
 					});
-					console.log(availableBlocksForDisplay);
 					const sortedBlocks = availableBlocksForDisplay.sort((a, b) =>
-						a.startDateTime > b.startDateTime ? 1 : b.startDateTime > a.startDateTime ? -1 : 0
+						a.startDateTime > b.startDateTime
+							? 1
+							: b.startDateTime > a.startDateTime
+								? -1
+								: 0
 					);
-					console.log(sortedBlocks);
+
 					setFirstLoad(false);
 					setAvailableBlocks(sortedBlocks);
 
@@ -634,7 +650,14 @@ function App() {
 			}
 		};
 		if (clientState.sessionTypeId !== "") getAvailability();
-	}, [state.startDate, state.locationId, state.siteId, state.authorization, clientState.sessionTypeId]);
+	}, [
+		state.startDate,
+		state.locationId,
+		state.siteId,
+		state.authorization,
+		clientState.sessionTypeId,
+	]);
+
 
 	const previousStep = (currentStep) => {
 		switch (currentStep) {
@@ -698,7 +721,9 @@ function App() {
 		servicesArray.forEach((serviceItem) => {
 			if (serviceItem.name.toLowerCase().includes("$")) {
 				const indexAddon = serviceItem.name.toLowerCase().indexOf("$");
-				const remainingConsulted = serviceItem.name.toLowerCase().slice(0, indexAddon);
+				const remainingConsulted = serviceItem.name
+					.toLowerCase()
+					.slice(0, indexAddon);
 				const purifiedConsulted = remainingConsulted.replace(regex, "");
 				if (purifiedServiceName === purifiedConsulted) {
 					serviceId = serviceItem.sessionTypeId;
@@ -718,7 +743,7 @@ function App() {
 			firstName: data.firstName,
 			lastName: data.lastName,
 			email: data.email,
-			phone: data.phone.replace(/[^0-9]/gi, ""),
+			phone: data.phone.replace(/[^0-9]/gi, ''),
 			weeks: data.weeks.label,
 			sessionTypeId: sessionTypeId,
 			sessionTypeName: sessionTypeName,
@@ -749,17 +774,19 @@ function App() {
 				},
 			};
 			const searchClientsResponse = await fetch(
-				`${process.env.REACT_APP_API_URL}/api/clients/clients?searchText=${data.phone.replace(/[^0-9]/gi, "")}`,
+				`${process.env.REACT_APP_API_URL}/api/clients/clients?searchText=${data.phone.replace(/[^0-9]/gi, '')}`,
 				searchClientsRequest
 			);
 			const searchClientsData = await searchClientsResponse.json();
 			if (searchClientsResponse.ok) {
-				setSendForm(true);
+
+				setSendForm(true)
 
 				if (
-					data.firstName + " " + data.lastName === searchClientsData.clients[0].name &&
+					data.firstName + " " + data.lastName ===
+					searchClientsData.clients[0].name &&
 					searchClientsData.clients[0].email === data.email &&
-					searchClientsData.clients[0].phone.replace(/[^0-9]/gi, "") === data.phone.replace(/[^0-9]/gi, "")
+					searchClientsData.clients[0].phone.replace(/[^0-9]/gi, '') === data.phone.replace(/[^0-9]/gi, '')
 				) {
 					setClientState((clientState) => ({
 						...clientState,
@@ -795,7 +822,7 @@ function App() {
 			const leadPayload = {
 				siteId: state.siteId,
 				name: data.firstName + " " + data.lastName,
-				mobilePhone: data.phone.replace(/[^0-9]/gi, ""),
+				mobilePhone: data.phone.replace(/[^0-9]/gi, ''),
 				email: data.email,
 				service: sessionTypeName,
 				clientId: clientId === undefined ? "n/a" : clientId,
@@ -812,7 +839,10 @@ function App() {
 				},
 				body: JSON.stringify(leadPayload),
 			};
-			const leadResponse = await fetch(`${process.env.REACT_APP_API_URL}/api/book/clients`, leadRequest);
+			const leadResponse = await fetch(
+				`${process.env.REACT_APP_API_URL}/api/book/clients`,
+				leadRequest
+			);
 			const leadData = await leadResponse.json();
 			if (leadResponse.ok) {
 				setLeadState((leadState) => ({
@@ -841,53 +871,29 @@ function App() {
 	};
 
 	const onChangeServices = (service) => {
-		setSeletedService(service);
+		setSeletedService(service)
 		setAddBabysGrowth(false);
 		setAddHeartbeatBuddies(false);
-		setAdd8kRealisticView(false);
+		setAdd8kRealisticView(false)
 	};
 
 	const handleAddonsSelected = (e) => {
 		const addons = e;
 		setSelectedOptionAddons(addons);
-		setHoverIndexBabyGrow(false);
-		setHoverIndexHearthbeat(false);
-		setHoverIndex8kRealisticView(false);
+		setHoverIndexBabyGrow(false)
+		setHoverIndexHearthbeat(false)
+		setHoverIndex8kRealisticView(false)
 	};
 
 	const handleFixedServices = () => {
+
 		const service = {
-			specialPromotion25min: seletedService
-				? seletedService?.label
-					?.toLowerCase()
-					.replace(/[-.()+\s]/g, "")
-					.search("specialpromotion25min")
-				: "",
-			genderdetermination: seletedService
-				? seletedService?.label
-					?.toLowerCase()
-					.replace(/[-.()+\s]/g, "")
-					.search("genderdetermination")
-				: "",
-			earlypregnancy: seletedService
-				? seletedService?.label
-					?.toLowerCase()
-					.replace(/[-.()+\s]/g, "")
-					.search("earlypregnancy")
-				: "",
-			meetyourbaby25: seletedService
-				? seletedService?.label
-					?.toLowerCase()
-					.replace(/[-.()+\s]/g, "")
-					.search("meetyourbaby25")
-				: "",
-			meetyourbaby15: seletedService
-				? seletedService?.label
-					?.toLowerCase()
-					.replace(/[-.()+\s]/g, "")
-					.search("meetyourbaby15")
-				: "",
-		};
+			specialPromotion25min: seletedService ? seletedService?.label?.toLowerCase().replace(/[-.()+\s]/g, "").search("specialpromotion25min") : "",
+			genderdetermination: seletedService ? seletedService?.label?.toLowerCase().replace(/[-.()+\s]/g, "").search("genderdetermination") : "",
+			earlypregnancy: seletedService ? seletedService?.label?.toLowerCase().replace(/[-.()+\s]/g, "").search("earlypregnancy") : "",
+			meetyourbaby25: seletedService ? seletedService?.label?.toLowerCase().replace(/[-.()+\s]/g, "").search("meetyourbaby25") : "",
+			meetyourbaby15: seletedService ? seletedService?.label?.toLowerCase().replace(/[-.()+\s]/g, "").search("meetyourbaby15") : "",
+		}
 		setFixedServices((fixedServices) => ({
 			...fixedServices,
 			specialPromotion25min: service.specialPromotion25min === 0,
@@ -896,29 +902,33 @@ function App() {
 			meetyourbaby25: service.meetyourbaby25 === 0,
 			meetyourbaby15: service.meetyourbaby15 === 0,
 		}));
-	};
+	}
 	useEffect(() => {
 		handleFixedServices();
 	}, [seletedService, services]);
 
 	useEffect(() => {
+
 		if (selectedOptionAddons) {
+
 			let formattingSelectedOptionAddons;
 
 			if (fixedServices.genderdetermination) {
-				formattingSelectedOptionAddons = selectedOptionAddons.filter((i) => {
-					return i.value !== "8K Realistic View";
-				});
-				setSelectedOptionAddons(formattingSelectedOptionAddons);
+
+				formattingSelectedOptionAddons = selectedOptionAddons.filter((i) => { return i.value !== "8K Realistic View" })
+				setSelectedOptionAddons(formattingSelectedOptionAddons)
+
 			} else if (fixedServices.earlypregnancy || fixedServices.specialPromotion25min) {
-				formattingSelectedOptionAddons = selectedOptionAddons.filter((i) => {
-					return i.value !== "Baby's Growth" && i.value !== "8K Realistic View";
-				});
-				setSelectedOptionAddons(formattingSelectedOptionAddons);
+
+				formattingSelectedOptionAddons = selectedOptionAddons.filter((i) => { return i.value !== "Baby's Growth" && i.value !== "8K Realistic View" })
+				setSelectedOptionAddons(formattingSelectedOptionAddons)
+
 			} else if (fixedServices.meetyourbaby25 || fixedServices.meetyourbaby15) {
-				setSelectedOptionAddons(selectedOptionAddons);
+
+				setSelectedOptionAddons(selectedOptionAddons)
+
 			} else {
-				setSelectedOptionAddons([]);
+				setSelectedOptionAddons([])
 			}
 		}
 	}, [seletedService, fixedServices]);
@@ -927,25 +937,22 @@ function App() {
 		{
 			value: "Heartbeat Buddies",
 			label: (
-				<div className="d-flex col-12">
+				<div className="d-flex col-12"
+				>
 					<div className="col-11">
 						<span>Heartbeat Buddies</span>
 					</div>
-					<div
-						className="col-1"
+					<div className="col-1"
 						onMouseOver={() => setHoverIndexHearthbeat(true)}
 						onMouseLeave={() => setHoverIndexHearthbeat(false)}
 						style={{ cursor: "pointer" }}
 					>
-						<FontAwesomeIcon
-							icon={faInfo}
-							onClick={(e) => {
-								setModalHearthbeat(true);
-							}}
+						<FontAwesomeIcon icon={faInfo}
+							onClick={(e) => { setModalHearthbeat(true) }}
 						/>
 					</div>
 				</div>
-			),
+			)
 		},
 		{
 			value: "Baby's Growth",
@@ -954,16 +961,17 @@ function App() {
 					<div className="col-11">
 						<span>Baby's Growth</span>
 					</div>
-					<div
-						className="col-1"
+					<div className="col-1"
 						onMouseOver={() => setHoverIndexBabyGrow(true)}
 						onMouseLeave={() => setHoverIndexBabyGrow(false)}
 						style={{ cursor: "pointer" }}
 					>
-						<FontAwesomeIcon icon={faInfo} onClick={(e) => setModalBabyGrow(true)} />
+						<FontAwesomeIcon icon={faInfo}
+							onClick={(e) => setModalBabyGrow(true)}
+						/>
 					</div>
 				</div>
-			),
+			)
 		},
 		{
 			value: "8K Realistic View",
@@ -972,41 +980,39 @@ function App() {
 					<div className="col-11">
 						<span>8K Realistic View</span>
 					</div>
-					<div
-						className="col-1"
+					<div className="col-1"
 						onMouseOver={() => setHoverIndex8kRealisticView(true)}
 						onMouseLeave={() => setHoverIndex8kRealisticView(false)}
 						style={{ cursor: "pointer" }}
 					>
-						<FontAwesomeIcon icon={faInfo} onClick={(e) => setModal8kRealisticView(true)} />
+						<FontAwesomeIcon icon={faInfo}
+							onClick={(e) => setModal8kRealisticView(true)}
+						/>
 					</div>
 				</div>
-			),
-		},
+			)
+		}
 	];
 	const addOnsToGenderDetermination = [
 		{
 			value: "Heartbeat Buddies",
 			label: (
-				<div className="d-flex col-12">
+				<div className="d-flex col-12"
+				>
 					<div className="col-11">
 						<span>Heartbeat Buddies</span>
 					</div>
-					<div
-						className="col-1"
+					<div className="col-1"
 						onMouseOver={() => setHoverIndexHearthbeat(true)}
 						onMouseLeave={() => setHoverIndexHearthbeat(false)}
 						style={{ cursor: "pointer" }}
 					>
-						<FontAwesomeIcon
-							icon={faInfo}
-							onClick={(e) => {
-								setModalHearthbeat(true);
-							}}
+						<FontAwesomeIcon icon={faInfo}
+							onClick={(e) => { setModalHearthbeat(true) }}
 						/>
 					</div>
 				</div>
-			),
+			)
 		},
 		{
 			value: "Baby's Growth",
@@ -1015,113 +1021,128 @@ function App() {
 					<div className="col-11">
 						<span>Baby's Growth</span>
 					</div>
-					<div
-						className="col-1"
+					<div className="col-1"
 						onMouseOver={() => setHoverIndexBabyGrow(true)}
 						onMouseLeave={() => setHoverIndexBabyGrow(false)}
 						style={{ cursor: "pointer" }}
 					>
-						<FontAwesomeIcon icon={faInfo} onClick={(e) => setModalBabyGrow(true)} />
+						<FontAwesomeIcon icon={faInfo}
+							onClick={(e) => setModalBabyGrow(true)}
+						/>
 					</div>
 				</div>
-			),
-		},
+			)
+		}
 	];
 	const addOnsToEarlyPregnancy = [
 		{
 			value: "Heartbeat Buddies",
 			label: (
-				<div className="d-flex col-12">
+				<div className="d-flex col-12"
+				>
 					<div className="col-11">
 						<span>Heartbeat Buddies</span>
 					</div>
-					<div
-						className="col-1"
+					<div className="col-1"
 						onMouseOver={() => setHoverIndexHearthbeat(true)}
 						onMouseLeave={() => setHoverIndexHearthbeat(false)}
 						style={{ cursor: "pointer" }}
 					>
-						<FontAwesomeIcon icon={faInfo} onClick={(e) => setModalHearthbeat(true)} />
+						<FontAwesomeIcon icon={faInfo}
+							onClick={(e) => setModalHearthbeat(true)}
+						/>
 					</div>
 				</div>
-			),
-		},
-	];
+			)
+		}];
 
 	useEffect(() => {
+
 		let babyGrow;
 		let hearthbeat;
 		let realisticView;
 
 		if (selectedOptionAddons) {
-			babyGrow = selectedOptionAddons.find((i) => i.value === "Baby's Growth");
-			hearthbeat = selectedOptionAddons.find((i) => i.value === "Heartbeat Buddies");
-			realisticView = selectedOptionAddons.find((i) => i.value === "8K Realistic View");
+			babyGrow = selectedOptionAddons.find(i => i.value === "Baby's Growth");
+			hearthbeat = selectedOptionAddons.find(i => i.value === "Heartbeat Buddies");
+			realisticView = selectedOptionAddons.find(i => i.value === "8K Realistic View");
 		}
 		if (fixedServices.genderdetermination) {
-			setAddOns(addOnsToGenderDetermination);
+
+			setAddOns(addOnsToGenderDetermination)
 
 			if (realisticView === undefined) setAdd8kRealisticView(false);
 
 			if (hearthbeat === undefined) {
-				setAddHeartbeatBuddies(false);
+				setAddHeartbeatBuddies(false)
 				addOnsToGenderDetermination[0].label = addOnsToGenderDetermination[0].label;
 			} else {
 				setAddHeartbeatBuddies(true);
 				hearthbeat.label = <span>Heartbeat Buddies</span>;
 			}
 			if (babyGrow === undefined) {
-				setAddBabysGrowth(false);
+				setAddBabysGrowth(false)
 				addOnsToGenderDetermination[1].label = addOnsToGenderDetermination[1].label;
 			} else {
-				setAddBabysGrowth(true);
+				setAddBabysGrowth(true)
 				babyGrow.label = <span>Baby's Growth</span>;
 			}
+
 		} else if (fixedServices.meetyourbaby25 || fixedServices.meetyourbaby15) {
-			setAddOns(addOnsToMeetYourBaby);
+
+			setAddOns(addOnsToMeetYourBaby)
 
 			if (hearthbeat === undefined) {
-				setAddHeartbeatBuddies(false);
+				setAddHeartbeatBuddies(false)
 				addOnsToMeetYourBaby[0].label = addOnsToMeetYourBaby[0].label;
 			} else {
 				setAddHeartbeatBuddies(true);
 				hearthbeat.label = <span>Heartbeat Buddies</span>;
 			}
 			if (babyGrow === undefined) {
-				setAddBabysGrowth(false);
+				setAddBabysGrowth(false)
 				addOnsToMeetYourBaby[1].label = addOnsToMeetYourBaby[1].label;
 			} else {
-				setAddBabysGrowth(true);
+				setAddBabysGrowth(true)
 				babyGrow.label = <span>Baby's Growth</span>;
 			}
 			if (realisticView === undefined) {
-				setAdd8kRealisticView(false);
+				setAdd8kRealisticView(false)
 				addOnsToMeetYourBaby[2].label = addOnsToMeetYourBaby[2].label;
 			} else {
-				setAdd8kRealisticView(true);
+				setAdd8kRealisticView(true)
 				realisticView.label = <span>8K Realistic View</span>;
 			}
-		} else if (fixedServices.earlypregnancy || fixedServices.specialPromotion25min) {
-			setAddOns(addOnsToEarlyPregnancy);
+
+		}
+		else if (fixedServices.earlypregnancy || fixedServices.specialPromotion25min) {
+
+			setAddOns(addOnsToEarlyPregnancy)
 
 			if (babyGrow === undefined) setAddBabysGrowth(false);
 
 			if (realisticView === undefined) setAdd8kRealisticView(false);
 
 			if (hearthbeat === undefined) {
-				setAddHeartbeatBuddies(false);
+				setAddHeartbeatBuddies(false)
 				addOnsToEarlyPregnancy[0].label = addOnsToEarlyPregnancy[0].label;
 			} else {
 				setAddHeartbeatBuddies(true);
 				hearthbeat.label = <span>Heartbeat Buddies</span>;
 			}
+
 		} else {
-			setAddHeartbeatBuddies(false);
-			setAdd8kRealisticView(false);
-			setAddBabysGrowth(false);
+			setAddHeartbeatBuddies(false)
+			setAdd8kRealisticView(false)
+			setAddBabysGrowth(false)
 			setAddOns([]);
 		}
-	}, [seletedService, selectedOptionAddons, fixedServices, ultrasounds]);
+	}, [
+		seletedService,
+		selectedOptionAddons,
+		fixedServices,
+		ultrasounds
+	]);
 
 	useEffect(() => {
 		let newSessionTypeId = clientState.sessionTypeId;
@@ -1151,6 +1172,7 @@ function App() {
 		}
 
 		if (fixedServices.genderdetermination && addBabysGrowth) {
+
 			const costGenderDetermination = seletedService.label.match(/(\d+)/g);
 			const costGenderPlusBabysGrowth = parseFloat(costGenderDetermination[0]) + costBabysGrowth;
 
@@ -1166,32 +1188,34 @@ function App() {
 			sessionTypeId: newSessionTypeId,
 			sessionTypeName: newSessionTypeName,
 		}));
-	}, [sendForm, clientState.sessionTypeName, clientState.sessionTypeId, addBabysGrowth, seletedService, fixedServices]);
+	}, [
+		sendForm,
+		clientState.sessionTypeName,
+		clientState.sessionTypeId,
+		addBabysGrowth,
+		seletedService,
+		fixedServices
+	]);
 
 	useEffect(() => {
 		let formattingSelectedOptionAddons;
 		if (modalHearthbeat) {
-			formattingSelectedOptionAddons = selectedOptionAddons.filter((i) => {
-				return i.value !== "Heartbeat Buddies";
-			});
-			setSelectedOptionAddons(formattingSelectedOptionAddons);
-			setAddHeartbeatBuddies(false);
+			formattingSelectedOptionAddons = selectedOptionAddons.filter((i) => { return i.value !== "Heartbeat Buddies" })
+			setSelectedOptionAddons(formattingSelectedOptionAddons)
+			setAddHeartbeatBuddies(false)
 		}
 		if (modalBabyGrow) {
-			formattingSelectedOptionAddons = selectedOptionAddons.filter((i) => {
-				return i.value !== "Baby's Growth";
-			});
-			setSelectedOptionAddons(formattingSelectedOptionAddons);
-			setAddBabysGrowth(false);
+			formattingSelectedOptionAddons = selectedOptionAddons.filter((i) => { return i.value !== "Baby's Growth" })
+			setSelectedOptionAddons(formattingSelectedOptionAddons)
+			setAddBabysGrowth(false)
 		}
 		if (modal8kRealisticView) {
-			formattingSelectedOptionAddons = selectedOptionAddons.filter((i) => {
-				return i.value !== "8K Realistic View";
-			});
-			setSelectedOptionAddons(formattingSelectedOptionAddons);
-			setAdd8kRealisticView(false);
+			formattingSelectedOptionAddons = selectedOptionAddons.filter((i) => { return i.value !== "8K Realistic View" })
+			setSelectedOptionAddons(formattingSelectedOptionAddons)
+			setAdd8kRealisticView(false)
 		}
-	}, [modalBabyGrow, modalHearthbeat, modal8kRealisticView]);
+	}, [modalBabyGrow, modalHearthbeat, modal8kRealisticView])
+
 
 	useEffect(() => {
 		let val = false;
@@ -1218,11 +1242,12 @@ function App() {
 		}
 		if (clickButtonForm) {
 			if (val) {
-				setStepOne("invalid");
+				setStepOne("invalid")
 			} else {
 				setStepOne("success");
 			}
 		}
+
 	}, [
 		errors.firstName,
 		errors.lastName,
@@ -1231,12 +1256,18 @@ function App() {
 		errors.weeks,
 		errors.service,
 		errors.temsCheckbox,
-		clickButtonForm,
-	]);
+		clickButtonForm
+	])
+
 
 	return (
 		<div className="container">
-			<StepProgress stepOne={stepOne} stepTwo={stepTwo} stepThree={stepThree} />
+
+			<StepProgress
+				stepOne={stepOne}
+				stepTwo={stepTwo}
+				stepThree={stepThree}
+			/>
 
 			{state.step === "registerForm" && (
 				<RegisterForm
