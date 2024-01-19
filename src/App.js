@@ -155,7 +155,6 @@ function App() {
 				date: timeZone
 			}));
 		}
-		console.log("localTime", localTime)
 	}, [sitesInfo, localTime.date])
 
 	const getPrice = (service) => {
@@ -498,14 +497,10 @@ function App() {
 							mutableBlock.selected = false;
 							let available = false;
 							let firstBlockTime;
-							// Revision de las 2 horas.. Lorena y Geisy
-							let hourRestrict = 2;
+							let hourRestrict = 1;
 							const isToday = moment().format("MM/DD/YYYY");
 							const localStartTime = moment(localTime.date).format("YYYY-MM-DD[T]HH:mm:ss");
-							// Revision de las 2 horas.. Lorena y Geisy
-							// const localEndTime = moment(localTime.date).add(2, 'hours').format("YYYY-MM-DD[T]HH:mm:ss");
 							const localEndTime = moment(localTime.date).add(hourRestrict, 'hours').format("YYYY-MM-DD[T]HH:mm:ss");
-							console.log("localEndTime", localEndTime)
 							const selectedDateBlock = moment(state.startDate).format("MM/DD/YYYY");
 							const firstAppointment = room.appointments[0]?.startDateTime;
 							const firstAvailability = getFirstAvailability(room.availabilities)?.startDateTime;
@@ -533,23 +528,14 @@ function App() {
 								if (!room.firstDatesMatches.severalRooms) {
 
 									if (firstAppointment !== firstAvailability) {
-										// Revision de las 2 horas.. Lorena y Geisy
-										// if (hourDifferenceAppt <= 2 && blockDate > moment(localStartTime).toString()) {
-										console.log("hourDifferenceAppt", hourDifferenceAppt)
-										console.log("blockDate", blockDate)
-										console.log("localStartTime", localStartTime)
-										console.log("hourDifferenceBlocks", hourDifferenceBlocks)
 										if (hourDifferenceAppt <= hourRestrict && blockDate > moment(localStartTime).toString()) {
 
 											firstBlockTime = moment(firstAppointment).toString();
 										} else {
-											// Revision de las 2 horas.. Lorena y Geisy
-											// if (hourDifferenceBlocks >= 2) {
 											if (hourDifferenceBlocks >= hourRestrict) {
 												firstBlockTime = moment(localEndTime).toString();
 											}
 										}
-										console.log("firstBlockTime", firstBlockTime)
 									}
 
 									if (firstAppointment === firstAvailability) {
