@@ -505,7 +505,7 @@ function App() {
 							// Revision de las 2 horas.. Lorena y Geisy
 							// const localEndTime = moment(localTime.date).add(2, 'hours').format("YYYY-MM-DD[T]HH:mm:ss");
 							const localEndTime = moment(localTime.date).add(hourRestrict, 'hours').format("YYYY-MM-DD[T]HH:mm:ss");
-							console.log("localEndTime", localEndTime)
+							console.log("localEndTimeInicial", localEndTime)
 							const selectedDateBlock = moment(state.startDate).format("MM/DD/YYYY");
 							const firstAppointment = room.appointments[0]?.startDateTime;
 							const firstAvailability = getFirstAvailability(room.availabilities)?.startDateTime;
