@@ -499,7 +499,7 @@ function App() {
 							let available = false;
 							let firstBlockTime;
 							// Revision de las 2 horas.. Lorena y Geisy
-							let hourRestrict = 1;
+							let hourRestrict = 2;
 							const isToday = moment().format("MM/DD/YYYY");
 							const localStartTime = moment(localTime.date).format("YYYY-MM-DD[T]HH:mm:ss");
 							// Revision de las 2 horas.. Lorena y Geisy
