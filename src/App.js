@@ -6,6 +6,7 @@ import "./styles/info.css";
 import StepProgress from "../src/components/stepProgress";
 import RegisterForm from "../src/components/registerForm";
 import SelectTimeAppointment from "../src/components/selectTimeAppointment";
+import SelectTimeAppointmentV2 from "../src/components/selectTimeAppointment-v2";
 import BookAppointment from "../src/components/boookAppointment";
 import { blocks } from "../src/config/constans.js";
 import { useForm } from "react-hook-form";
@@ -13,6 +14,10 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Controller } from "react-hook-form";
 import { faInfo } from "@fortawesome/free-solid-svg-icons";
 import * as crypto from "crypto-js";
+
+
+const v2=true;
+
 
 function App() {
 	const params = new URLSearchParams(window.location.search);
@@ -1301,7 +1306,7 @@ function App() {
 				/>
 			)}
 
-			{state.step === "availability" && (
+			{state.step === "availability" && v2==false &&(
 				<SelectTimeAppointment
 					setStepTwo={setStepTwo}
 					previousStep={previousStep}
@@ -1316,6 +1321,23 @@ function App() {
 					selectedBlock={selectedBlock}
 				/>
 			)}
+
+			{state.step === "availability" && v2 &&(
+				<SelectTimeAppointmentV2
+					setStepTwo={setStepTwo}
+					previousStep={previousStep}
+					state={state}
+					availableBlocks={availableBlocks}
+					setState={setState}
+					firstLoad={firstLoad}
+					setSelectBlock={setSelectBlock}
+					leadState={leadState}
+					setLeadState={setLeadState}
+					scrollParenTop={scrollParenTop}
+					selectedBlock={selectedBlock}
+				/>
+			)}
+
 
 			{state.step === "summary" && (
 				<BookAppointment
