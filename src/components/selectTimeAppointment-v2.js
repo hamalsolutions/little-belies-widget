@@ -117,7 +117,6 @@ const getAvailability = async ({ accesssToken, siteId, locationId, startDate, se
 
 function SelectTimeAppointmentV2({ setStepTwo, previousStep, state, setState, setSelectBlock, leadState, setLeadState, scrollParenTop, selectedBlock, sessionTypeId }) {
 	const [bookable, setBookable] = useState(null);
-	const [selected, setSelected] = useState(null);
 	const [firstLoad, setFirstLoad] = useState(true);
 
 
@@ -276,10 +275,10 @@ function SelectTimeAppointmentV2({ setStepTwo, previousStep, state, setState, se
 
 
 	const handleSelected = (block) => {
-		if (block === selected) {
-			setSelected(null);
+		if (block.startDateTime === selectedBlock) {
+			setSelectBlock(null);
 		} else {
-			setSelected(block);
+			setSelectBlock(block.startDateTime);
 		}
 	};
 
@@ -315,7 +314,7 @@ function SelectTimeAppointmentV2({ setStepTwo, previousStep, state, setState, se
 									<div className="col-auto mx-0 d-flex d-sm-block" key={index}>
 										<button
 											className={
-												block === selected
+												block.startDateTime === selectedBlock
 													? " flex-fill btn btn-selected-block btn-sm rounded-pill px-3 m-2"
 													: " flex-fill btn btn-outline-secondary rounded-pill btn-sm px-3 m-2"
 											}
