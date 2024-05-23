@@ -1329,9 +1329,7 @@ function App() {
 					setStepTwo={setStepTwo}
 					previousStep={previousStep}
 					state={state}
-					availableBlocks={availableBlocks}
 					setState={setState}
-					firstLoad={firstLoad}
 					setSelectBlock={setSelectBlock}
 					leadState={leadState}
 					setLeadState={setLeadState}

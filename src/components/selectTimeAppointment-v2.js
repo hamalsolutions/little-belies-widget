@@ -103,7 +103,6 @@ const getAvailability = async ({ accesssToken, siteId, locationId, startDate, se
 	};
 	try {
 		const response = await fetch(url, request);
-		console.log("response: ", response);
 
 		if (!response.ok) {
 			throw new Error(`Error ${response.status}: ${response.statusText}`);
@@ -118,10 +117,10 @@ const getAvailability = async ({ accesssToken, siteId, locationId, startDate, se
 	}
 };
 
-function SelectTimeAppointmentV2({ setStepTwo, previousStep, state, availableBlocks, setState, firstLoad, setSelectBlock, leadState, setLeadState, scrollParenTop, selectedBlock, sessionTypeId }) {
+function SelectTimeAppointmentV2({ setStepTwo, previousStep, state, setState, setSelectBlock, leadState, setLeadState, scrollParenTop, selectedBlock, sessionTypeId }) {
 	const [bookable, setBookable] = useState(null);
 	const [selected, setSelected] = useState(null);
-
+	const [firstLoad, setFirstLoad] = useState(true);
 
 
 	useEffect(() => {
@@ -147,7 +146,9 @@ function SelectTimeAppointmentV2({ setStepTwo, previousStep, state, availableBlo
 					startDate: state.startDate,
 					sessionTypeId: sessionTypeId,
 				});
+
 				setBookable(resp);
+				setFirstLoad(false);
 				showReady();
 			} catch (error) {
 				console.error("Error fetching bookable schedule:", error);
@@ -216,8 +217,9 @@ function SelectTimeAppointmentV2({ setStepTwo, previousStep, state, availableBlo
 	};
 
 	useEffect(() => {
+		console.log("firstLoad: ", firstLoad);
 		const nextDay = moment(state.startDate).add(1, "days").format("MM/DD/YYYY").toString();
-		if (bookable && bookable?.length === 0 && !firstLoad) {
+		if (bookable && bookable?.length === 0 && firstLoad) {
 			setTimeout(() => {
 				onSelectedDay(nextDay);
 			}, 500);
@@ -364,9 +366,7 @@ SelectTimeAppointmentV2.propTypes = {
 	setStepTwo: PropTypes.func.isRequired,
 	previousStep: PropTypes.func.isRequired,
 	state: PropTypes.object.isRequired,
-	availableBlocks: PropTypes.array.isRequired,
 	setState: PropTypes.func.isRequired,
-	firstLoad: PropTypes.bool.isRequired,
 	setSelectBlock: PropTypes.func.isRequired,
 	leadState: PropTypes.object.isRequired,
 	setLeadState: PropTypes.func.isRequired,
