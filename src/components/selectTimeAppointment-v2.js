@@ -93,7 +93,6 @@ const mockResponse = {
 };
 
 const getAvailability = async ({ accesssToken, siteId, locationId, startDate, sessionTypeId }) => {
-	console.log("getAvailability", accesssToken, siteId, locationId, startDate, sessionTypeId);
 	const url = `${process.env.REACT_APP_API_URL}/api/sites/${siteId}/locations/${locationId}/bookeableSchedule?startDate=${startDate}&sessionTypeId=${sessionTypeId}`;
 	const request = {
 		method: "GET",
@@ -123,6 +122,19 @@ function SelectTimeAppointmentV2({ setStepTwo, previousStep, state, availableBlo
 	const [bookable, setBookable] = useState(null);
 	const [selected, setSelected] = useState(null);
 
+	const showLoading = () => {
+		setState((state) => ({
+			...state,
+			availabilityRequestStatus: "loading",
+		}));
+	};
+	const showReady = () => {
+		setState((state) => ({
+			...state,
+			availabilityRequestStatus: "ready",
+		}));
+	};
+
 	useEffect(() => {
 		const fetchAvailability = async () => {
 			try {
@@ -134,11 +146,15 @@ function SelectTimeAppointmentV2({ setStepTwo, previousStep, state, availableBlo
 					sessionTypeId: sessionTypeId,
 				});
 				setBookable(resp);
+				showReady();
 			} catch (error) {
 				console.error("Error fetching bookable schedule:", error);
+				showReady();
 			}
 		};
+		showLoading();
 		fetchAvailability();
+
 	}, [state.startDate, sessionTypeId, state.locationId, state.authorization, state.siteId]);
 
 	const handleAvailabilityBlockSelect = async (block) => {
@@ -287,13 +303,11 @@ function SelectTimeAppointmentV2({ setStepTwo, previousStep, state, availableBlo
 					</div>
 				</div>
 
-				{state.availabilityRequestStatus === "ready" && availableBlocks.length >= 1 && (
+				{state.availabilityRequestStatus === "ready" && bookable.length > 0 && (
 					<>
 						<h1 className="h4">Select time for you appointment:</h1>
 						<div className="row my-4 gx-0 mx-auto justify-content-center justify-content-lg-start">
 							{bookable &&
-								Array.isArray(bookable) &&
-								bookable.length > 0 &&
 								bookable.map((block, index) => {
 									return (
 										<div className="col-auto mx-0 d-flex d-sm-block" key={index}>
@@ -321,7 +335,7 @@ function SelectTimeAppointmentV2({ setStepTwo, previousStep, state, availableBlo
 						</div>
 					</>
 				)}
-				{state.availabilityRequestStatus === "ready" && availableBlocks.length === 0 && (
+				{state.availabilityRequestStatus === "ready" && bookable.length < 1 && (
 					<div className="row">
 						<div className="col text-center">
 							<h1 className="h1 mb-3">Sorry, there are no available spaces today</h1>

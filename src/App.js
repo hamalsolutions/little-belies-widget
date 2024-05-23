@@ -16,7 +16,7 @@ import { faInfo } from "@fortawesome/free-solid-svg-icons";
 import * as crypto from "crypto-js";
 
 
-const v2=true;
+
 
 
 function App() {
@@ -26,6 +26,8 @@ function App() {
 	const [localTime, setLocalTime] = useState({ date: new Date() });//revisar esta linea Trabajar con la fecha y hora del sitio
 	const [selectedBlock, setSelectBlock] = useState(null);
 	const [width, setWindowWidth] = useState(0);
+	const [useV2, setUseV2] = useState(true);
+
 	const [state, setState] = useState({
 		step: "registerForm",
 		status: "IDLE",
@@ -655,7 +657,7 @@ function App() {
 				}));
 			}
 		};
-		if (clientState.sessionTypeId !== "") getAvailability();
+		if (clientState.sessionTypeId !== "" && !useV2) getAvailability();
 	}, [
 		state.startDate,
 		state.locationId,
@@ -1306,7 +1308,7 @@ function App() {
 				/>
 			)}
 
-			{state.step === "availability" && v2==false &&(
+			{state.step === "availability" && !useV2 && (
 				<SelectTimeAppointment
 					setStepTwo={setStepTwo}
 					previousStep={previousStep}
@@ -1322,7 +1324,7 @@ function App() {
 				/>
 			)}
 
-			{state.step === "availability" && v2 &&(
+			{state.step === "availability" && useV2 && (
 				<SelectTimeAppointmentV2
 					setStepTwo={setStepTwo}
 					previousStep={previousStep}
