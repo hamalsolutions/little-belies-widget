@@ -1335,6 +1335,7 @@ function App() {
 					setLeadState={setLeadState}
 					scrollParenTop={scrollParenTop}
 					selectedBlock={selectedBlock}
+					sessionTypeId={clientState.sessionTypeId}
 				/>
 			)}
 

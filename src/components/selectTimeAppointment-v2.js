@@ -86,8 +86,9 @@ const mockResponse = {
 	],
 };
 
-const getAvailability = ({ accesssToken, siteId, locationId, startDate, sessionTypeId }) => {
-	const url = `${process.env.REACT_APP_API_URL}/api/sites/${siteId}/locations/${locationId}/bookeableSchedule?startDate=${startDate}&sessionTypeId =${sessionTypeId}`;
+const getAvailability = async ({ accesssToken, siteId, locationId, startDate, sessionTypeId }) => {
+	console.log("getAvailability", accesssToken, siteId, locationId, startDate, sessionTypeId);
+	const url = `${process.env.REACT_APP_API_URL}/api/sites/${siteId}/locations/${locationId}/bookeableSchedule?startDate=${startDate}&sessionTypeId=${sessionTypeId}`;
 	const request = {
 		method: "GET",
 		headers: {
@@ -95,25 +96,44 @@ const getAvailability = ({ accesssToken, siteId, locationId, startDate, sessionT
 			authorization: accesssToken,
 		},
 	};
-	const response = fetch(url, request);
-	console.log("response: ", response);
-	return mockResponse.bookeableSchedule;
+	try {
+		const response = await fetch(url, request);
+		console.log("response: ", response);
+
+		if (!response.ok) {
+			throw new Error(`Error ${response.status}: ${response.statusText}`);
+		}
+		const data = await response.json();
+		return data.bookeableSchedule;
+	} catch (error) {
+		console.error("Error fetching availability:", error);
+		// Puedes optar por devolver el mockResponse en caso de error para pruebas.
+		// return mockResponse.bookeableSchedule;
+		throw error;
+	}
 };
 
-function SelectTimeAppointmentV2({ setStepTwo, previousStep, state, availableBlocks, setState, firstLoad, setSelectBlock, leadState, setLeadState, scrollParenTop, selectedBlock }) {
+function SelectTimeAppointmentV2({ setStepTwo, previousStep, state, availableBlocks, setState, firstLoad, setSelectBlock, leadState, setLeadState, scrollParenTop, selectedBlock, sessionTypeId }) {
 	const [bookable, setBookable] = useState(null);
+	const [selected, setSelected] = useState(null);
 
 	useEffect(async () => {
-		const resp = await getAvailability({
-			accesssToken: state.authorization,
-			siteId: state.siteId,
-			locationId: state.locationId,
-			startDate: state.startDate,
-			sessionTypeId: state.sessionTypeId,
-		});
-		setBookable(resp);
-	}, [state.startDate, state.sessionTypeId, state.locationId, state.authorization]);
-	console.log("bookable: ", bookable);
+		const fetchAvailability = async () => {
+			try {
+				const resp = await getAvailability({
+					accesssToken: state.authorization,
+					siteId: state.siteId,
+					locationId: state.locationId,
+					startDate: state.startDate,
+					sessionTypeId: sessionTypeId,
+				});
+				setBookable(resp);
+			} catch (error) {
+				console.error("Error fetching bookable schedule:", error);
+			}
+		};
+		fetchAvailability();
+	}, [state.startDate, sessionTypeId, state.locationId, state.authorization]);
 
 	const handleAvailabilityBlockSelect = async (block) => {
 		setState((state) => ({
@@ -228,6 +248,15 @@ function SelectTimeAppointmentV2({ setStepTwo, previousStep, state, availableBlo
 			console.error(error);
 		}
 	};
+	console.log("bookable: ", bookable);
+
+	const handleSelected = (block) => {
+		if (block === selected) {
+			setSelected(null);
+		} else {
+			setSelected(block);
+		}
+	};
 
 	return (
 		<div className="row ">
@@ -256,19 +285,26 @@ function SelectTimeAppointmentV2({ setStepTwo, previousStep, state, availableBlo
 					<>
 						<h1 className="h4">Select time for you appointment:</h1>
 						<div className="row my-4 gx-0 mx-auto justify-content-center justify-content-lg-start">
-							{bookable.map((block, index) => {
-								return (
-									<div className="col-auto mx-0 d-flex d-sm-block" key={index}>
-										<button
-											className={true ? " flex-fill btn btn-selected-block btn-sm rounded-pill px-3 m-2" : " flex-fill btn btn-outline-secondary rounded-pill btn-sm px-3 m-2"}
-											key={block.id}
-											onClick={() => handleAvailabilityBlockSelect(block)}
-										>
-											{block.startDateTime.split("T")[1].split(":")[0] + ":" + block.startDateTime.split("T")[1].split(":")[1]}
-										</button>
-									</div>
-								);
-							})}
+							{bookable &&
+								Array.isArray(bookable) &&
+								bookable.length > 0 &&
+								bookable.map((block, index) => {
+									return (
+										<div className="col-auto mx-0 d-flex d-sm-block" key={index}>
+											<button
+												className={
+													block === selected
+														? " flex-fill btn btn-selected-block btn-sm rounded-pill px-3 m-2"
+														: " flex-fill btn btn-outline-secondary rounded-pill btn-sm px-3 m-2"
+												}
+												key={index}
+												onClick={() => handleSelected(block)}
+											>
+												{block.startDateTime.split("T")[1].split(":")[0] + ":" + block.startDateTime.split("T")[1].split(":")[1]}
+											</button>
+										</div>
+									);
+								})}
 						</div>
 						<div className="row my-4">
 							<div className="col text-center">
