@@ -111,8 +111,6 @@ const getAvailability = async ({ accesssToken, siteId, locationId, startDate, se
 		return data.bookeableSchedule;
 	} catch (error) {
 		console.error("Error fetching availability:", error);
-		// Puedes optar por devolver el mockResponse en caso de error para pruebas.
-		// return mockResponse.bookeableSchedule;
 		throw error;
 	}
 };
@@ -217,7 +215,7 @@ function SelectTimeAppointmentV2({ setStepTwo, previousStep, state, setState, se
 	};
 
 	useEffect(() => {
-		console.log("firstLoad: ", firstLoad);
+
 		const nextDay = moment(state.startDate).add(1, "days").format("MM/DD/YYYY").toString();
 		if (bookable && bookable?.length === 0 && firstLoad) {
 			setTimeout(() => {
@@ -275,7 +273,7 @@ function SelectTimeAppointmentV2({ setStepTwo, previousStep, state, setState, se
 			console.error(error);
 		}
 	};
-	console.log("bookable: ", bookable);
+
 
 	const handleSelected = (block) => {
 		if (block === selected) {
