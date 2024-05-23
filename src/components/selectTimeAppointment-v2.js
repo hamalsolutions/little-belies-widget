@@ -217,12 +217,13 @@ function SelectTimeAppointmentV2({ setStepTwo, previousStep, state, availableBlo
 
 	useEffect(() => {
 		const nextDay = moment(state.startDate).add(1, "days").format("MM/DD/YYYY").toString();
-		if (availableBlocks.length === 0 && !firstLoad) {
+		if (bookable && bookable?.length === 0 && !firstLoad) {
 			setTimeout(() => {
 				onSelectedDay(nextDay);
 			}, 500);
 		}
-	}, [availableBlocks]);
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [bookable, firstLoad, state.startDate]);
 
 	const blockSelected = async () => {
 		scrollParenTop();
@@ -305,28 +306,27 @@ function SelectTimeAppointmentV2({ setStepTwo, previousStep, state, availableBlo
 					</div>
 				</div>
 
-				{state.availabilityRequestStatus === "ready" && bookable.length > 0 && (
+				{state.availabilityRequestStatus === "ready" && bookable && bookable.length > 0 && (
 					<>
 						<h1 className="h4">Select time for you appointment:</h1>
 						<div className="row my-4 gx-0 mx-auto justify-content-center justify-content-lg-start">
-							{bookable &&
-								bookable.map((block, index) => {
-									return (
-										<div className="col-auto mx-0 d-flex d-sm-block" key={index}>
-											<button
-												className={
-													block === selected
-														? " flex-fill btn btn-selected-block btn-sm rounded-pill px-3 m-2"
-														: " flex-fill btn btn-outline-secondary rounded-pill btn-sm px-3 m-2"
-												}
-												key={index}
-												onClick={() => handleSelected(block)}
-											>
-												{formatDate(block.startDateTime)}
-											</button>
-										</div>
-									);
-								})}
+							{bookable.map((block, index) => {
+								return (
+									<div className="col-auto mx-0 d-flex d-sm-block" key={index}>
+										<button
+											className={
+												block === selected
+													? " flex-fill btn btn-selected-block btn-sm rounded-pill px-3 m-2"
+													: " flex-fill btn btn-outline-secondary rounded-pill btn-sm px-3 m-2"
+											}
+											key={index}
+											onClick={() => handleSelected(block)}
+										>
+											{formatDate(block.startDateTime)}
+										</button>
+									</div>
+								);
+							})}
 						</div>
 						<div className="row my-4">
 							<div className="col text-center">
@@ -337,7 +337,7 @@ function SelectTimeAppointmentV2({ setStepTwo, previousStep, state, availableBlo
 						</div>
 					</>
 				)}
-				{state.availabilityRequestStatus === "ready" && bookable.length < 1 && (
+				{state.availabilityRequestStatus === "ready" && bookable && bookable.length < 1 && (
 					<div className="row">
 						<div className="col text-center">
 							<h1 className="h1 mb-3">Sorry, there are no available spaces today</h1>
