@@ -21,7 +21,7 @@ function SelectTimeAppointment({
 
 
   const handleAvailabilityBlockSelect = async (block) => {
-
+    console.log("block", block);
     setState((state) => ({
       ...state,
       block: block,

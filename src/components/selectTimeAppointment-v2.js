@@ -11,86 +11,6 @@ function formatDate(dateString) {
 	return date.toLocaleTimeString(undefined, options);
 }
 
-const mockResponse = {
-	bookeableSchedule: [
-		{
-			staffId: 9,
-			startDateTime: "2024-05-24T10:00:00",
-		},
-		{
-			staffId: 9,
-			startDateTime: "2024-05-24T10:30:00",
-		},
-		{
-			staffId: 9,
-			startDateTime: "2024-05-24T11:00:00",
-		},
-		{
-			staffId: 9,
-			startDateTime: "2024-05-24T11:15:00",
-		},
-		{
-			staffId: 9,
-			startDateTime: "2024-05-24T11:30:00",
-		},
-		{
-			staffId: 9,
-			startDateTime: "2024-05-24T11:45:00",
-		},
-		{
-			staffId: 9,
-			startDateTime: "2024-05-24T12:00:00",
-		},
-		{
-			staffId: 9,
-			startDateTime: "2024-05-24T12:30:00",
-		},
-		{
-			staffId: 9,
-			startDateTime: "2024-05-24T14:00:00",
-		},
-		{
-			staffId: 9,
-			startDateTime: "2024-05-24T14:30:00",
-		},
-		{
-			staffId: 9,
-			startDateTime: "2024-05-24T15:00:00",
-		},
-		{
-			staffId: 9,
-			startDateTime: "2024-05-24T15:30:00",
-		},
-		{
-			staffId: 9,
-			startDateTime: "2024-05-24T16:00:00",
-		},
-		{
-			staffId: 9,
-			startDateTime: "2024-05-24T16:30:00",
-		},
-		{
-			staffId: 9,
-			startDateTime: "2024-05-24T17:00:00",
-		},
-		{
-			staffId: 9,
-			startDateTime: "2024-05-24T17:30:00",
-		},
-		{
-			staffId: 9,
-			startDateTime: "2024-05-24T18:00:00",
-		},
-		{
-			staffId: 9,
-			startDateTime: "2024-05-24T19:00:00",
-		},
-		{
-			staffId: 9,
-			startDateTime: "2024-05-24T19:30:00",
-		},
-	],
-};
 
 const getAvailability = async ({ accesssToken, siteId, locationId, startDate, sessionTypeId }) => {
 	const url = `${process.env.REACT_APP_API_URL}/api/sites/${siteId}/locations/${locationId}/bookeableSchedule?startDate=${startDate}&sessionTypeId=${sessionTypeId}`;
@@ -274,13 +194,38 @@ function SelectTimeAppointmentV2({ setStepTwo, previousStep, state, setState, se
 	};
 
 
-	const handleSelected = (block) => {
-		if (block.startDateTime === selectedBlock) {
-			setSelectBlock(null);
-		} else {
-			setSelectBlock(block.startDateTime);
+
+	/*
+
+	this is the block object that is expected from the other components, so sadly we have to mock it
+
+	{
+	"id": 5,
+	"segment": "10:30 AM",
+	"endSegment": "11:00 AM",
+	"appointment": {},
+	"startDateTime": "2024-05-23T10:30:00",
+	"endDateTime": "2024-05-23T11:00:00",
+	"blockDate": "Thu May 23 2024 10:30:00 GMT-0400",
+	"selected": false,
+	"available": true,
+	"staffId": [
+		100000001
+	],
+	"count": 1
+	}
+
+	the minimal object that we need to create is done by the following function
+	*/
+
+	function buildBlock(block) {
+		return {
+			staffId: [block.staffId],
+			blockDate: moment(block.startDateTime).toString(),
+			startDateTime: block.startDateTime
 		}
-	};
+	}
+
 
 	return (
 		<div className="row ">
@@ -319,7 +264,7 @@ function SelectTimeAppointmentV2({ setStepTwo, previousStep, state, setState, se
 													: " flex-fill btn btn-outline-secondary rounded-pill btn-sm px-3 m-2"
 											}
 											key={index}
-											onClick={() => handleSelected(block)}
+											onClick={() => handleAvailabilityBlockSelect(buildBlock(block))}
 										>
 											{formatDate(block.startDateTime)}
 										</button>
