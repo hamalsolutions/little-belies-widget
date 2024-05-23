@@ -122,20 +122,22 @@ function SelectTimeAppointmentV2({ setStepTwo, previousStep, state, availableBlo
 	const [bookable, setBookable] = useState(null);
 	const [selected, setSelected] = useState(null);
 
-	const showLoading = () => {
-		setState((state) => ({
-			...state,
-			availabilityRequestStatus: "loading",
-		}));
-	};
-	const showReady = () => {
-		setState((state) => ({
-			...state,
-			availabilityRequestStatus: "ready",
-		}));
-	};
+
 
 	useEffect(() => {
+
+		const showLoading = () => {
+			setState((state) => ({
+				...state,
+				availabilityRequestStatus: "loading",
+			}));
+		};
+		const showReady = () => {
+			setState((state) => ({
+				...state,
+				availabilityRequestStatus: "ready",
+			}));
+		};
 		const fetchAvailability = async () => {
 			try {
 				const resp = await getAvailability({
@@ -155,7 +157,7 @@ function SelectTimeAppointmentV2({ setStepTwo, previousStep, state, availableBlo
 		showLoading();
 		fetchAvailability();
 
-	}, [state.startDate, sessionTypeId, state.locationId, state.authorization, state.siteId]);
+	}, [state.startDate, sessionTypeId, state.locationId, state.authorization, state.siteId, setState]);
 
 	const handleAvailabilityBlockSelect = async (block) => {
 		setState((state) => ({
