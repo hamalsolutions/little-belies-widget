@@ -5,6 +5,12 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faSpinner } from "@fortawesome/free-solid-svg-icons";
 import moment from "moment";
 
+function formatDate(dateString) {
+	const date = new Date(dateString);
+	const options = { hour: '2-digit', minute: '2-digit', hour12: true };
+	return date.toLocaleTimeString(undefined, options);
+}
+
 const mockResponse = {
 	bookeableSchedule: [
 		{
@@ -117,7 +123,7 @@ function SelectTimeAppointmentV2({ setStepTwo, previousStep, state, availableBlo
 	const [bookable, setBookable] = useState(null);
 	const [selected, setSelected] = useState(null);
 
-	useEffect(async () => {
+	useEffect(() => {
 		const fetchAvailability = async () => {
 			try {
 				const resp = await getAvailability({
@@ -133,7 +139,7 @@ function SelectTimeAppointmentV2({ setStepTwo, previousStep, state, availableBlo
 			}
 		};
 		fetchAvailability();
-	}, [state.startDate, sessionTypeId, state.locationId, state.authorization]);
+	}, [state.startDate, sessionTypeId, state.locationId, state.authorization, state.siteId]);
 
 	const handleAvailabilityBlockSelect = async (block) => {
 		setState((state) => ({
@@ -300,7 +306,7 @@ function SelectTimeAppointmentV2({ setStepTwo, previousStep, state, availableBlo
 												key={index}
 												onClick={() => handleSelected(block)}
 											>
-												{block.startDateTime.split("T")[1].split(":")[0] + ":" + block.startDateTime.split("T")[1].split(":")[1]}
+												{formatDate(block.startDateTime)}
 											</button>
 										</div>
 									);
