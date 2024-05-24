@@ -26,7 +26,7 @@ function App() {
 	const [localTime, setLocalTime] = useState({ date: new Date() });//revisar esta linea Trabajar con la fecha y hora del sitio
 	const [selectedBlock, setSelectBlock] = useState(null);
 	const [width, setWindowWidth] = useState(0);
-	const [useV2, setUseV2] = useState(false);
+	const [useV2] = useState(true);
 
 	const [state, setState] = useState({
 		step: "registerForm",
@@ -878,17 +878,14 @@ function App() {
 		}
 	};
 
-	console.log("is V2: ", useV2);
-
-	/*function to check if its of the new 15 min services */
+	/*function to check if its of the new 15 min services 
 	const isV2Service = (service) => {
 		return service.label.toLowerCase().includes("15 min");
 	}
-
+	*/
 
 	const onChangeServices = (service) => {
 		setSeletedService(service)
-		setUseV2(isV2Service(service));
 		setAddBabysGrowth(false);
 		setAddHeartbeatBuddies(false);
 		setAdd8kRealisticView(false)
