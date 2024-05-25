@@ -7,13 +7,19 @@ import moment from "moment";
 
 function formatDate(dateString) {
 	const date = new Date(dateString);
-	const options = { hour: '2-digit', minute: '2-digit', hour12: true };
+	const options = { hour: "2-digit", minute: "2-digit", hour12: true };
 	return date.toLocaleTimeString(undefined, options);
 }
 
+const getAvailability = async ({ accesssToken, siteId, locationId, startDate, sessionTypeId, siteInfo }) => {
+	const queryParams = new URLSearchParams({
+		startDate: startDate,
+		sessionTypeId: sessionTypeId,
+		timeZone: siteInfo.timeZone,
+	});
 
-const getAvailability = async ({ accesssToken, siteId, locationId, startDate, sessionTypeId }) => {
-	const url = `${process.env.REACT_APP_API_URL}/api/sites/${siteId}/locations/${locationId}/bookeableSchedule?startDate=${startDate}&sessionTypeId=${sessionTypeId}`;
+	const url = `${process.env.REACT_APP_API_URL}/api/sites/${siteId}/locations/${locationId}/bookeableSchedule?${queryParams.toString()}`;
+
 	const request = {
 		method: "GET",
 		headers: {
@@ -35,13 +41,11 @@ const getAvailability = async ({ accesssToken, siteId, locationId, startDate, se
 	}
 };
 
-function SelectTimeAppointmentV2({ setStepTwo, previousStep, state, setState, setSelectBlock, leadState, setLeadState, scrollParenTop, selectedBlock, sessionTypeId }) {
+function SelectTimeAppointmentV2({ setStepTwo, previousStep, state, setState, setSelectBlock, leadState, setLeadState, scrollParenTop, selectedBlock, sessionTypeId, siteInfo }) {
 	const [bookable, setBookable] = useState(null);
 	const [firstLoad, setFirstLoad] = useState(true);
 
-
 	useEffect(() => {
-
 		const showLoading = () => {
 			setState((state) => ({
 				...state,
@@ -62,6 +66,7 @@ function SelectTimeAppointmentV2({ setStepTwo, previousStep, state, setState, se
 					locationId: state.locationId,
 					startDate: state.startDate,
 					sessionTypeId: sessionTypeId,
+					siteInfo: siteInfo,
 				});
 
 				setBookable(resp);
@@ -74,7 +79,6 @@ function SelectTimeAppointmentV2({ setStepTwo, previousStep, state, setState, se
 		};
 		showLoading();
 		fetchAvailability();
-
 	}, [state.startDate, sessionTypeId, state.locationId, state.authorization, state.siteId, setState]);
 
 	const handleAvailabilityBlockSelect = async (block) => {
@@ -134,7 +138,6 @@ function SelectTimeAppointmentV2({ setStepTwo, previousStep, state, setState, se
 	};
 
 	useEffect(() => {
-
 		const nextDay = moment(state.startDate).add(1, "days").format("MM/DD/YYYY").toString();
 		if (bookable && bookable?.length === 0 && firstLoad) {
 			setTimeout(() => {
@@ -193,8 +196,6 @@ function SelectTimeAppointmentV2({ setStepTwo, previousStep, state, setState, se
 		}
 	};
 
-
-
 	/*
 
 	this is the block object that is expected from the other components, so sadly we have to mock it
@@ -222,10 +223,9 @@ function SelectTimeAppointmentV2({ setStepTwo, previousStep, state, setState, se
 		return {
 			staffId: [block.staffId],
 			blockDate: moment(block.startDateTime).toString(),
-			startDateTime: block.startDateTime
-		}
+			startDateTime: block.startDateTime,
+		};
 	}
-
 
 	return (
 		<div className="row ">
@@ -314,6 +314,7 @@ SelectTimeAppointmentV2.propTypes = {
 	setLeadState: PropTypes.func.isRequired,
 	scrollParenTop: PropTypes.func.isRequired,
 	selectedBlock: PropTypes.string,
+	siteInfo: PropTypes.object,
 };
 
 export default SelectTimeAppointmentV2;

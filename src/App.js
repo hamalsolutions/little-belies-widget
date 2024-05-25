@@ -116,6 +116,7 @@ function App() {
 		window.parent.postMessage({ task: "scroll_top" }, parent_origin);
 	};
 
+	const siteInfo = sitesInfo.find((i) => i.site === `${state.siteId}-${state.locationId}`);
 	const googleTrackBooking = ({ name, service, date, time }) => {
 		console.log("sending task to parent");
 		window.parent.postMessage({ task: "google_track_booking", name, service, date, time }, parent_origin);
@@ -1342,6 +1343,7 @@ function App() {
 					scrollParenTop={scrollParenTop}
 					selectedBlock={selectedBlock}
 					sessionTypeId={clientState.sessionTypeId}
+					siteInfo={siteInfo}
 				/>
 			)}
 
