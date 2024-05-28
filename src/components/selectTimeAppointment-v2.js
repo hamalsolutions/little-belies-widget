@@ -34,7 +34,14 @@ const getAvailability = async ({ accesssToken, siteId, locationId, startDate, se
 			throw new Error(`Error ${response.status}: ${response.statusText}`);
 		}
 		const data = await response.json();
-		return data.bookeableSchedule;
+		const { bookeableSchedule } = data;
+		const reShaped = bookeableSchedule.map((slot) => {
+			return {
+				staffId: slot.staffId,
+				startDateTime: slot.startTime,
+			};
+		});
+		return reShaped;
 	} catch (error) {
 		console.error("Error fetching availability:", error);
 		throw error;
