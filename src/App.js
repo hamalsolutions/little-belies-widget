@@ -6,6 +6,7 @@ import "./styles/info.css";
 import StepProgress from "../src/components/stepProgress";
 import RegisterForm from "../src/components/registerForm";
 import SelectTimeAppointment from "../src/components/selectTimeAppointment";
+import SelectTimeAppointmentV2 from "../src/components/selectTimeAppointment-v2";
 import BookAppointment from "../src/components/boookAppointment";
 import { blocks } from "../src/config/constans.js";
 import { useForm } from "react-hook-form";
@@ -21,6 +22,7 @@ function App() {
 	const [localTime, setLocalTime] = useState({ date: new Date() });//revisar esta linea Trabajar con la fecha y hora del sitio
 	const [selectedBlock, setSelectBlock] = useState(null);
 	const [width, setWindowWidth] = useState(0);
+	const [useV2] = useState(true);
 	const [state, setState] = useState({
 		step: "registerForm",
 		status: "IDLE",
@@ -109,6 +111,7 @@ function App() {
 		window.parent.postMessage({ task: "scroll_top" }, parent_origin);
 	};
 
+	const siteInfo = sitesInfo.find((i) => i.site === `${state.siteId}-${state.locationId}`);
 	const googleTrackBooking = ({ name, service, date, time }) => {
 		console.log("sending task to parent");
 		window.parent.postMessage({ task: "google_track_booking", name, service, date, time }, parent_origin);
@@ -650,7 +653,7 @@ function App() {
 				}));
 			}
 		};
-		if (clientState.sessionTypeId !== "") getAvailability();
+		if (clientState.sessionTypeId !== "" && !useV2) getAvailability();
 	}, [
 		state.startDate,
 		state.locationId,
@@ -870,6 +873,12 @@ function App() {
 			}));
 		}
 	};
+
+	/*function to check if its of the new 15 min services 
+	const isV2Service = (service) => {
+		return service.label.toLowerCase().includes("15 min");
+	}
+	*/
 
 	const onChangeServices = (service) => {
 		setSeletedService(service)
@@ -1301,7 +1310,7 @@ function App() {
 				/>
 			)}
 
-			{state.step === "availability" && (
+			{state.step === "availability" && !useV2 && (
 				<SelectTimeAppointment
 					setStepTwo={setStepTwo}
 					previousStep={previousStep}
@@ -1316,6 +1325,23 @@ function App() {
 					selectedBlock={selectedBlock}
 				/>
 			)}
+
+			{state.step === "availability" && useV2 && (
+				<SelectTimeAppointmentV2
+					setStepTwo={setStepTwo}
+					previousStep={previousStep}
+					state={state}
+					setState={setState}
+					setSelectBlock={setSelectBlock}
+					leadState={leadState}
+					setLeadState={setLeadState}
+					scrollParenTop={scrollParenTop}
+					selectedBlock={selectedBlock}
+					sessionTypeId={clientState.sessionTypeId}
+					siteInfo={siteInfo}
+				/>
+			)}
+
 
 			{state.step === "summary" && (
 				<BookAppointment

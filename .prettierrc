@@ -1,0 +1,9 @@
+{
+	"trailingComma": "all",
+	"useTabs": true,
+	"tabWidth": 4,
+	"singleQuote": false,
+	"maxLineLength": 200,
+	"singleAttributePerLine": false,
+	"printWidth": 200
+}
