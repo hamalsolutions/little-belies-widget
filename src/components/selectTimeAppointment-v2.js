@@ -30,10 +30,10 @@ const getAvailability = async ({ accesssToken, siteId, locationId, startDate, se
 	try {
 		const response = await fetch(url, request);
 
-		if (!response.ok) {
-			throw new Error(`Error ${response.status}: ${response.statusText}`);
-		}
 		const data = await response.json();
+		if (!response.ok) {
+			throw new Error(`${response.status}: ${JSON.stringify(data)}`);
+		}
 		const { bookeableSchedule } = data;
 		const reShaped = bookeableSchedule.map((slot) => {
 			return {
@@ -81,7 +81,11 @@ function SelectTimeAppointmentV2({ setStepTwo, previousStep, state, setState, se
 				showReady();
 			} catch (error) {
 				console.error("Error fetching bookable schedule:", error);
-				showReady();
+				setState((state) => ({
+					...state,
+					availabilityRequestStatus: "error",
+					message: error.message,
+				}));
 			}
 		};
 		showLoading();
@@ -305,7 +309,7 @@ function SelectTimeAppointmentV2({ setStepTwo, previousStep, state, setState, se
 						</div>
 					</div>
 				)}
-				{(state.availabilityRequestStatus === "error" || state.availabilityRequestStatus === "no-data-found") && <h1 className="h1">Error: {state.message}</h1>}
+				{(state.availabilityRequestStatus === "error") && <h1 className="h1">Error: {state.message}</h1>}
 			</div>
 		</div>
 	);
