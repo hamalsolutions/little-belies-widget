@@ -58,7 +58,7 @@ const getAvailability = async ({ accesssToken, siteId, locationId, startDate, se
 function SelectTimeAppointmentV2({ setStepTwo, previousStep, state, setState, setSelectBlock, leadState, setLeadState, scrollParenTop, selectedBlock, sessionTypeId, siteInfo }) {
 	const [bookable, setBookable] = useState(null);
 	const [firstLoad, setFirstLoad] = useState(true);
-	const maxSkipCounter = 15; //15 days
+	const maxSkipCounter = 7; //7 days
 	const [skipCounter, setSkipCounter] = useState(0);
 
 	useEffect(() => {
