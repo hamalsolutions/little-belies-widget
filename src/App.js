@@ -27,7 +27,6 @@ function App() {
 	const [selectedBlock, setSelectBlock] = useState(null);
 	const [width, setWindowWidth] = useState(0);
 	const [useV2] = useState(true);
-
 	const [state, setState] = useState({
 		step: "registerForm",
 		status: "IDLE",
