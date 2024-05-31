@@ -11,6 +11,13 @@ function formatDate(dateString) {
 	return date.toLocaleTimeString(undefined, options);
 }
 
+function formatPhoneNumber(phoneNumber) {
+	const cleaned = phoneNumber.replace(/\D/g, "");
+	const formatted = cleaned.replace(/(\d{3})(\d{3})(\d{4})/, "($1) $2-$3");
+
+	return formatted;
+}
+
 const getAvailability = async ({ accesssToken, siteId, locationId, startDate, sessionTypeId, siteInfo }) => {
 	const queryParams = new URLSearchParams({
 		startDate: startDate,
@@ -51,6 +58,8 @@ const getAvailability = async ({ accesssToken, siteId, locationId, startDate, se
 function SelectTimeAppointmentV2({ setStepTwo, previousStep, state, setState, setSelectBlock, leadState, setLeadState, scrollParenTop, selectedBlock, sessionTypeId, siteInfo }) {
 	const [bookable, setBookable] = useState(null);
 	const [firstLoad, setFirstLoad] = useState(true);
+	const maxSkipCounter = 7; //7 days
+	const [skipCounter, setSkipCounter] = useState(0);
 
 	useEffect(() => {
 		const showLoading = () => {
@@ -149,14 +158,15 @@ function SelectTimeAppointmentV2({ setStepTwo, previousStep, state, setState, se
 	};
 
 	useEffect(() => {
-		const nextDay = moment(state.startDate).add(1, "days").format("MM/DD/YYYY").toString();
-		if (bookable && bookable?.length === 0 && firstLoad) {
+		if (skipCounter < maxSkipCounter && bookable && bookable?.length === 0 && !firstLoad && state.availabilityRequestStatus === "ready") {
+			const nextDay = moment(state.startDate).add(1, "days").format("MM/DD/YYYY").toString();
+			setSkipCounter(skipCounter + 1);
 			setTimeout(() => {
 				onSelectedDay(nextDay);
 			}, 500);
 		}
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [bookable, firstLoad, state.startDate]);
+	}, [bookable, firstLoad, state.availabilityRequestStatus]);
 
 	const blockSelected = async () => {
 		scrollParenTop();
@@ -295,8 +305,13 @@ function SelectTimeAppointmentV2({ setStepTwo, previousStep, state, setState, se
 				{state.availabilityRequestStatus === "ready" && bookable && bookable.length < 1 && (
 					<div className="row">
 						<div className="col text-center">
-							<h1 className="h1 mb-3">Sorry, there are no available spaces today</h1>
-							<h1 className="h3 mb-3">Please select another day on the calendar</h1>
+							<h1 className="h1 mb-3">Sorry, there are no available appointments for this date</h1>
+							<h1 className="h3 mb-3">
+								Please select another day on the calendar or call us to help you book at{" "}
+								<a href={"tel:1" + siteInfo.phone} style={{ color: "#AE678C" }}>
+									{formatPhoneNumber(siteInfo.phone)}
+								</a>
+							</h1>
 						</div>
 					</div>
 				)}
@@ -309,7 +324,19 @@ function SelectTimeAppointmentV2({ setStepTwo, previousStep, state, setState, se
 						</div>
 					</div>
 				)}
-				{(state.availabilityRequestStatus === "error") && <h1 className="h1">Error: {state.message}</h1>}
+				{state.availabilityRequestStatus === "error" && (
+					<div className="row">
+						<div className="col text-center">
+							<h1 className="h3 mb-3">
+								There was an error, please call us to help you book at{" "}
+								<a href={"tel:1" + siteInfo.phone} style={{ color: "#AE678C" }}>
+									{formatPhoneNumber(siteInfo.phone)}
+								</a>
+							</h1>
+							<h5 className="h5 mb-3">Error: {state.message}</h5>
+						</div>
+					</div>
+				)}
 			</div>
 		</div>
 	);
