@@ -137,6 +137,7 @@ function BookAppointment({
           locationId: parseInt(state.locationId),
           staffId: state.block.staffId[0],
           clientId: clientObject.clientId,
+          ipAddress: clientState.ipAddress,
           notes:
             "Weeks: " +
             clientState.weeks +
