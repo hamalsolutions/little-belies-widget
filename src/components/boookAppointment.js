@@ -141,6 +141,7 @@ function BookAppointment({
 					startDateTime: moment(state.block.blockDate).format("YYYY-MM-DD[T]HH:mm:ss").toString(),
 					ipAddress: clientState.ipAddress,
 				};
+				console.log(clientState.ipAddress);
 
 				const bookAppointmentRequest = {
 					method: "POST",
