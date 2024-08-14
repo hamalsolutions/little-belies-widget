@@ -127,7 +127,7 @@ function BookAppointment({
 					locationId: parseInt(state.locationId),
 					staffId: state.block.staffId[0],
 					clientId: clientObject.clientId,
-
+					clientData: { clientName: `${clientState.firstName}  ${clientState.lastName}`, email: clientState.email, mobilePhone: clientState.phone.replace(/[^0-9]/gi, "") },
 					notes:
 						"Weeks: " +
 						clientState.weeks +
