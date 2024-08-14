@@ -210,6 +210,8 @@ function BookAppointment({
 						source: "online",
 						cbff: false,
 						clientName: `${clientState.firstName}  ${clientState.lastName}`,
+						email: clientState.email,
+						mobilePhone: clientState.phone.replace(/[^0-9]/gi, ""),
 						ipAddress: clientState.ipAddress,
 						bookTime: moment(localTime.date).format("HH:mm"),
 					};
