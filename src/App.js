@@ -209,7 +209,7 @@ function App() {
 		return serviceId;
 	};
 
-	useEffect(() => { 
+	/*useEffect(() => { 
 		if (state.siteId === "5739497") { //Fort Worth
 			const today = moment().format("MM/DD/YYYY").toString();
 			const dayFriday = moment("09/01/2024").format("MM/DD/YYYY").toString();
@@ -226,7 +226,7 @@ function App() {
 				startDate: today > dayFriday ? today : dayFriday
 			}));
 		}
-	}, [state.siteId]);
+	}, [state.siteId]);*/
 	// Loads the dropdown values and set the states for that display on first load
 	useEffect(() => {
 		async function getServices() {
@@ -911,6 +911,7 @@ function App() {
 			earlypregnancy: seletedService ? seletedService?.label?.toLowerCase().replace(/[-.()+\s]/g, "").search("earlypregnancy") : "",
 			meetyourbaby25: seletedService ? seletedService?.label?.toLowerCase().replace(/[-.()+\s]/g, "").search("meetyourbaby25") : "",
 			meetyourbaby15: seletedService ? seletedService?.label?.toLowerCase().replace(/[-.()+\s]/g, "").search("meetyourbaby15") : "",
+			peaceofmind: seletedService ? seletedService?.label?.toLowerCase().replace(/[-.()+\s]/g, "").search("peaceofmind") : "",
 		}
 		setFixedServices((fixedServices) => ({
 			...fixedServices,
@@ -919,6 +920,7 @@ function App() {
 			earlypregnancy: service.earlypregnancy === 0,
 			meetyourbaby25: service.meetyourbaby25 === 0,
 			meetyourbaby15: service.meetyourbaby15 === 0,
+			peaceofmind: service.peaceofmind === 0,
 		}));
 	}
 	useEffect(() => {
@@ -1133,7 +1135,7 @@ function App() {
 			}
 
 		}
-		else if (fixedServices.earlypregnancy || fixedServices.specialPromotion25min) {
+		else if (fixedServices.earlypregnancy || fixedServices.specialPromotion25min || fixedServices.peaceofmind) {
 
 			setAddOns(addOnsToEarlyPregnancy)
 
