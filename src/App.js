@@ -34,7 +34,7 @@ function App() {
 		appointmentRequestStatus: "IDLE",
 		city: params.get("city") || "N/A",
 		message: "",
-		siteId: params.get("id") || "491521",
+		siteId: params.get("id") || "5723785",
 		latitude: params.get("latitude") || "0",
 		longitude: params.get("longitude") || "0",
 		language: languageList[params.get("lang")] || "English",
