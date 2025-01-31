@@ -214,22 +214,15 @@ function App() {
 	};
 
 	useEffect(() => { 
-		if (state.siteId === "5739497") { //Fort Worth
+		if (state.siteId === "5742875") { //Nashville
 			const today = moment().format("MM/DD/YYYY").toString();
-			const dayFriday = moment("09/01/2024").format("MM/DD/YYYY").toString();
+			const dayFriday = moment("03/01/2025").format("MM/DD/YYYY").toString();
 			setState((state) => ({
 				...state,
 				startDate: today > dayFriday ? today : dayFriday
 			}));
 		}
-		if (state.siteId === "5739704") { //Charlotte
-			const today = moment().format("MM/DD/YYYY").toString();
-			const dayFriday = moment("08/30/2024").format("MM/DD/YYYY").toString();
-			setState((state) => ({
-				...state,
-				startDate: today > dayFriday ? today : dayFriday
-			}));
-		}
+
 	}, [state.siteId]);
 	// Loads the dropdown values and set the states for that display on first load
 	useEffect(() => {
