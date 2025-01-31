@@ -212,7 +212,7 @@ function App() {
 	useEffect(() => { 
 		if (state.siteId === "5742875") { //Nashville
 			const today = moment().format("MM/DD/YYYY").toString();
-			const dayFriday = moment("09/01/2024").format("MM/DD/YYYY").toString();
+			const dayFriday = moment("03/01/2025").format("MM/DD/YYYY").toString();
 			setState((state) => ({
 				...state,
 				startDate: today > dayFriday ? today : dayFriday
