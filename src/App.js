@@ -34,7 +34,7 @@ function App() {
 		latitude: params.get("latitude") || "0",
 		longitude: params.get("longitude") || "0",
 		language: languageList[params.get("lang")] || "English",
-		locationId: params.get("city") !== "coral-springs" ? "1" : "2",
+		locationId: params.get("city") !== "davie" ? "1" : "2",
 		authorization: "",
 		address: params.get("address") || "N/A",
 		phone: params.get("phone") || "N/A",
