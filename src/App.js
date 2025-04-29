@@ -273,23 +273,27 @@ function App() {
 
 						const servicesUltrasounds = [...ultrasoundsData.services];
 
-						const filterServicesBySeeOnline = servicesUltrasounds.filter((i) => {
-							if (state.siteId === "557418" && state.locationId === "2") {
+						// const filterServicesBySeeOnline = servicesUltrasounds.filter((i) => {
+						// 	if (state.siteId === "557418" && state.locationId === "2") {
 
-								let specialpromotion25min = i.name.toLowerCase().replace(/[-.()+\s]/g, "").search("specialpromotion25min");
-								if (specialpromotion25min !== 0) return i.seeOnLine === true
+						// 		let specialpromotion25min = i.name.toLowerCase().replace(/[-.()+\s]/g, "").search("specialpromotion25min");
+						// 		if (specialpromotion25min !== 0) return i.seeOnLine === true
 
-							} else {
-								return i.seeOnLine === true
-							}
+						// 	} else {
+						// 		return i.seeOnLine === true
+						// 	}
 
-						}).map((i) => {
-							return i.name
-						}).sort((a, b) => {
-							if (a > b) return 1
-							if (a < b) return -1
-							return 0;
-						});
+						// }).map((i) => {
+						// 	return i.name
+						// }).sort((a, b) => {
+						// 	if (a > b) return 1
+						// 	if (a < b) return -1
+						// 	return 0;
+						// });
+				//*************** se comenta a peticion de Luis Perez 29/04/2025
+
+						const filterServicesBySeeOnline = servicesUltrasounds.filter((i) => { return i.seeOnLine === true })
+              .map((i) => { return i.name });
 
 						if (state.siteId === "5723785" || state.siteId === "557418" || state.siteId === "902886" || state.siteId === "5721382" || state.siteId === "5721159" || state.siteId === "888809") {
 							const massageRequest = {
