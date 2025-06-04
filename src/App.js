@@ -1087,7 +1087,7 @@ function App() {
 			hearthbeat = selectedOptionAddons.find(i => i.value === "Heartbeat Buddies");
 			realisticView = selectedOptionAddons.find(i => i.value === "8K Realistic View");
 		}
-		if (fixedServices.genderdetermination) {
+		if (fixedServices.genderdetermination || fixedServices.peaceofmind) {
 
 			setAddOns(addOnsToGenderDetermination)
 
@@ -1135,7 +1135,7 @@ function App() {
 			}
 
 		}
-		else if (fixedServices.earlypregnancy || fixedServices.specialPromotion25min || fixedServices.peaceofmind) {
+		else if (fixedServices.earlypregnancy || fixedServices.specialPromotion25min ) {
 
 			setAddOns(addOnsToEarlyPregnancy)
 
