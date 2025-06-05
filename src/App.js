@@ -1205,6 +1205,18 @@ function App() {
 			newSessionTypeName = `Gender Determination  + Baby's Growth - $${costGenderPlusBabysGrowth}  `;
 		}
 
+		if (fixedServices.peaceofmind && addBabysGrowth) {
+
+			const costPeaceofMind = seletedService.label.match(/(\d+)/g);
+			const costPeaceofMindPlusBabysGrowth = parseFloat(costPeaceofMind[0]) + costBabysGrowth;
+
+			newSessionTypeId = getBGCombo(
+				`Peace of Mind + Baby's Growth - $${costPeaceofMindPlusBabysGrowth}  `,
+				consultedUltrasounds
+			);
+			newSessionTypeName = `Peace of Mind + Baby's Growth - $${costPeaceofMindPlusBabysGrowth}  `;
+		}
+
 		setClientState((clientState) => ({
 			...clientState,
 			sessionTypeId: newSessionTypeId,
