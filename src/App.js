@@ -293,7 +293,9 @@ function App() {
 						const filterServicesBySeeOnline = servicesUltrasounds.filter((i) => { return i.seeOnLine === true })
               .map((i) => { return i.name });
 
-						if (state.siteId === "5723785" || state.siteId === "557418" || state.siteId === "902886" || state.siteId === "5721382" || state.siteId === "5721159" || state.siteId === "888809") {
+						if (state.siteId === "5723785" || state.siteId === "557418" || state.siteId === "902886" || state.siteId === "5721382" || state.siteId === "5721159" || state.siteId === "888809"
+							 || state.siteId === "5739497"
+						) {
 							const massageRequest = {
 								method: "GET",
 								headers: {
