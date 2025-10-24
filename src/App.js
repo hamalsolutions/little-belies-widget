@@ -214,9 +214,9 @@ function App() {
 	};
 
 	useEffect(() => { 
-		if (state.siteId === "5745405") { //Kansas City
+		if (state.siteId === "5748866") { //Cincinnati
 			const today = moment().format("MM/DD/YYYY").toString();
-			const dayFriday = moment("06/16/2025").format("MM/DD/YYYY").toString();
+			const dayFriday = moment("11/15/2025").format("MM/DD/YYYY").toString();
 			setState((state) => ({
 				...state,
 				startDate: today > dayFriday ? today : dayFriday
