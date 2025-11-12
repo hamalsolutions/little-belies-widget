@@ -153,6 +153,18 @@ function Terms({setState,state}){
                 purposes by Little Bellies.
               </li>
               <li>
+                I grant Little Bellies permission to use any content 
+                on social media (including Facebook, Instagram, TikTok,
+                Twitter/X, YouTube, or other platforms) that references
+                or tags Little Bellies, whether posted by me or others.
+                This includes all photos, videos, reviews, and posts 
+                made before, during, or after my visit. 
+                Little Bellies may use this content for marketing,
+                advertising, and promotional purposes on its social 
+                media accounts, website, or other materials without 
+                notice or compensation.
+              </li>
+              <li>
                 I agree to receive E-mail and SMS from Little
                 Bellies, as well as surveys, promotional offers and
                 marketing.
