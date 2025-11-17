@@ -388,14 +388,16 @@ function BookAppointment({
 									</div>
 								</div>
 							</div>
-							<div className="row mb-3">
-								<div className="col">
-									<div>
-										<b>How to Arrive: </b>
-										{removeTags(state.howtoarrive)}
+							{state.appointmentRequestStatus === "BOOK-APPOINTMENT-OK" && (
+								<div className="row mb-3">
+									<div className="col">
+										<div>
+											<b>How to Arrive : </b>
+											{removeTags(state.howtoarrive)}
+										</div>
 									</div>
 								</div>
-							</div>
+							)}
 							<div className="row mb-3">
 								<div className="col">
 									<div>
