@@ -389,6 +389,8 @@ function BookAppointment({
 									</div>
 								</div>
 							</div>
+
+ 					{state.appointmentRequestStatus !== "BOOK-APPOINTMENT-OK" && (
 							<div className="row mb-3">
 								<div className="col">
 									<div>
@@ -397,6 +399,8 @@ function BookAppointment({
 									</div>
 								</div>
 							</div>
+						)}
+						
 							<div className="row mb-3">
 								<div className="col">
 									<div>
