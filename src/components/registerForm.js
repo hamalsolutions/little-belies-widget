@@ -1,4 +1,4 @@
-import React from "react"
+import React, { useEffect } from "react"
 import { PropTypes } from "prop-types";
 import Select from "react-select";
 import BabyGrow from "./modals/babyGrow";
@@ -11,6 +11,8 @@ function RegisterForm({
   setState,
   params,
   weeks,
+  watch,
+  setValue,
   services,
   selectedOptionAddons,
   control,
@@ -34,6 +36,39 @@ function RegisterForm({
   setModal8kRealisticView,
   setClickButtonForm,
 }) {
+  const selectedWeeks = watch ? watch("weeks") : null;
+  const selectedWeekNum =
+    selectedWeeks?.value != null && selectedWeeks.value !== "I don't know"
+      ? parseInt(selectedWeeks.value, 10)
+      : null;
+  const filteredServices =
+    selectedWeekNum != null && !Number.isNaN(selectedWeekNum)
+      ? services
+          .map((group) => ({
+            ...group,
+            options: (group.options || []).filter(
+              (opt) =>
+                opt.start_week == null ||
+                opt.end_week == null ||
+                (selectedWeekNum >= opt.start_week &&
+                  selectedWeekNum <= opt.end_week)
+            ),
+          }))
+          .filter((group) => group.options.length > 0)
+      : services;
+  const hasFilteredServices =
+    filteredServices.length > 0 &&
+    filteredServices.some((g) => (g.options || []).length > 0);
+
+  useEffect(() => {
+    if (!setValue || selectedWeekNum == null) return;
+    const currentService = watch ? watch("service") : null;
+    if (!currentService?.value) return;
+    const inFiltered = filteredServices.some(
+      (g) => (g.options || []).some((o) => o.value === currentService.value)
+    );
+    if (!inFiltered) setValue("service", null);
+  }, [selectedWeekNum, filteredServices, watch, setValue]);
 
   const selectStyles = {
     option: (styles, { data, isDisabled, isFocused, isSelected }) => {
@@ -196,13 +231,15 @@ function RegisterForm({
               render={({ field }) => (
                 <Select
                   {...field}
-                  options={services}
+                  options={filteredServices}
                   placeholder={
                     services.length > 0
-                      ? "Select a service"
+                      ? hasFilteredServices
+                        ? "Select a service"
+                        : "No services available for this week"
                       : "Loading services"
                   }
-                  isDisabled={!services.length > 0}
+                  isDisabled={!hasFilteredServices}
                   className={
                     "dropdown w-100 mb-3" +
                     (errors.service ? " is-select-invalid" : "")
@@ -228,13 +265,15 @@ function RegisterForm({
               render={({ field }) => (
                 <Select
                   {...field}
-                  isDisabled={!services.length > 0}
+                  isDisabled={!hasFilteredServices}
                   value={selectedOptionAddons}
                   isSearchable={false}
                   options={addOns}
                   placeholder={
                     services.length > 0
-                      ? "Checkout out our amazing addons"
+                      ? hasFilteredServices
+                        ? "Checkout out our amazing addons"
+                        : "Select a week and service first"
                       : "Loading addons"
                   }
                   className="dropdown w-100 mb-3"
@@ -398,6 +437,8 @@ RegisterForm.propTypes = {
   setState: PropTypes.func.isRequired,
   params: PropTypes.object.isRequired,
   weeks: PropTypes.array.isRequired,
+  watch: PropTypes.func,
+  setValue: PropTypes.func,
   services: PropTypes.array.isRequired,
   selectedOptionAddons: PropTypes.array,
   control: PropTypes.object.isRequired,

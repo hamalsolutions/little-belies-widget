@@ -337,9 +337,18 @@ function App() {
 						};
 
 						ultrasoundServices.services.forEach((item) => {
+							const fullService = ultrasoundsData.services.find(
+								(s) => s.sessionTypeId === item.sessionTypeId
+							);
 							const mutableItem = {
 								value: item.sessionTypeId,
 								label: item.name,
+								...(fullService &&
+									fullService.start_week != null &&
+									fullService.end_week != null && {
+										start_week: fullService.start_week,
+										end_week: fullService.end_week,
+									}),
 							};
 							ultrasounds.push(mutableItem);
 						});
@@ -355,6 +364,11 @@ function App() {
 								const mutableItem = {
 									value: item.sessionTypeId,
 									label: item.name,
+									...(item.start_week != null &&
+										item.end_week != null && {
+											start_week: item.start_week,
+											end_week: item.end_week,
+										}),
 								};
 								massages.push(mutableItem);
 							});
@@ -707,6 +721,7 @@ function App() {
 	const {
 		control,
 		watch,
+		setValue,
 		register,
 		formState: { errors },
 		handleSubmit,
@@ -1313,6 +1328,8 @@ function App() {
 					setState={setState}
 					params={params}
 					weeks={weeks}
+					watch={watch}
+					setValue={setValue}
 					services={services}
 					selectedOptionAddons={selectedOptionAddons}
 					control={control}
