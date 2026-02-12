@@ -1203,10 +1203,10 @@ function App() {
 			const costGenderPlusBabysGrowth = parseFloat(costGenderDetermination[0]) + costBabysGrowth;
 
 			newSessionTypeId = getBGCombo(
-				`Reveal Determination  + Baby's Growth - $${costGenderPlusBabysGrowth}  `,
+				`Gender Reveal  + Baby's Growth - $${costGenderPlusBabysGrowth}  `,
 				consultedUltrasounds
 			);
-			newSessionTypeName = `Reveal Determination  + Baby's Growth - $${costGenderPlusBabysGrowth}  `;
+			newSessionTypeName = `Gender Reveal  + Baby's Growth - $${costGenderPlusBabysGrowth}  `;
 		}
 
 		if (fixedServices.peaceofmind && addBabysGrowth) {
