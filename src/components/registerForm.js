@@ -47,11 +47,23 @@ function RegisterForm({
           .map((group) => ({
             ...group,
             options: (group.options || []).filter(
-              (opt) =>
-                opt.start_week == null ||
-                opt.end_week == null ||
-                (selectedWeekNum >= opt.start_week &&
-                  selectedWeekNum <= opt.end_week)
+              (opt) => {
+                const startWeek = parseInt(opt.start_week, 10);
+                const endWeek = parseInt(opt.end_week, 10);
+                const hasStart = !Number.isNaN(startWeek);
+                const hasEnd = !Number.isNaN(endWeek);
+
+                if (hasStart && hasEnd) {
+                  return selectedWeekNum >= startWeek && selectedWeekNum <= endWeek;
+                }
+                if (hasStart) {
+                  return selectedWeekNum >= startWeek;
+                }
+                if (hasEnd) {
+                  return selectedWeekNum <= endWeek;
+                }
+                return true;
+              }
             ),
           }))
           .filter((group) => group.options.length > 0)

@@ -925,14 +925,19 @@ function App() {
 	};
 
 	const handleFixedServices = () => {
+		const normalized = seletedService
+			? seletedService?.label?.toLowerCase().replace(/[-.()+\s]/g, "")
+			: "";
 
 		const service = {
-			specialPromotion25min: seletedService ? seletedService?.label?.toLowerCase().replace(/[-.()+\s]/g, "").search("specialpromotion25min") : "",
-			genderdetermination: seletedService ? seletedService?.label?.toLowerCase().replace(/[-.()+\s]/g, "").search("genderdetermination") : "",
-			earlypregnancy: seletedService ? seletedService?.label?.toLowerCase().replace(/[-.()+\s]/g, "").search("earlypregnancy") : "",
-			meetyourbaby25: seletedService ? seletedService?.label?.toLowerCase().replace(/[-.()+\s]/g, "").search("meetyourbaby25") : "",
-			meetyourbaby15: seletedService ? seletedService?.label?.toLowerCase().replace(/[-.()+\s]/g, "").search("meetyourbaby15") : "",
-			peaceofmind: seletedService ? seletedService?.label?.toLowerCase().replace(/[-.()+\s]/g, "").search("peaceofmind") : "",
+			specialPromotion25min: normalized ? normalized.search("specialpromotion25min") : "",
+			genderdetermination: normalized
+				? Math.max(normalized.search("genderdetermination"), normalized.search("genderreveal"))
+				: "",
+			earlypregnancy: normalized ? normalized.search("earlypregnancy") : "",
+			meetyourbaby25: normalized ? normalized.search("meetyourbaby25") : "",
+			meetyourbaby15: normalized ? normalized.search("meetyourbaby15") : "",
+			peaceofmind: normalized ? normalized.search("peaceofmind") : "",
 		}
 		setFixedServices((fixedServices) => ({
 			...fixedServices,
