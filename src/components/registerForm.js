@@ -11,6 +11,7 @@ function RegisterForm({
   setState,
   params,
   weeks,
+  enableWeekServiceFilter,
   watch,
   setValue,
   services,
@@ -36,9 +37,12 @@ function RegisterForm({
   setModal8kRealisticView,
   setClickButtonForm,
 }) {
+  const shouldFilterByWeek = Boolean(enableWeekServiceFilter);
   const selectedWeeks = watch ? watch("weeks") : null;
   const selectedWeekNum =
-    selectedWeeks?.value != null && selectedWeeks.value !== "I don't know"
+    shouldFilterByWeek &&
+    selectedWeeks?.value != null &&
+    selectedWeeks.value !== "I don't know"
       ? parseInt(selectedWeeks.value, 10)
       : null;
   const filteredServices =
@@ -73,6 +77,7 @@ function RegisterForm({
     filteredServices.some((g) => (g.options || []).length > 0);
 
   useEffect(() => {
+    if (!shouldFilterByWeek) return;
     if (!setValue || selectedWeekNum == null) return;
     const currentService = watch ? watch("service") : null;
     if (!currentService?.value) return;
@@ -80,7 +85,7 @@ function RegisterForm({
       (g) => (g.options || []).some((o) => o.value === currentService.value)
     );
     if (!inFiltered) setValue("service", null);
-  }, [selectedWeekNum, filteredServices, watch, setValue]);
+  }, [selectedWeekNum, filteredServices, shouldFilterByWeek, watch, setValue]);
 
   const selectStyles = {
     option: (styles, { data, isDisabled, isFocused, isSelected }) => {
@@ -449,6 +454,7 @@ RegisterForm.propTypes = {
   setState: PropTypes.func.isRequired,
   params: PropTypes.object.isRequired,
   weeks: PropTypes.array.isRequired,
+  enableWeekServiceFilter: PropTypes.bool,
   watch: PropTypes.func,
   setValue: PropTypes.func,
   services: PropTypes.array.isRequired,

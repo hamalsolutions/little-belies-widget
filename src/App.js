@@ -17,6 +17,7 @@ import * as crypto from "crypto-js";
 
 function App() {
 	const params = new URLSearchParams(window.location.search);
+	const ENABLE_WEEK_SERVICE_FILTER = process.env.REACT_APP_ENABLE_WEEK_SERVICE_FILTER === "true";
 	const languageList = { en: "English", es: "Spanish" };
 	const [firstLoad, setFirstLoad] = useState(true);
 	const [localTime, setLocalTime] = useState({ date: new Date() });//revisar esta linea Trabajar con la fecha y hora del sitio
@@ -1333,6 +1334,7 @@ function App() {
 					setState={setState}
 					params={params}
 					weeks={weeks}
+					enableWeekServiceFilter={ENABLE_WEEK_SERVICE_FILTER}
 					watch={watch}
 					setValue={setValue}
 					services={services}
