@@ -3,6 +3,10 @@ import ReactDOM from 'react-dom';
 import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
+import { initClarity } from './services/analytics';
+
+// Microsoft Clarity — gated by REACT_APP_ANALYTICS_ENABLED + REACT_APP_CLARITY_ID.
+initClarity();
 
 ReactDOM.render(
   <React.StrictMode>

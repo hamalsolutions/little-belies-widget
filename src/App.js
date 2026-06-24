@@ -1,7 +1,10 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
 import moment from "moment";
 import "./App.css";
+import { createLead, updateLead } from "./services/leadTracking";
+import { trackFunnel } from "./services/analytics";
+import usePartialLeadCapture from "./hooks/usePartialLeadCapture";
 import "./styles/info.css";
 import StepProgress from "../src/components/stepProgress";
 import RegisterForm from "../src/components/registerForm";
@@ -105,7 +108,11 @@ function App() {
 		leadUpdate: false,
 		partititonKey: "",
 		orderKey: "",
+		lastSentStep: -1,
+		inFlight: false,
 	});
+	// Guards the step-0 create against React StrictMode's double effect invoke.
+	const step0FiredRef = useRef(false);
 
 	const parent_origin = `${process.env.REACT_APP_FOLLOWING_URL}`;
 	const scrollParenTop = () => {
@@ -728,6 +735,55 @@ function App() {
 		handleSubmit,
 	} = useForm();
 
+	// Step 0 (entered funnel): create the lead once the auth token + siteId are
+	// ready. The token arrives asynchronously, so this re-runs when it lands.
+	// A ref guards against StrictMode's double invoke / duplicate creates.
+	useEffect(() => {
+		if (!state.authorization || !state.siteId) return;
+		if (step0FiredRef.current || leadState.partititonKey) return;
+		step0FiredRef.current = true;
+		setLeadState((s) => ({ ...s, inFlight: true }));
+		createLead({
+			authorization: state.authorization,
+			siteId: state.siteId,
+			service: seletedService?.label ?? "",
+			step: 0,
+			language: state.language,
+		})
+			.then((r) => {
+				setLeadState((s) => ({
+					...s,
+					partititonKey: r.partititonKey,
+					orderKey: r.orderKey,
+					lastSentStep: 0,
+					inFlight: false,
+				}));
+				trackFunnel(0);
+			})
+			.catch((e) => {
+				step0FiredRef.current = false;
+				setLeadState((s) => ({ ...s, inFlight: false }));
+				console.error("lead step 0", e);
+			});
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [state.authorization, state.siteId]);
+
+	// Step 0.5 (contact captured): debounced partial-lead capture as the user
+	// types a valid email/phone in the register form.
+	usePartialLeadCapture({
+		authorization: state.authorization,
+		siteId: state.siteId,
+		language: state.language,
+		firstName: watch("firstName"),
+		lastName: watch("lastName"),
+		email: watch("email"),
+		phone: watch("phone"),
+		service: watch("service")?.label || (seletedService?.label ?? ""),
+		leadState,
+		setLeadState,
+		disabled: leadState.lastSentStep >= 1,
+	});
+
 	useEffect(() => {
 		updateDimensions();
 
@@ -853,47 +909,52 @@ function App() {
 					clientFound: false,
 				}));
 			}
-			const leadPayload = {
-				siteId: state.siteId,
+			// Step 1 (info done): update the existing lead (created at step 0) with
+			// the full contact info, or create it if the step-0/0.5 create never
+			// landed. Phone normalized to digits inside the helper.
+			const resolvedClientId = clientId === undefined ? "n/a" : clientId;
+			const contactFields = {
 				name: data.firstName + " " + data.lastName,
 				mobilePhone: data.phone.replace(/[^0-9]/gi, ''),
 				email: data.email,
 				service: sessionTypeName,
-				clientId: clientId === undefined ? "n/a" : clientId,
-				dateTime: moment().format("YYYY-MM-DD[T]HH:mm:ss").toString(),
-				step: 1,
-				language: state.language,
+				clientId: resolvedClientId,
 			};
-			const leadRequest = {
-				method: "POST",
-				headers: {
-					"Content-type": "application/json; charset=UTF-8",
-					authorization: state.authorization,
-					siteid: state.siteId,
-				},
-				body: JSON.stringify(leadPayload),
-			};
-			const leadResponse = await fetch(
-				`${process.env.REACT_APP_API_URL}/api/book/clients`,
-				leadRequest
-			);
-			const leadData = await leadResponse.json();
-			if (leadResponse.ok) {
-				setLeadState((leadState) => ({
-					...leadState,
-					clientFound: true,
-					leadRegistered: true,
-					partititonKey: leadData.partititonKey,
-					orderKey: leadData.orderKey,
-				}));
-			} else {
-				setLeadState((leadState) => ({
-					...leadState,
-					clientFound: true,
-					leadRegistered: false,
-				}));
-				console.log("Error registering lead");
-				console.error(leadData);
+			try {
+				if (leadState.partititonKey && leadState.orderKey) {
+					await updateLead({
+						authorization: state.authorization,
+						siteId: state.siteId,
+						partititonKey: leadState.partititonKey,
+						orderKey: leadState.orderKey,
+						fields: { step: 1, ...contactFields },
+					});
+					setLeadState((leadState) => ({
+						...leadState,
+						clientFound: true,
+						leadRegistered: true,
+						lastSentStep: 1,
+					}));
+				} else {
+					const created = await createLead({
+						authorization: state.authorization,
+						siteId: state.siteId,
+						...contactFields,
+						step: 1,
+						language: state.language,
+					});
+					setLeadState((leadState) => ({
+						...leadState,
+						clientFound: true,
+						leadRegistered: true,
+						partititonKey: created.partititonKey,
+						orderKey: created.orderKey,
+						lastSentStep: 1,
+					}));
+				}
+				trackFunnel(1);
+			} catch (leadError) {
+				console.error("Error registering lead (step 1)", leadError);
 			}
 		} catch (error) {
 			setState((state) => ({
