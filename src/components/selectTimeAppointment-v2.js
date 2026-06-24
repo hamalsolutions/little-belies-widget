@@ -4,6 +4,8 @@ import DatePicker from "react-horizontal-datepicker";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faSpinner } from "@fortawesome/free-solid-svg-icons";
 import moment from "moment";
+import { updateLead } from "../services/leadTracking";
+import { trackFunnel } from "../services/analytics";
 
 function formatDate(dateString) {
 	const date = new Date(dateString);
@@ -110,36 +112,20 @@ function SelectTimeAppointmentV2({ setStepTwo, previousStep, state, setState, se
 		setSelectBlock(block.startDateTime);
 
 		try {
-			if (leadState.leadRegistered) {
-				const leadPayload = {
-					partitionKey: leadState.partititonKey,
+			if (leadState.partititonKey && leadState.orderKey) {
+				await updateLead({
+					authorization: state.authorization,
+					siteId: state.siteId,
+					partititonKey: leadState.partititonKey,
 					orderKey: leadState.orderKey,
-					dateTimeSeleted: block.startDateTime,
-					step: 2,
-				};
-				const leadRequest = {
-					method: "PUT",
-					headers: {
-						"Content-type": "application/json; charset=UTF-8",
-						authorization: state.authorization,
-						siteid: state.siteId,
-					},
-					body: JSON.stringify(leadPayload),
-				};
-				const leadResponse = await fetch(`${process.env.REACT_APP_API_URL}/api/book/clients`, leadRequest);
-				const leadData = await leadResponse.json();
-				if (leadResponse.ok) {
-					setLeadState((leadState) => ({
-						...leadState,
-						leadUpdate: true,
-					}));
-				} else {
-					setLeadState((leadState) => ({
-						...leadState,
-						leadUpdate: true,
-					}));
-					console.error(leadData);
-				}
+					fields: { dateTimeSeleted: block.startDateTime, step: 2 },
+				});
+				setLeadState((leadState) => ({
+					...leadState,
+					leadUpdate: true,
+					lastSentStep: 2,
+				}));
+				trackFunnel(2);
 			}
 		} catch (error) {
 			console.error(error);
@@ -179,38 +165,20 @@ function SelectTimeAppointmentV2({ setStepTwo, previousStep, state, setState, se
 		}));
 
 		try {
-			if (leadState.leadRegistered) {
-				const leadPayload = {
-					partitionKey: leadState.partititonKey,
+			if (leadState.partititonKey && leadState.orderKey) {
+				await updateLead({
+					authorization: state.authorization,
+					siteId: state.siteId,
+					partititonKey: leadState.partititonKey,
 					orderKey: leadState.orderKey,
-					dateTimeSeleted: selectedBlock,
-					step: 3,
-				};
-				const leadRequest = {
-					method: "PUT",
-					headers: {
-						"Content-type": "application/json; charset=UTF-8",
-						authorization: state.authorization,
-						siteid: state.siteId,
-					},
-					body: JSON.stringify(leadPayload),
-				};
-
-				const leadResponse = await fetch(`${process.env.REACT_APP_API_URL}/api/book/clients`, leadRequest);
-
-				const leadData = await leadResponse.json();
-				if (leadResponse.ok) {
-					setLeadState((leadState) => ({
-						...leadState,
-						leadUpdate: true,
-					}));
-				} else {
-					setLeadState((leadState) => ({
-						...leadState,
-						leadUpdate: true,
-					}));
-					console.error(leadData);
-				}
+					fields: { dateTimeSeleted: selectedBlock, step: 3 },
+				});
+				setLeadState((leadState) => ({
+					...leadState,
+					leadUpdate: true,
+					lastSentStep: 3,
+				}));
+				trackFunnel(3);
 			}
 		} catch (error) {
 			console.error(error);
