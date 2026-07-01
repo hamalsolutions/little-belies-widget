@@ -99,7 +99,11 @@ export default function usePartialLeadCapture({
             inFlight: false,
           }));
         }
-        trackFunnel(STEP_PARTIAL);
+        trackFunnel(STEP_PARTIAL, {
+          service: cur.service,
+          lang: cur.language,
+          site: cur.siteId,
+        });
       } catch (e) {
         setLeadState((s) => ({ ...s, inFlight: false }));
       }

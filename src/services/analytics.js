@@ -43,12 +43,24 @@ export function clarityEvent(name) {
   }
 }
 
+/** Set an arbitrary custom tag (skips empty/null values). */
+export function claritySet(key, value) {
+  if (typeof window !== "undefined" && window.clarity && value != null && value !== "") {
+    window.clarity("set", String(key), String(value));
+  }
+}
+
 /**
  * Single entry point the components call at each funnel phase. Sets the
- * funnel_step tag and, on completion, fires a `booking_completed` event so
- * sessions can be filtered/funnelled in the Clarity dashboard.
+ * funnel_step tag, plus any context tags provided in `meta` (service, city,
+ * lang, site) so sessions can be segmented in the Clarity dashboard, and
+ * fires a `booking_completed` event on completion.
  */
-export function trackFunnel(step) {
+export function trackFunnel(step, meta = {}) {
   clarityFunnelStep(step);
+  claritySet("service", meta.service);
+  claritySet("city", meta.city);
+  claritySet("lang", meta.lang);
+  claritySet("site", meta.site);
   if (Number(step) >= 4) clarityEvent("booking_completed");
 }
