@@ -758,7 +758,7 @@ function App() {
 					lastSentStep: 0,
 					inFlight: false,
 				}));
-				trackFunnel(0);
+				trackFunnel(0, { city: state.city, lang: state.language, site: state.siteId });
 			})
 			.catch((e) => {
 				step0FiredRef.current = false;
@@ -952,7 +952,12 @@ function App() {
 						lastSentStep: 1,
 					}));
 				}
-				trackFunnel(1);
+				trackFunnel(1, {
+					service: sessionTypeName,
+					city: state.city,
+					lang: state.language,
+					site: state.siteId,
+				});
 			} catch (leadError) {
 				console.error("Error registering lead (step 1)", leadError);
 			}

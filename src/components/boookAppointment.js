@@ -251,7 +251,11 @@ function BookAppointment({
 								console.error("Error marking lead completed (step 4)", leadError);
 							}
 						}
-						trackFunnel(4);
+						trackFunnel(4, {
+							service: clientState.sessionTypeName,
+							city: state.city,
+							site: state.siteId,
+						});
 						googleTrackBooking({
 							name: clientState.firstName + " " + clientState.lastName,
 							service: clientState.sessionTypeName,
