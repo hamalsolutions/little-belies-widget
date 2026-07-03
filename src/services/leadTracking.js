@@ -36,6 +36,11 @@ export async function createLead({
   step,
   language,
   dateTime,
+  // Extra context persisted (lands in additionalInformation) so a lead can be
+  // fully restored by the "resume booking" flow.
+  locationId,
+  city,
+  weeks,
 }) {
   const body = {
     siteId,
@@ -47,6 +52,9 @@ export async function createLead({
     dateTime: dateTime || moment().format("YYYY-MM-DD[T]HH:mm:ss").toString(),
     step,
     language,
+    ...(locationId != null && { locationId }),
+    ...(city != null && { city }),
+    ...(weeks != null && weeks !== "" && { weeks }),
   };
   const res = await fetch(`${API_URL}/api/book/clients`, {
     method: "POST",
@@ -72,6 +80,26 @@ export async function updateLead({ authorization, siteId, partititonKey, orderKe
   });
   if (!res.ok) throw new Error(`updateLead failed: ${res.status}`);
   return res.json().catch(() => ({}));
+}
+
+/**
+ * Fetch a single lead by its primary keys (resume-booking flow).
+ * Returns the lead item or null if not found / on error.
+ */
+export async function getLeadByKeys({ authorization, siteId, timestampSite, leadId }) {
+  try {
+    const res = await fetch(
+      `${API_URL}/api/incomplete/booking/by-keys?date=${encodeURIComponent(
+        timestampSite
+      )}&id=${encodeURIComponent(leadId)}`,
+      { method: "GET", headers: headers(authorization, siteId) }
+    );
+    if (!res.ok) return null;
+    const data = await res.json();
+    return data.Item || null;
+  } catch {
+    return null;
+  }
 }
 
 /**

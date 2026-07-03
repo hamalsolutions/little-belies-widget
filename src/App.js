@@ -2,8 +2,9 @@ import React, { useEffect, useState, useRef } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
 import moment from "moment";
 import "./App.css";
-import { createLead, updateLead } from "./services/leadTracking";
+import { createLead, updateLead, getLeadByKeys } from "./services/leadTracking";
 import { trackFunnel } from "./services/analytics";
+import { decodeResumeToken } from "./services/resumeToken";
 import usePartialLeadCapture from "./hooks/usePartialLeadCapture";
 import "./styles/info.css";
 import StepProgress from "../src/components/stepProgress";
@@ -20,6 +21,9 @@ import * as crypto from "crypto-js";
 
 function App() {
 	const params = new URLSearchParams(window.location.search);
+	// Resume-booking: ?resume=<token> carries the lead's identity so we can
+	// pre-fill the form and continue the SAME lead instead of starting fresh.
+	const resume = params.get("resume") ? decodeResumeToken(params.get("resume")) : null;
 	const ENABLE_WEEK_SERVICE_FILTER = process.env.REACT_APP_ENABLE_WEEK_SERVICE_FILTER === "true";
 	const languageList = { en: "English", es: "Spanish" };
 	const [firstLoad, setFirstLoad] = useState(true);
@@ -34,7 +38,7 @@ function App() {
 		appointmentRequestStatus: "IDLE",
 		city: params.get("city") || "N/A",
 		message: "",
-		siteId: params.get("id") || "490100",
+		siteId: (resume && resume.siteId) || params.get("id") || "490100",
 		latitude: params.get("latitude") || "0",
 		longitude: params.get("longitude") || "0",
 		language: languageList[params.get("lang")] || "English",
@@ -113,6 +117,8 @@ function App() {
 	});
 	// Guards the step-0 create against React StrictMode's double effect invoke.
 	const step0FiredRef = useRef(false);
+	// Guards the one-time resume prefill.
+	const resumeLoadedRef = useRef(false);
 
 	const parent_origin = `${process.env.REACT_APP_FOLLOWING_URL}`;
 	const scrollParenTop = () => {
@@ -740,6 +746,8 @@ function App() {
 	// A ref guards against StrictMode's double invoke / duplicate creates.
 	useEffect(() => {
 		if (!state.authorization || !state.siteId) return;
+		// In resume mode we reuse the existing lead (loaded below) — don't create a new one.
+		if (resume) return;
 		if (step0FiredRef.current || leadState.partititonKey) return;
 		step0FiredRef.current = true;
 		setLeadState((s) => ({ ...s, inFlight: true }));
@@ -749,6 +757,8 @@ function App() {
 			service: seletedService?.label ?? "",
 			step: 0,
 			language: state.language,
+			locationId: state.locationId,
+			city: state.city,
 		})
 			.then((r) => {
 				setLeadState((s) => ({
@@ -783,6 +793,82 @@ function App() {
 		setLeadState,
 		disabled: leadState.lastSentStep >= 1,
 	});
+
+	// Resume mode: once auth + services + weeks are ready, fetch the lead by its
+	// keys and pre-fill the register form. Reuses the lead's keys so continuing
+	// updates the SAME row (no duplicate lead). Best-effort: on any failure it
+	// silently falls back to a normal fresh booking.
+	useEffect(() => {
+		if (!resume || resumeLoadedRef.current) return;
+		if (!state.authorization) return;
+		if (!services.length || !weeks.length) return;
+		resumeLoadedRef.current = true;
+
+		(async () => {
+			const lead = await getLeadByKeys({
+				authorization: state.authorization,
+				siteId: state.siteId,
+				timestampSite: resume.timestampSite,
+				leadId: resume.leadId,
+			});
+			if (!lead) {
+				// Couldn't load — allow a fresh lead to be created instead.
+				resumeLoadedRef.current = false;
+				step0FiredRef.current = false;
+				return;
+			}
+			const info = lead.additionalInformation || {};
+			const pick = (k) => (lead[k] != null ? lead[k] : info[k]);
+
+			// Contact
+			const fullName = String(lead.name || "").trim();
+			const nameParts = fullName ? fullName.split(/\s+/) : [];
+			setValue("firstName", nameParts[0] || "");
+			setValue("lastName", nameParts.slice(1).join(" ") || "");
+			setValue("email", lead.email || "");
+			setValue("phone", lead.mobilePhone || "");
+
+			// Weeks
+			const weeksVal = pick("weeks");
+			if (weeksVal != null && weeksVal !== "") {
+				setValue("weeks", { value: String(weeksVal), label: String(weeksVal) });
+			}
+
+			// Service — match the stored label against the loaded options.
+			const allOptions = services.flatMap((g) => g.options || []);
+			const norm = (s) => String(s || "").toLowerCase().replace(/[-.()+\s$]/g, "");
+			let matched = allOptions.find((o) => o.label === lead.service);
+			if (!matched && lead.service) {
+				matched = allOptions.find((o) => norm(o.label) === norm(lead.service));
+			}
+			if (matched) {
+				setValue("service", matched);
+				setSeletedService(matched);
+			}
+
+			// Restore location/language context from the lead.
+			const city = pick("city");
+			const locationId = pick("locationId");
+			const language = info.language;
+			setState((s) => ({
+				...s,
+				city: city || s.city,
+				locationId: locationId || s.locationId,
+				language: language || s.language,
+			}));
+
+			// Reuse the lead's identity so continuing updates the same row.
+			setLeadState((s) => ({
+				...s,
+				partititonKey: resume.timestampSite,
+				orderKey: resume.leadId,
+				leadRegistered: true,
+				clientFound: true,
+				lastSentStep: Number(lead.step) || 0,
+			}));
+		})();
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [state.authorization, services, weeks]);
 
 	useEffect(() => {
 		updateDimensions();
@@ -919,6 +1005,9 @@ function App() {
 				email: data.email,
 				service: sessionTypeName,
 				clientId: resolvedClientId,
+				weeks: data.weeks?.label,
+				city: state.city,
+				locationId: state.locationId,
 			};
 			try {
 				if (leadState.partititonKey && leadState.orderKey) {
