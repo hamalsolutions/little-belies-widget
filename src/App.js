@@ -789,6 +789,8 @@ function App() {
 		email: watch("email"),
 		phone: watch("phone"),
 		service: watch("service")?.label || (seletedService?.label ?? ""),
+		locationId: state.locationId,
+		city: state.city,
 		leadState,
 		setLeadState,
 		disabled: leadState.lastSentStep >= 1,

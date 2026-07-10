@@ -24,6 +24,8 @@ export default function usePartialLeadCapture({
   email,
   phone,
   service,
+  locationId,
+  city,
   leadState,
   setLeadState,
   disabled,
@@ -39,6 +41,8 @@ export default function usePartialLeadCapture({
     email,
     phone,
     service,
+    locationId,
+    city,
     leadState,
     disabled,
   };
@@ -89,6 +93,8 @@ export default function usePartialLeadCapture({
             service: cur.service,
             step: STEP_PARTIAL,
             language: cur.language,
+            locationId: cur.locationId,
+            city: cur.city,
           });
           setLeadState((s) => ({
             ...s,
@@ -151,6 +157,8 @@ export default function usePartialLeadCapture({
             clientId: "n/a",
             step: STEP_PARTIAL,
             language: cur.language,
+            locationId: cur.locationId,
+            city: cur.city,
           },
         });
       }
