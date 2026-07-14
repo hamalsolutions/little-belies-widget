@@ -1,7 +1,11 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
 import moment from "moment";
 import "./App.css";
+import { createLead, updateLead, getLeadByKeys } from "./services/leadTracking";
+import { trackFunnel } from "./services/analytics";
+import { decodeResumeToken } from "./services/resumeToken";
+import usePartialLeadCapture from "./hooks/usePartialLeadCapture";
 import "./styles/info.css";
 import StepProgress from "../src/components/stepProgress";
 import RegisterForm from "../src/components/registerForm";
@@ -17,6 +21,9 @@ import * as crypto from "crypto-js";
 
 function App() {
 	const params = new URLSearchParams(window.location.search);
+	// Resume-booking: ?resume=<token> carries the lead's identity so we can
+	// pre-fill the form and continue the SAME lead instead of starting fresh.
+	const resume = params.get("resume") ? decodeResumeToken(params.get("resume")) : null;
 	const ENABLE_WEEK_SERVICE_FILTER = process.env.REACT_APP_ENABLE_WEEK_SERVICE_FILTER === "true";
 	const languageList = { en: "English", es: "Spanish" };
 	const [firstLoad, setFirstLoad] = useState(true);
@@ -31,7 +38,7 @@ function App() {
 		appointmentRequestStatus: "IDLE",
 		city: params.get("city") || "N/A",
 		message: "",
-		siteId: params.get("id") || "490100",
+		siteId: (resume && resume.siteId) || params.get("id") || "490100",
 		latitude: params.get("latitude") || "0",
 		longitude: params.get("longitude") || "0",
 		language: languageList[params.get("lang")] || "English",
@@ -105,7 +112,13 @@ function App() {
 		leadUpdate: false,
 		partititonKey: "",
 		orderKey: "",
+		lastSentStep: -1,
+		inFlight: false,
 	});
+	// Guards the step-0 create against React StrictMode's double effect invoke.
+	const step0FiredRef = useRef(false);
+	// Guards the one-time resume prefill.
+	const resumeLoadedRef = useRef(false);
 
 	const parent_origin = `${process.env.REACT_APP_FOLLOWING_URL}`;
 	const scrollParenTop = () => {
@@ -728,6 +741,137 @@ function App() {
 		handleSubmit,
 	} = useForm();
 
+	// Step 0 (entered funnel): create the lead once the auth token + siteId are
+	// ready. The token arrives asynchronously, so this re-runs when it lands.
+	// A ref guards against StrictMode's double invoke / duplicate creates.
+	useEffect(() => {
+		if (!state.authorization || !state.siteId) return;
+		// In resume mode we reuse the existing lead (loaded below) — don't create a new one.
+		if (resume) return;
+		if (step0FiredRef.current || leadState.partititonKey) return;
+		step0FiredRef.current = true;
+		setLeadState((s) => ({ ...s, inFlight: true }));
+		createLead({
+			authorization: state.authorization,
+			siteId: state.siteId,
+			service: seletedService?.label ?? "",
+			step: 0,
+			language: state.language,
+			locationId: state.locationId,
+			city: state.city,
+		})
+			.then((r) => {
+				setLeadState((s) => ({
+					...s,
+					partititonKey: r.partititonKey,
+					orderKey: r.orderKey,
+					lastSentStep: 0,
+					inFlight: false,
+				}));
+				trackFunnel(0, { city: state.city, lang: state.language, site: state.siteId });
+			})
+			.catch((e) => {
+				step0FiredRef.current = false;
+				setLeadState((s) => ({ ...s, inFlight: false }));
+				console.error("lead step 0", e);
+			});
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [state.authorization, state.siteId]);
+
+	// Step 0.5 (contact captured): debounced partial-lead capture as the user
+	// types a valid email/phone in the register form.
+	usePartialLeadCapture({
+		authorization: state.authorization,
+		siteId: state.siteId,
+		language: state.language,
+		firstName: watch("firstName"),
+		lastName: watch("lastName"),
+		email: watch("email"),
+		phone: watch("phone"),
+		service: watch("service")?.label || (seletedService?.label ?? ""),
+		locationId: state.locationId,
+		city: state.city,
+		leadState,
+		setLeadState,
+		disabled: leadState.lastSentStep >= 1,
+	});
+
+	// Resume mode: once auth + services + weeks are ready, fetch the lead by its
+	// keys and pre-fill the register form. Reuses the lead's keys so continuing
+	// updates the SAME row (no duplicate lead). Best-effort: on any failure it
+	// silently falls back to a normal fresh booking.
+	useEffect(() => {
+		if (!resume || resumeLoadedRef.current) return;
+		if (!state.authorization) return;
+		if (!services.length || !weeks.length) return;
+		resumeLoadedRef.current = true;
+
+		(async () => {
+			const lead = await getLeadByKeys({
+				authorization: state.authorization,
+				siteId: state.siteId,
+				timestampSite: resume.timestampSite,
+				leadId: resume.leadId,
+			});
+			if (!lead) {
+				// Couldn't load — allow a fresh lead to be created instead.
+				resumeLoadedRef.current = false;
+				step0FiredRef.current = false;
+				return;
+			}
+			const info = lead.additionalInformation || {};
+			const pick = (k) => (lead[k] != null ? lead[k] : info[k]);
+
+			// Contact
+			const fullName = String(lead.name || "").trim();
+			const nameParts = fullName ? fullName.split(/\s+/) : [];
+			setValue("firstName", nameParts[0] || "");
+			setValue("lastName", nameParts.slice(1).join(" ") || "");
+			setValue("email", lead.email || "");
+			setValue("phone", lead.mobilePhone || "");
+
+			// Weeks
+			const weeksVal = pick("weeks");
+			if (weeksVal != null && weeksVal !== "") {
+				setValue("weeks", { value: String(weeksVal), label: String(weeksVal) });
+			}
+
+			// Service — match the stored label against the loaded options.
+			const allOptions = services.flatMap((g) => g.options || []);
+			const norm = (s) => String(s || "").toLowerCase().replace(/[-.()+\s$]/g, "");
+			let matched = allOptions.find((o) => o.label === lead.service);
+			if (!matched && lead.service) {
+				matched = allOptions.find((o) => norm(o.label) === norm(lead.service));
+			}
+			if (matched) {
+				setValue("service", matched);
+				setSeletedService(matched);
+			}
+
+			// Restore location/language context from the lead.
+			const city = pick("city");
+			const locationId = pick("locationId");
+			const language = info.language;
+			setState((s) => ({
+				...s,
+				city: city || s.city,
+				locationId: locationId || s.locationId,
+				language: language || s.language,
+			}));
+
+			// Reuse the lead's identity so continuing updates the same row.
+			setLeadState((s) => ({
+				...s,
+				partititonKey: resume.timestampSite,
+				orderKey: resume.leadId,
+				leadRegistered: true,
+				clientFound: true,
+				lastSentStep: Number(lead.step) || 0,
+			}));
+		})();
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [state.authorization, services, weeks]);
+
 	useEffect(() => {
 		updateDimensions();
 
@@ -853,47 +997,60 @@ function App() {
 					clientFound: false,
 				}));
 			}
-			const leadPayload = {
-				siteId: state.siteId,
+			// Step 1 (info done): update the existing lead (created at step 0) with
+			// the full contact info, or create it if the step-0/0.5 create never
+			// landed. Phone normalized to digits inside the helper.
+			const resolvedClientId = clientId === undefined ? "n/a" : clientId;
+			const contactFields = {
 				name: data.firstName + " " + data.lastName,
 				mobilePhone: data.phone.replace(/[^0-9]/gi, ''),
 				email: data.email,
 				service: sessionTypeName,
-				clientId: clientId === undefined ? "n/a" : clientId,
-				dateTime: moment().format("YYYY-MM-DD[T]HH:mm:ss").toString(),
-				step: 1,
-				language: state.language,
+				clientId: resolvedClientId,
+				weeks: data.weeks?.label,
+				city: state.city,
+				locationId: state.locationId,
 			};
-			const leadRequest = {
-				method: "POST",
-				headers: {
-					"Content-type": "application/json; charset=UTF-8",
-					authorization: state.authorization,
-					siteid: state.siteId,
-				},
-				body: JSON.stringify(leadPayload),
-			};
-			const leadResponse = await fetch(
-				`${process.env.REACT_APP_API_URL}/api/book/clients`,
-				leadRequest
-			);
-			const leadData = await leadResponse.json();
-			if (leadResponse.ok) {
-				setLeadState((leadState) => ({
-					...leadState,
-					clientFound: true,
-					leadRegistered: true,
-					partititonKey: leadData.partititonKey,
-					orderKey: leadData.orderKey,
-				}));
-			} else {
-				setLeadState((leadState) => ({
-					...leadState,
-					clientFound: true,
-					leadRegistered: false,
-				}));
-				console.log("Error registering lead");
-				console.error(leadData);
+			try {
+				if (leadState.partititonKey && leadState.orderKey) {
+					await updateLead({
+						authorization: state.authorization,
+						siteId: state.siteId,
+						partititonKey: leadState.partititonKey,
+						orderKey: leadState.orderKey,
+						fields: { step: 1, ...contactFields },
+					});
+					setLeadState((leadState) => ({
+						...leadState,
+						clientFound: true,
+						leadRegistered: true,
+						lastSentStep: 1,
+					}));
+				} else {
+					const created = await createLead({
+						authorization: state.authorization,
+						siteId: state.siteId,
+						...contactFields,
+						step: 1,
+						language: state.language,
+					});
+					setLeadState((leadState) => ({
+						...leadState,
+						clientFound: true,
+						leadRegistered: true,
+						partititonKey: created.partititonKey,
+						orderKey: created.orderKey,
+						lastSentStep: 1,
+					}));
+				}
+				trackFunnel(1, {
+					service: sessionTypeName,
+					city: state.city,
+					lang: state.language,
+					site: state.siteId,
+				});
+			} catch (leadError) {
+				console.error("Error registering lead (step 1)", leadError);
 			}
 		} catch (error) {
 			setState((state) => ({

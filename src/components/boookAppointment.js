@@ -5,6 +5,8 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faSpinner } from "@fortawesome/free-solid-svg-icons";
 import { removeTags } from "../config/constans";
 import { getIp } from "../services/external";
+import { updateLead } from "../services/leadTracking";
+import { trackFunnel } from "../services/analytics";
 
 function BookAppointment({
 	state,
@@ -224,44 +226,36 @@ function BookAppointment({
 					const dynamoResponse = await fetch(`${process.env.REACT_APP_API_URL}/api/dynamoDB/appointments`, putDynamo);
 					const dynamoData = await dynamoResponse.json();
 					if (dynamoResponse.ok) {
-						if (leadState.leadRegistered) {
-							const leadPayload = {
-								partititonKey: leadState.partititonKey,
-								orderKey: leadState.orderKey,
-							};
-							const leadRequest = {
-								method: "DELETE",
-								headers: {
-									"Content-type": "application/json; charset=UTF-8",
+						// Step 4 (completed): mark the lead booked and KEEP it, so the
+						// funnel report can count conversions. (Previously the lead was
+						// DELETEd here, which made the widget invisible in the funnel.)
+						setState((state) => ({
+							...state,
+							appointmentRequestStatus: "BOOK-APPOINTMENT-OK",
+						}));
+						if (leadState.partititonKey && leadState.orderKey) {
+							try {
+								await updateLead({
 									authorization: state.authorization,
-									siteid: state.siteId,
-								},
-								body: JSON.stringify(leadPayload),
-							};
-							const leadResponse = await fetch(`${process.env.REACT_APP_API_URL}/api/book/clients`, leadRequest);
-							const leadData = await leadResponse.json();
-							if (leadResponse.ok) {
+									siteId: state.siteId,
+									partititonKey: leadState.partititonKey,
+									orderKey: leadState.orderKey,
+									fields: { step: 4 },
+								});
 								setLeadState((leadState) => ({
 									...leadState,
-									leadDeleted: true,
+									lastSentStep: 4,
 								}));
-								setState((state) => ({
-									...state,
-									appointmentRequestStatus: "BOOK-APPOINTMENT-OK",
-								}));
-							} else {
-								setState((state) => ({
-									...state,
-									appointmentRequestStatus: "BOOK-APPOINTMENT-OK",
-								}));
-								setLeadState((leadState) => ({
-									...leadState,
-									leadDeleted: false,
-								}));
-								console.log("Error deleting lead");
-								console.error(leadData);
+							} catch (leadError) {
+								// Best-effort — the booking already succeeded.
+								console.error("Error marking lead completed (step 4)", leadError);
 							}
 						}
+						trackFunnel(4, {
+							service: clientState.sessionTypeName,
+							city: state.city,
+							site: state.siteId,
+						});
 						googleTrackBooking({
 							name: clientState.firstName + " " + clientState.lastName,
 							service: clientState.sessionTypeName,
