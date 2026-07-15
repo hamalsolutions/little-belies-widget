@@ -22,6 +22,7 @@ function BookAppointment({
 	leadState,
 	setLeadState,
 	previousStep,
+	isResume,
 }) {
 	const bypass = false;
 
@@ -262,6 +263,21 @@ function BookAppointment({
 							date: moment(state.block.blockDate).format("MM-DD-YYYY").toString(),
 							time: moment(state.block.blockDate).format("hh:mm A").toString(),
 						});
+						// Resume flow: the marketing-site embed relies on its parent to
+						// redirect to the post-booking landing page, but here the parent
+						// is the admin /resume page, so redirect the top window ourselves
+						// (only in resume mode — the normal embed is untouched).
+						if (isResume) {
+							try {
+								const lang = state.language === "Spanish" ? "es" : "en";
+								const slug = lang === "es" ? "landing-reservaciones" : "landing-booking";
+								const base =
+									process.env.REACT_APP_FOLLOWING_URL || "https://www.littlebelliesspa.com";
+								(window.top || window).location.href = `${base}/${lang}/${slug}/`;
+							} catch (redirectErr) {
+								console.error("resume landing redirect failed", redirectErr);
+							}
+						}
 					} else {
 						setState((state) => ({
 							...state,
@@ -443,6 +459,7 @@ BookAppointment.propTypes = {
 	leadState: PropTypes.object.isRequired,
 	setLeadState: PropTypes.func.isRequired,
 	previousStep: PropTypes.func.isRequired,
+	isResume: PropTypes.bool,
 };
 
 export default BookAppointment;
