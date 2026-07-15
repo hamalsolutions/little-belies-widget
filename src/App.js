@@ -1567,6 +1567,7 @@ function App() {
 					leadState={leadState}
 					setLeadState={setLeadState}
 					previousStep={previousStep}
+					isResume={!!resume}
 				/>
 			)}
 		</div>
