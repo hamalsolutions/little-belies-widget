@@ -263,17 +263,27 @@ function BookAppointment({
 							date: moment(state.block.blockDate).format("MM-DD-YYYY").toString(),
 							time: moment(state.block.blockDate).format("hh:mm A").toString(),
 						});
-						// Resume flow: the marketing-site embed relies on its parent to
-						// redirect to the post-booking landing page, but here the parent
-						// is the admin /resume page, so redirect the top window ourselves
-						// (only in resume mode — the normal embed is untouched).
+						// Resume flow: the marketing-site embed relies on its parent page
+						// (on littlebelliesspa.com) to stash the booking data in cookies
+						// (lb_booking_name/service/date/time) and redirect to the landing.
+						// Here the parent is the admin /resume page on another domain, so
+						// it can't set littlebelliesspa.com cookies. Instead we send the
+						// top window to a small "booking-redirect" bounce page ON
+						// littlebelliesspa.com that sets those cookies from the query
+						// string and forwards to the localized landing. Resume mode only.
 						if (isResume) {
 							try {
 								const lang = state.language === "Spanish" ? "es" : "en";
-								const slug = lang === "es" ? "landing-reservaciones" : "landing-booking";
 								const base =
 									process.env.REACT_APP_FOLLOWING_URL || "https://www.littlebelliesspa.com";
-								(window.top || window).location.href = `${base}/${lang}/${slug}/`;
+								const params = new URLSearchParams({
+									name: `${clientState.firstName} ${clientState.lastName}`,
+									service: clientState.sessionTypeName || "",
+									date: moment(state.block.blockDate).format("MM-DD-YYYY").toString(),
+									time: moment(state.block.blockDate).format("hh:mm A").toString(),
+									lang: lang,
+								});
+								(window.top || window).location.href = `${base}/booking-redirect/?${params.toString()}`;
 							} catch (redirectErr) {
 								console.error("resume landing redirect failed", redirectErr);
 							}
