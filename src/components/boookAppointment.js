@@ -22,6 +22,7 @@ function BookAppointment({
 	leadState,
 	setLeadState,
 	previousStep,
+	isResume,
 }) {
 	const bypass = false;
 
@@ -262,6 +263,35 @@ function BookAppointment({
 							date: moment(state.block.blockDate).format("MM-DD-YYYY").toString(),
 							time: moment(state.block.blockDate).format("hh:mm A").toString(),
 						});
+						// Resume flow: the marketing-site embed relies on its parent page
+						// (on littlebelliesspa.com) to stash the booking data in cookies
+						// (lb_booking_name/service/date/time) and redirect to the landing.
+						// Here the parent is the admin /resume page on another domain, so
+						// it can't set littlebelliesspa.com cookies. Instead we send the
+						// top window to a small "booking-redirect" bounce page ON
+						// littlebelliesspa.com that sets those cookies from the query
+						// string and forwards to the localized landing. Resume mode only.
+						if (isResume) {
+							try {
+								const lang = state.language === "Spanish" ? "es" : "en";
+								const base =
+									process.env.REACT_APP_FOLLOWING_URL || "https://www.littlebelliesspa.com";
+								const params = new URLSearchParams({
+									name: `${clientState.firstName} ${clientState.lastName}`,
+									service: clientState.sessionTypeName || "",
+									date: moment(state.block.blockDate).format("MM-DD-YYYY").toString(),
+									time: moment(state.block.blockDate).format("hh:mm A").toString(),
+									lang: lang,
+								});
+								// Pass data in the URL fragment (#), not the query (?): the
+								// marketing host 404s pages when a query string is present,
+								// and the fragment never reaches the server anyway — the
+								// bounce page reads it client-side.
+								(window.top || window).location.href = `${base}/booking-redirect/#${params.toString()}`;
+							} catch (redirectErr) {
+								console.error("resume landing redirect failed", redirectErr);
+							}
+						}
 					} else {
 						setState((state) => ({
 							...state,
@@ -443,6 +473,7 @@ BookAppointment.propTypes = {
 	leadState: PropTypes.object.isRequired,
 	setLeadState: PropTypes.func.isRequired,
 	previousStep: PropTypes.func.isRequired,
+	isResume: PropTypes.bool,
 };
 
 export default BookAppointment;
