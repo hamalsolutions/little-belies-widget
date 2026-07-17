@@ -283,7 +283,11 @@ function BookAppointment({
 									time: moment(state.block.blockDate).format("hh:mm A").toString(),
 									lang: lang,
 								});
-								(window.top || window).location.href = `${base}/booking-redirect/?${params.toString()}`;
+								// Pass data in the URL fragment (#), not the query (?): the
+								// marketing host 404s pages when a query string is present,
+								// and the fragment never reaches the server anyway — the
+								// bounce page reads it client-side.
+								(window.top || window).location.href = `${base}/booking-redirect/#${params.toString()}`;
 							} catch (redirectErr) {
 								console.error("resume landing redirect failed", redirectErr);
 							}
