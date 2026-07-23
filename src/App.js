@@ -3,7 +3,7 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import moment from "moment";
 import "./App.css";
 import { createLead, updateLead, getLeadByKeys } from "./services/leadTracking";
-import { trackFunnel } from "./services/analytics";
+import { trackFunnel, claritySet } from "./services/analytics";
 import { decodeResumeToken } from "./services/resumeToken";
 import usePartialLeadCapture from "./hooks/usePartialLeadCapture";
 import "./styles/info.css";
@@ -107,11 +107,15 @@ function App() {
 
 	const [leadState, setLeadState] = useState({
 		clientFound: false,
-		leadRegistered: false,
+		// In resume mode the token carries the existing lead's keys, so seed them
+		// synchronously at mount. This guarantees every later write is a PUT to
+		// that row (never a createLead) — even if the user submits before the
+		// prefill fetch resolves, so /resume can never spawn a duplicate lead.
+		leadRegistered: !!resume,
 		leadDeleted: false,
 		leadUpdate: false,
-		partititonKey: "",
-		orderKey: "",
+		partititonKey: resume ? resume.timestampSite : "",
+		orderKey: resume ? resume.leadId : "",
 		lastSentStep: -1,
 		inFlight: false,
 	});
@@ -119,6 +123,8 @@ function App() {
 	const step0FiredRef = useRef(false);
 	// Guards the one-time resume prefill.
 	const resumeLoadedRef = useRef(false);
+	// Guards the one-time "resume opened" stamp.
+	const resumeOpenedRef = useRef(false);
 
 	const parent_origin = `${process.env.REACT_APP_FOLLOWING_URL}`;
 	const scrollParenTop = () => {
@@ -871,6 +877,24 @@ function App() {
 		})();
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [state.authorization, services, weeks]);
+
+	// Retargeting tracking: stamp "resume opened" on the existing lead once, as
+	// soon as auth is ready (independent of the prefill fetch), and tag the
+	// Clarity session so resume sessions are filterable. Best-effort.
+	useEffect(() => {
+		if (!resume || resumeOpenedRef.current) return;
+		if (!state.authorization || !state.siteId) return;
+		resumeOpenedRef.current = true;
+		claritySet("source", "resume");
+		updateLead({
+			authorization: state.authorization,
+			siteId: state.siteId,
+			partititonKey: resume.timestampSite,
+			orderKey: resume.leadId,
+			fields: { resumeOpenedAt: moment().format("YYYY-MM-DD[T]HH:mm:ss").toString() },
+		}).catch((e) => console.error("resumeOpenedAt stamp failed", e));
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [state.authorization, state.siteId]);
 
 	useEffect(() => {
 		updateDimensions();
