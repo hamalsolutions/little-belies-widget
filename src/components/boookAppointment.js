@@ -241,7 +241,11 @@ function BookAppointment({
 									siteId: state.siteId,
 									partititonKey: leadState.partititonKey,
 									orderKey: leadState.orderKey,
-									fields: { step: 4 },
+									// In resume mode, also stamp resumeCompletedAt so the
+									// retargeting funnel can count conversions from /resume.
+									fields: isResume
+										? { step: 4, resumeCompletedAt: moment().format("YYYY-MM-DD[T]HH:mm:ss").toString() }
+										: { step: 4 },
 								});
 								setLeadState((leadState) => ({
 									...leadState,
