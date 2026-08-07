@@ -11,15 +11,26 @@ const fromBase64Url = (s) => {
   return atob(b64 + pad);
 };
 
-export function encodeResumeToken({ siteId, timestampSite, leadId }) {
-  return toBase64Url(`${siteId}:${timestampSite}:${leadId}`);
+export function encodeResumeToken({ siteId, timestampSite, leadId, promo, exp }) {
+  const base = `${siteId}:${timestampSite}:${leadId}`;
+  // Optional retargeting-discount tail: promo code + expiration (Unix epoch
+  // seconds). Kept inside the token so it flows end-to-end (SMS link -> resume
+  // page -> widget) without extra query-param plumbing.
+  const withPromo = promo && exp ? `${base}:${promo}:${exp}` : base;
+  return toBase64Url(withPromo);
 }
 
 export function decodeResumeToken(token) {
   try {
-    const [siteId, timestampSite, leadId] = fromBase64Url(token).split(":");
+    const [siteId, timestampSite, leadId, promo, exp] = fromBase64Url(token).split(":");
     if (!siteId || !timestampSite || !leadId) return null;
-    return { siteId, timestampSite, leadId };
+    return {
+      siteId,
+      timestampSite,
+      leadId,
+      promo: promo || "",
+      exp: exp ? parseInt(exp, 10) || 0 : 0,
+    };
   } catch {
     return null;
   }

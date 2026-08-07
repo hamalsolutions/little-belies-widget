@@ -12,6 +12,7 @@ import RegisterForm from "../src/components/registerForm";
 import SelectTimeAppointment from "../src/components/selectTimeAppointment";
 import SelectTimeAppointmentV2 from "../src/components/selectTimeAppointment-v2";
 import BookAppointment from "../src/components/boookAppointment";
+import DiscountBanner from "../src/components/DiscountBanner";
 import { blocks } from "../src/config/constans.js";
 import { useForm } from "react-hook-form";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -24,6 +25,13 @@ function App() {
 	// Resume-booking: ?resume=<token> carries the lead's identity so we can
 	// pre-fill the form and continue the SAME lead instead of starting fresh.
 	const resume = params.get("resume") ? decodeResumeToken(params.get("resume")) : null;
+	// Retargeting discount: the resume token may carry a promo code + expiration
+	// (Unix epoch seconds). The discount is active only while unexpired; once the
+	// timer runs out the booking still proceeds, just without the offer.
+	const discount =
+		resume && resume.promo === "disc15" && resume.exp > Math.floor(Date.now() / 1000)
+			? { code: resume.promo, percent: 15, exp: resume.exp }
+			: null;
 	const ENABLE_WEEK_SERVICE_FILTER = process.env.REACT_APP_ENABLE_WEEK_SERVICE_FILTER === "true";
 	const languageList = { en: "English", es: "Spanish" };
 	const [firstLoad, setFirstLoad] = useState(true);
@@ -1509,6 +1517,8 @@ function App() {
 				stepThree={stepThree}
 			/>
 
+			{discount && <DiscountBanner exp={discount.exp} percent={discount.percent} lang={state.language} />}
+
 			{state.step === "registerForm" && (
 				<RegisterForm
 					state={state}
@@ -1592,6 +1602,8 @@ function App() {
 					setLeadState={setLeadState}
 					previousStep={previousStep}
 					isResume={!!resume}
+					isDiscount={!!discount}
+					discountPercent={discount ? discount.percent : 0}
 				/>
 			)}
 		</div>
