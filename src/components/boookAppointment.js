@@ -23,6 +23,8 @@ function BookAppointment({
 	setLeadState,
 	previousStep,
 	isResume,
+	isDiscount,
+	discountPercent,
 }) {
 	const bypass = false;
 
@@ -140,7 +142,9 @@ function BookAppointment({
 						"\n" +
 						(addHeartbeatBuddies ? "Add Heartbeat Buddies" : "") +
 						(addHeartbeatBuddies ? "\n" : "") +
-						(add8kRealisticView ? "Add 8k Realistic View" : ""),
+						(add8kRealisticView ? "Add 8k Realistic View" : "") +
+						// Retargeting offer: flag the booking so staff apply the discount.
+						(isDiscount ? `\n*** ${discountPercent}% DISCOUNT PROMO (retargeting offer) ***` : ""),
 					startDateTime: moment(state.block.blockDate).format("YYYY-MM-DD[T]HH:mm:ss").toString(),
 					ipAddress: clientState.ipAddress,
 				};
@@ -241,7 +245,11 @@ function BookAppointment({
 									siteId: state.siteId,
 									partititonKey: leadState.partititonKey,
 									orderKey: leadState.orderKey,
-									fields: { step: 4 },
+									// In resume mode, also stamp resumeCompletedAt so the
+									// retargeting funnel can count conversions from /resume.
+									fields: isResume
+										? { step: 4, resumeCompletedAt: moment().format("YYYY-MM-DD[T]HH:mm:ss").toString() }
+										: { step: 4 },
 								});
 								setLeadState((leadState) => ({
 									...leadState,
@@ -375,6 +383,23 @@ function BookAppointment({
 								</div>
 							</div>
 
+							{isDiscount && (
+								<div className="row mb-3">
+									<div className="col">
+										<div
+											className="p-2 rounded text-center"
+											style={{ background: "#fce8f1", border: "1px solid #e6a3c4", color: "#8a2b5f" }}
+											data-cy="discount-note"
+										>
+											<b>🎉 {discountPercent}% discount applied</b>
+											<div style={{ fontSize: ".85rem" }}>
+												Your {discountPercent}% off is noted on this appointment.
+											</div>
+										</div>
+									</div>
+								</div>
+							)}
+
 							{addHeartbeatBuddies || add8kRealisticView ? (
 								<div className="row mb-3">
 									<div className="col">
@@ -474,6 +499,8 @@ BookAppointment.propTypes = {
 	setLeadState: PropTypes.func.isRequired,
 	previousStep: PropTypes.func.isRequired,
 	isResume: PropTypes.bool,
+	isDiscount: PropTypes.bool,
+	discountPercent: PropTypes.number,
 };
 
 export default BookAppointment;

@@ -3,7 +3,7 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import moment from "moment";
 import "./App.css";
 import { createLead, updateLead, getLeadByKeys } from "./services/leadTracking";
-import { trackFunnel } from "./services/analytics";
+import { trackFunnel, claritySet } from "./services/analytics";
 import { decodeResumeToken } from "./services/resumeToken";
 import usePartialLeadCapture from "./hooks/usePartialLeadCapture";
 import "./styles/info.css";
@@ -12,6 +12,7 @@ import RegisterForm from "../src/components/registerForm";
 import SelectTimeAppointment from "../src/components/selectTimeAppointment";
 import SelectTimeAppointmentV2 from "../src/components/selectTimeAppointment-v2";
 import BookAppointment from "../src/components/boookAppointment";
+import DiscountBanner from "../src/components/DiscountBanner";
 import { blocks } from "../src/config/constans.js";
 import { useForm } from "react-hook-form";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -24,6 +25,13 @@ function App() {
 	// Resume-booking: ?resume=<token> carries the lead's identity so we can
 	// pre-fill the form and continue the SAME lead instead of starting fresh.
 	const resume = params.get("resume") ? decodeResumeToken(params.get("resume")) : null;
+	// Retargeting discount: the resume token may carry a promo code + expiration
+	// (Unix epoch seconds). The discount is active only while unexpired; once the
+	// timer runs out the booking still proceeds, just without the offer.
+	const discount =
+		resume && resume.promo === "disc15" && resume.exp > Math.floor(Date.now() / 1000)
+			? { code: resume.promo, percent: 15, exp: resume.exp }
+			: null;
 	const ENABLE_WEEK_SERVICE_FILTER = process.env.REACT_APP_ENABLE_WEEK_SERVICE_FILTER === "true";
 	const languageList = { en: "English", es: "Spanish" };
 	const [firstLoad, setFirstLoad] = useState(true);
@@ -107,11 +115,15 @@ function App() {
 
 	const [leadState, setLeadState] = useState({
 		clientFound: false,
-		leadRegistered: false,
+		// In resume mode the token carries the existing lead's keys, so seed them
+		// synchronously at mount. This guarantees every later write is a PUT to
+		// that row (never a createLead) — even if the user submits before the
+		// prefill fetch resolves, so /resume can never spawn a duplicate lead.
+		leadRegistered: !!resume,
 		leadDeleted: false,
 		leadUpdate: false,
-		partititonKey: "",
-		orderKey: "",
+		partititonKey: resume ? resume.timestampSite : "",
+		orderKey: resume ? resume.leadId : "",
 		lastSentStep: -1,
 		inFlight: false,
 	});
@@ -119,6 +131,8 @@ function App() {
 	const step0FiredRef = useRef(false);
 	// Guards the one-time resume prefill.
 	const resumeLoadedRef = useRef(false);
+	// Guards the one-time "resume opened" stamp.
+	const resumeOpenedRef = useRef(false);
 
 	const parent_origin = `${process.env.REACT_APP_FOLLOWING_URL}`;
 	const scrollParenTop = () => {
@@ -872,6 +886,24 @@ function App() {
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [state.authorization, services, weeks]);
 
+	// Retargeting tracking: stamp "resume opened" on the existing lead once, as
+	// soon as auth is ready (independent of the prefill fetch), and tag the
+	// Clarity session so resume sessions are filterable. Best-effort.
+	useEffect(() => {
+		if (!resume || resumeOpenedRef.current) return;
+		if (!state.authorization || !state.siteId) return;
+		resumeOpenedRef.current = true;
+		claritySet("source", "resume");
+		updateLead({
+			authorization: state.authorization,
+			siteId: state.siteId,
+			partititonKey: resume.timestampSite,
+			orderKey: resume.leadId,
+			fields: { resumeOpenedAt: moment().format("YYYY-MM-DD[T]HH:mm:ss").toString() },
+		}).catch((e) => console.error("resumeOpenedAt stamp failed", e));
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [state.authorization, state.siteId]);
+
 	useEffect(() => {
 		updateDimensions();
 
@@ -1485,6 +1517,8 @@ function App() {
 				stepThree={stepThree}
 			/>
 
+			{discount && <DiscountBanner exp={discount.exp} percent={discount.percent} lang={state.language} />}
+
 			{state.step === "registerForm" && (
 				<RegisterForm
 					state={state}
@@ -1568,6 +1602,8 @@ function App() {
 					setLeadState={setLeadState}
 					previousStep={previousStep}
 					isResume={!!resume}
+					isDiscount={!!discount}
+					discountPercent={discount ? discount.percent : 0}
 				/>
 			)}
 		</div>
