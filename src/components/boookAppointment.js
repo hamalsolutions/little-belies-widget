@@ -24,6 +24,7 @@ function BookAppointment({
 	previousStep,
 	isResume,
 	isDiscount,
+	fromDiscountSms,
 	discountPercent,
 }) {
 	const bypass = false;
@@ -245,10 +246,19 @@ function BookAppointment({
 									siteId: state.siteId,
 									partititonKey: leadState.partititonKey,
 									orderKey: leadState.orderKey,
-									// In resume mode, also stamp resumeCompletedAt so the
-									// retargeting funnel can count conversions from /resume.
+									// In resume mode, also stamp the conversion for the
+									// retargeting funnel. A discount-SMS session attributes
+									// to offerCompletedAt; a plain resume session to
+									// resumeCompletedAt. Uses fromDiscountSms (source of the
+									// link) not isDiscount (coupon still valid) so an
+									// expired-but-booked lead still counts as an offer conv.
 									fields: isResume
-										? { step: 4, resumeCompletedAt: moment().format("YYYY-MM-DD[T]HH:mm:ss").toString() }
+										? {
+												step: 4,
+												...(fromDiscountSms
+													? { offerCompletedAt: moment().format("YYYY-MM-DD[T]HH:mm:ss").toString() }
+													: { resumeCompletedAt: moment().format("YYYY-MM-DD[T]HH:mm:ss").toString() }),
+											}
 										: { step: 4 },
 								});
 								setLeadState((leadState) => ({
@@ -499,6 +509,7 @@ BookAppointment.propTypes = {
 	setLeadState: PropTypes.func.isRequired,
 	previousStep: PropTypes.func.isRequired,
 	isResume: PropTypes.bool,
+	fromDiscountSms: PropTypes.bool,
 	isDiscount: PropTypes.bool,
 	discountPercent: PropTypes.number,
 };
