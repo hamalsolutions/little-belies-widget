@@ -32,6 +32,10 @@ function App() {
 		resume && resume.promo === "disc15" && resume.exp > Math.floor(Date.now() / 1000)
 			? { code: resume.promo, percent: 15, exp: resume.exp }
 			: null;
+	// Attribution flag for the retargeting funnel: whether this session came from
+	// the discount SMS (promo in the token) — independent of whether the coupon
+	// is still valid, so an expired-but-booked lead is still counted as offer.
+	const fromDiscountSms = !!(resume && resume.promo === "disc15");
 	const ENABLE_WEEK_SERVICE_FILTER = process.env.REACT_APP_ENABLE_WEEK_SERVICE_FILTER === "true";
 	const languageList = { en: "English", es: "Spanish" };
 	const [firstLoad, setFirstLoad] = useState(true);
@@ -894,13 +898,20 @@ function App() {
 		if (!state.authorization || !state.siteId) return;
 		resumeOpenedRef.current = true;
 		claritySet("source", "resume");
+		// Attribute the open to the right SMS: a discount link (promo in the
+		// token) stamps offerOpenedAt; the plain resume link stamps resumeOpenedAt.
+		const openedAt = moment().format("YYYY-MM-DD[T]HH:mm:ss").toString();
+		const openField = fromDiscountSms
+			? { offerOpenedAt: openedAt }
+			: { resumeOpenedAt: openedAt };
+		claritySet("retargeting", fromDiscountSms ? "discount" : "resume");
 		updateLead({
 			authorization: state.authorization,
 			siteId: state.siteId,
 			partititonKey: resume.timestampSite,
 			orderKey: resume.leadId,
-			fields: { resumeOpenedAt: moment().format("YYYY-MM-DD[T]HH:mm:ss").toString() },
-		}).catch((e) => console.error("resumeOpenedAt stamp failed", e));
+			fields: openField,
+		}).catch((e) => console.error("resume/offer openedAt stamp failed", e));
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [state.authorization, state.siteId]);
 
@@ -1603,6 +1614,7 @@ function App() {
 					previousStep={previousStep}
 					isResume={!!resume}
 					isDiscount={!!discount}
+					fromDiscountSms={fromDiscountSms}
 					discountPercent={discount ? discount.percent : 0}
 				/>
 			)}
