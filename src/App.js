@@ -1526,6 +1526,7 @@ function App() {
 				stepOne={stepOne}
 				stepTwo={stepTwo}
 				stepThree={stepThree}
+				lang={state.language}
 			/>
 
 			{discount && <DiscountBanner exp={discount.exp} percent={discount.percent} lang={state.language} />}

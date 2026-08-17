@@ -5,11 +5,11 @@ import BabyGrow from "./modals/babyGrow";
 import HearthBeat from "./modals/hearthBeat";
 import RealisticView from "./modals/8kRealisticView";
 import Terms from "./modals/terms";
+import { translate } from "../i18n";
 
 function RegisterForm({
   state,
   setState,
-  params,
   weeks,
   enableWeekServiceFilter,
   watch,
@@ -96,20 +96,6 @@ function RegisterForm({
     },
   };
   
-  const translations = {
-    en: {
-      "Please enter your information": "Please enter your information",
-    },
-    es: {
-      "Please enter your information": "Please enter your information",
-    },
-  };
-
-  const translate = (text) => {
-    const trans = translations[params.get("lang") || "en"];
-    return trans[text] || text;
-  };
-
   const groupTextStyles = {
     color: "#AE678C",
     fontSize: width > 1023 ? 18 : 16,
@@ -149,8 +135,10 @@ function RegisterForm({
             </h1>
             <h3 className="h6 fw-normal">
               {" "}
-              In order to book an appointment please provide the following
-              information
+              {translate(
+                "In order to book an appointment please provide the following information",
+                state.language
+              )}
             </h3>
           </div>
         </div>
@@ -158,7 +146,7 @@ function RegisterForm({
           <div className="col-12 col-md-6">
             <input
               type="text"
-              placeholder="First name"
+              placeholder={translate("First name", state.language)}
               className={
                 "form-control bg-light-input mb-3" +
                 (errors.firstName ? " border-1 is-invalid" : " border-0")
@@ -172,7 +160,7 @@ function RegisterForm({
           <div className="col-12 col-md-6">
             <input
               type="text"
-              placeholder="Last Name"
+              placeholder={translate("Last Name", state.language)}
               className={
                 "form-control bg-light-input mb-3" +
                 (errors.lastName ? " border-1 is-invalid" : " border-0")
@@ -188,7 +176,7 @@ function RegisterForm({
           <div className="col">
             <input
               type="text"
-              placeholder="Email"
+              placeholder={translate("Email", state.language)}
               className={
                 "form-control bg-light-input mb-3" +
                 (errors.email ? " border-1 is-invalid" : " border-0")
@@ -204,7 +192,7 @@ function RegisterForm({
           <div className="col">
             <input
               type="tel"
-              placeholder="Phone number"
+              placeholder={translate("Phone number", state.language)}
               className={
                 "form-control bg-light-input mb-3" +
                 (errors.phone ? " border-1 is-invalid" : " border-0")
@@ -228,7 +216,7 @@ function RegisterForm({
                 <Select
                   {...field}
                   options={weeks}
-                  placeholder="Select Pregnancy Weeks"
+                  placeholder={translate("Select Pregnancy Weeks", state.language)}
                   isSearchable={false}
                   className={
                     "dropdown w-100 mb-3" +
@@ -252,9 +240,9 @@ function RegisterForm({
                   placeholder={
                     services.length > 0
                       ? hasFilteredServices
-                        ? "Select a service"
-                        : "No services available for this week"
-                      : "Loading services"
+                        ? translate("Select a service", state.language)
+                        : translate("No services available for this week", state.language)
+                      : translate("Loading services", state.language)
                   }
                   isDisabled={!hasFilteredServices}
                   className={
@@ -289,9 +277,9 @@ function RegisterForm({
                   placeholder={
                     services.length > 0
                       ? hasFilteredServices
-                        ? "Checkout out our amazing addons"
-                        : "Select a week and service first"
-                      : "Loading addons"
+                        ? translate("Checkout out our amazing addons", state.language)
+                        : translate("Select a week and service first", state.language)
+                      : translate("Loading addons", state.language)
                   }
                   className="dropdown w-100 mb-3"
                   isMulti
@@ -326,27 +314,27 @@ function RegisterForm({
                   >
                     {errors.temsCheckbox && (
                       <>
-                        You have to agree to{" "}
+                        {translate("You have to agree to", state.language)}{" "}
                         <button
                           type="button"
                           className="btn btn-link pt-0 px-0 mx-0 mt-0"
                           onClick={showTerms}
                         >
                           {" "}
-                          terms and conditions
+                          {translate("terms and conditions", state.language)}
                         </button>
                       </>
                     )}
                     {!errors.temsCheckbox && (
                       <>
-                        Agree to{" "}
+                        {translate("Agree to", state.language)}{" "}
                         <button
                           type="button"
                           className="btn btn-link pt-0 px-0 mx-0 mt-0"
                           onClick={showTerms}
                         >
                           {" "}
-                          terms and conditions
+                          {translate("terms and conditions", state.language)}
                         </button>
                       </>
                     )}
@@ -439,7 +427,7 @@ function RegisterForm({
               className="btn btn-cta-active rounded-pill px-3 mx-auto"
               onClick={() => setClickButtonForm(true)}
             >
-              Check availabilities
+              {translate("Check availabilities", state.language)}
             </button>
           </div>
         </div>
@@ -452,7 +440,6 @@ function RegisterForm({
 RegisterForm.propTypes = {
   state: PropTypes.object.isRequired,
   setState: PropTypes.func.isRequired,
-  params: PropTypes.object.isRequired,
   weeks: PropTypes.array.isRequired,
   enableWeekServiceFilter: PropTypes.bool,
   watch: PropTypes.func,
