@@ -1,10 +1,12 @@
 import React from "react"
 import { PropTypes } from "prop-types";
+import { translate } from "../i18n";
 
 function StepProgress({
   stepOne,
   stepTwo,
   stepThree,
+  lang,
 }) {
 
   const stepProgressStyles = {
@@ -67,11 +69,11 @@ function StepProgress({
       <div className="row mx-auto align-items-center justify-content-center">
         <div className="col-12 d-flex">
 
-          <span className="col col-md-3 col-lg-4 col-xl-4">Information</span>
+          <span className="col col-md-3 col-lg-4 col-xl-4">{translate("Information", lang)}</span>
           <div className="col" />
-          <span className="col col-md-5 col-lg-4 col-xl-4 text-center">Schedule</span>
+          <span className="col col-md-5 col-lg-4 col-xl-4 text-center">{translate("Schedule", lang)}</span>
           <div className="col" />
-          <span className="col col-md-3 col-lg-4 col-xl-4 text-end">Summary</span>
+          <span className="col col-md-3 col-lg-4 col-xl-4 text-end">{translate("Summary", lang)}</span>
 
         </div>
       </div>
@@ -85,6 +87,7 @@ StepProgress.propTypes = {
   stepOne: PropTypes.string.isRequired,
   stepTwo: PropTypes.string.isRequired,
   stepThree: PropTypes.string.isRequired,
+  lang: PropTypes.string,
 };
 
 

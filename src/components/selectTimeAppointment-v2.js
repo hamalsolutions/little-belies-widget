@@ -6,6 +6,7 @@ import { faSpinner } from "@fortawesome/free-solid-svg-icons";
 import moment from "moment";
 import { updateLead } from "../services/leadTracking";
 import { trackFunnel } from "../services/analytics";
+import { translate } from "../i18n";
 
 function formatDate(dateString) {
 	const date = new Date(dateString);
@@ -229,7 +230,7 @@ function SelectTimeAppointmentV2({ setStepTwo, previousStep, state, setState, se
 								previousStep("availability");
 							}}
 						>
-							BACK
+							{translate("BACK", state.language)}
 						</button>
 					</div>
 				</div>
@@ -241,7 +242,7 @@ function SelectTimeAppointmentV2({ setStepTwo, previousStep, state, setState, se
 
 				{state.availabilityRequestStatus === "ready" && bookable && bookable.length > 0 && (
 					<>
-						<h1 className="h4">Select time for you appointment:</h1>
+						<h1 className="h4">{translate("Select time for you appointment:", state.language)}</h1>
 						<div className="row my-4 gx-0 mx-auto justify-content-center justify-content-lg-start">
 							{bookable.map((block, index) => {
 								return (
@@ -264,7 +265,7 @@ function SelectTimeAppointmentV2({ setStepTwo, previousStep, state, setState, se
 						<div className="row my-4">
 							<div className="col text-center">
 								<button className="btn btn-cta rounded-pill px-3 m-2" disabled={state.block.id === ""} onClick={blockSelected}>
-									NEXT
+									{translate("NEXT", state.language)}
 								</button>
 							</div>
 						</div>
@@ -273,9 +274,9 @@ function SelectTimeAppointmentV2({ setStepTwo, previousStep, state, setState, se
 				{state.availabilityRequestStatus === "ready" && bookable && bookable.length < 1 && (
 					<div className="row">
 						<div className="col text-center">
-							<h1 className="h1 mb-3">Sorry, there are no available appointments for this date</h1>
+							<h1 className="h1 mb-3">{translate("Sorry, there are no available appointments for this date", state.language)}</h1>
 							<h1 className="h3 mb-3">
-								Please select another day on the calendar or call us to help you book at{" "}
+								{translate("Please select another day on the calendar or call us to help you book at", state.language)}{" "}
 								<a href={"tel:1" + siteInfo.phone} style={{ color: "#AE678C" }}>
 									{formatPhoneNumber(siteInfo.phone)}
 								</a>
@@ -287,7 +288,7 @@ function SelectTimeAppointmentV2({ setStepTwo, previousStep, state, setState, se
 					<div className="row">
 						<div className="col text-center">
 							<h1 className="h1 m-auto">
-								<FontAwesomeIcon spin icon={faSpinner} /> Loading
+								<FontAwesomeIcon spin icon={faSpinner} /> {translate("Loading", state.language)}
 							</h1>
 						</div>
 					</div>
@@ -296,7 +297,7 @@ function SelectTimeAppointmentV2({ setStepTwo, previousStep, state, setState, se
 					<div className="row">
 						<div className="col text-center">
 							<h1 className="h3 mb-3">
-								There was an error, please call us to help you book at{" "}
+								{translate("There was an error, please call us to help you book at", state.language)}{" "}
 								<a href={"tel:1" + siteInfo.phone} style={{ color: "#AE678C" }}>
 									{formatPhoneNumber(siteInfo.phone)}
 								</a>

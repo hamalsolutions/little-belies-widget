@@ -7,6 +7,7 @@ import { removeTags } from "../config/constans";
 import { getIp } from "../services/external";
 import { updateLead } from "../services/leadTracking";
 import { trackFunnel } from "../services/analytics";
+import { translate } from "../i18n";
 
 function BookAppointment({
 	state,
@@ -339,9 +340,9 @@ function BookAppointment({
 			<div className="row mt-4 gx-5">
 				{state.appointmentRequestStatus !== "BOOK-APPOINTMENT-OK" && (
 					<div className="col d-flex justify-content-between">
-						<h1 className="h3 text-uppercase text-center">Your booking information</h1>
+						<h1 className="h3 text-uppercase text-center">{translate("Your booking information", state.language)}</h1>
 						<button className="btn btn-cta rounded-pill btn-sm px-3 m-2" onClick={() => previousStep("summary")}>
-							BACK
+							{translate("BACK", state.language)}
 						</button>
 					</div>
 				)}
@@ -353,8 +354,8 @@ function BookAppointment({
 								<div className="d-block alert alert-danger text-center">
 									<span>
 										{" "}
-										There has been an error booking your appointment, please try again, if the error persist please call this number:{" "}
-										<a href={`tel:${state.phone}`}>{state.phone}</a> and we will get you sorted out{" "}
+										{translate("There has been an error booking your appointment, please try again, if the error persist please call this number:", state.language)}{" "}
+										<a href={`tel:${state.phone}`}>{state.phone}</a> {translate("and we will get you sorted out", state.language)}{" "}
 									</span>
 								</div>
 							)}
@@ -380,14 +381,14 @@ function BookAppointment({
 							<div className="row my-3">
 								<div className="col">
 									<div>
-										<b>Full Name:</b> {clientState.firstName + " " + clientState.lastName}
+										<b>{translate("Full Name:", state.language)}</b> {clientState.firstName + " " + clientState.lastName}
 									</div>
 								</div>
 							</div>
 							<div className="row mb-3">
 								<div className="col">
 									<div>
-										<b>Service: </b>
+										<b>{translate("Service:", state.language)} </b>
 										{clientState.sessionTypeName}
 									</div>
 								</div>
@@ -401,9 +402,9 @@ function BookAppointment({
 											style={{ background: "#fce8f1", border: "1px solid #e6a3c4", color: "#8a2b5f" }}
 											data-cy="discount-note"
 										>
-											<b>🎉 {discountPercent}% discount applied</b>
+											<b>🎉 {discountPercent}% {translate("discount applied", state.language)}</b>
 											<div style={{ fontSize: ".85rem" }}>
-												Your {discountPercent}% off is noted on this appointment.
+												{translate("Your", state.language)} {discountPercent}% {translate("off is noted on this appointment.", state.language)}
 											</div>
 										</div>
 									</div>
@@ -414,7 +415,7 @@ function BookAppointment({
 								<div className="row mb-3">
 									<div className="col">
 										<div>
-											<b>Addons: </b>
+											<b>{translate("Addons:", state.language)} </b>
 											{addHeartbeatBuddies && "Add Heartbeat Buddies "}
 											{addHeartbeatBuddies && add8kRealisticView && "-"}
 											{add8kRealisticView && " Add 8k Realistic View"}
@@ -428,13 +429,13 @@ function BookAppointment({
 							<div className="row mb-3">
 								<div className="col-auto">
 									<div>
-										<b>Date: </b>
+										<b>{translate("Date:", state.language)} </b>
 										{moment(state.block.blockDate).format("MM-DD-YYYY").toString()}
 									</div>
 								</div>
 								<div className="col-auto">
 									<div>
-										<b>Time: </b>
+										<b>{translate("Time:", state.language)} </b>
 										{moment(state.block.blockDate).format("hh:mm A").toString()}
 									</div>
 								</div>
@@ -442,7 +443,7 @@ function BookAppointment({
 							<div className="row mb-3">
 								<div className="col">
 									<div className="col">
-										<b>Location Address: </b>
+										<b>{translate("Location Address:", state.language)} </b>
 										{removeTags(state.address)}
 									</div>
 								</div>
@@ -451,7 +452,7 @@ function BookAppointment({
 								<div className="row mb-3">
 									<div className="col">
 										<div>
-											<b>How to Arrive : </b>
+											<b>{translate("How to Arrive :", state.language)} </b>
 											{removeTags(state.howtoarrive)}
 										</div>
 									</div>
@@ -460,7 +461,7 @@ function BookAppointment({
 							<div className="row mb-3">
 								<div className="col">
 									<div>
-										<b>Location Phone: </b>
+										<b>{translate("Location Phone:", state.language)} </b>
 										<a href={`tel:${state.phone}`}>{state.phone}</a>
 									</div>
 								</div>
@@ -477,10 +478,10 @@ function BookAppointment({
 											<button type="button" disabled={!state.captchaReady} className="btn btn-cta-active rounded-pill px-3 mx-auto" onClick={bookAppointment}>
 												{state.appointmentRequestStatus === "loading" && (
 													<>
-														<FontAwesomeIcon spin icon={faSpinner} /> Booking
+														<FontAwesomeIcon spin icon={faSpinner} /> {translate("Booking", state.language)}
 													</>
 												)}
-												{state.appointmentRequestStatus !== "loading" && <>Book appointment</>}
+												{state.appointmentRequestStatus !== "loading" && <>{translate("Book appointment", state.language)}</>}
 											</button>
 										</div>
 									</div>
