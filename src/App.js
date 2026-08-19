@@ -143,6 +143,36 @@ function App() {
 		window.parent.postMessage({ task: "scroll_top" }, parent_origin);
 	};
 
+	// The widget runs cross-origin inside the WordPress iframe (Amplify domain !=
+	// littlebelliesspa.com), so the parent can no longer read our height directly
+	// (contentDocument throws cross-origin) and the iframe stays stuck at its
+	// hard-coded 750px fallback. On iOS Safari a fixed-height iframe can't scroll
+	// its overflow, so the Next button ends up cut off. Fix: post our real content
+	// height; the parent listens for { task: "resize", height } and sizes the
+	// iframe to it, so there's a single natural page scroll and Next is always in
+	// view. Sub-pixel changes are ignored so we don't spam the parent every paint.
+	const lastPostedHeightRef = useRef(0);
+	const postHeight = () => {
+		// Measure the <body>, NOT <html>: when the content is shorter than the
+		// iframe viewport the browser stretches <html> to fill it, so
+		// documentElement.scrollHeight floors at the current iframe height and the
+		// iframe could never shrink back (e.g. the short confirmation step would
+		// keep a tall step's height). <body> tracks real content and shrinks.
+		const body = document.body;
+		if (!body) return;
+		const height = Math.max(body.scrollHeight, body.offsetHeight);
+		if (!height) return;
+		if (Math.abs(height - lastPostedHeightRef.current) < 2) return;
+		lastPostedHeightRef.current = height;
+		// targetOrigin "*" (not parent_origin) on purpose: the height is not
+		// sensitive, and this makes the resize immune to a www/non-www or
+		// http/https mismatch between REACT_APP_FOLLOWING_URL and the actual page
+		// origin — otherwise a config drift would silently drop the message and the
+		// iframe would stay stuck again. The parent still validates our origin on
+		// its side before honoring the height.
+		window.parent.postMessage({ task: "resize", height }, "*");
+	};
+
 	const siteInfo = sitesInfo.find((i) => i.site === `${state.siteId}-${state.locationId}`);
 	const googleTrackBooking = ({ name, service, date, time }) => {
 		console.log("sending task to parent");
@@ -920,6 +950,40 @@ function App() {
 
 		window.addEventListener("resize", updateDimensions);
 		return () => window.removeEventListener("resize", updateDimensions);
+	}, []);
+
+	// Report our content height to the parent iframe on every layout change so it
+	// can size the iframe (see postHeight). ResizeObserver on <body> catches step
+	// navigation, service/add-on expansion, async slot loads and font swaps; the
+	// delayed posts cover late layout on older iOS where fonts/images settle after
+	// mount without re-triggering the observer.
+	useEffect(() => {
+		let raf = 0;
+		const schedule = () => {
+			cancelAnimationFrame(raf);
+			raf = requestAnimationFrame(postHeight);
+		};
+		schedule();
+
+		let ro;
+		if (typeof ResizeObserver !== "undefined" && document.body) {
+			ro = new ResizeObserver(schedule);
+			ro.observe(document.body);
+		}
+		window.addEventListener("resize", schedule);
+		window.addEventListener("load", schedule);
+		const t1 = setTimeout(postHeight, 300);
+		const t2 = setTimeout(postHeight, 1200);
+
+		return () => {
+			cancelAnimationFrame(raf);
+			if (ro) ro.disconnect();
+			window.removeEventListener("resize", schedule);
+			window.removeEventListener("load", schedule);
+			clearTimeout(t1);
+			clearTimeout(t2);
+		};
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
 
 	const updateDimensions = () => {
