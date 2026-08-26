@@ -5,6 +5,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faSpinner } from "@fortawesome/free-solid-svg-icons";
 import moment from "moment";
 import { updateLead } from "../services/leadTracking";
+import { siteMinStartDates } from "../config/constans";
 import { trackFunnel } from "../services/analytics";
 import { translate } from "../i18n";
 
@@ -65,6 +66,16 @@ function SelectTimeAppointmentV2({ setStepTwo, previousStep, state, setState, se
 	const [skipCounter, setSkipCounter] = useState(0);
 
 	useEffect(() => {
+		// Sites with a future opening day only show availability from that date:
+		// clamp any earlier selection (including the initial one) back to it.
+		const minStartDate = siteMinStartDates[state.siteId];
+		if (minStartDate && moment(state.startDate, "MM/DD/YYYY").isBefore(moment(minStartDate, "MM/DD/YYYY"), "day")) {
+			setState((state) => ({
+				...state,
+				startDate: minStartDate,
+			}));
+			return;
+		}
 		const showLoading = () => {
 			setState((state) => ({
 				...state,

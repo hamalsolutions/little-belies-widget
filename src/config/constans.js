@@ -145,6 +145,13 @@ export const blocks = [
 	},
 ];
 
+// Sites that only accept bookings starting on a future date (e.g. new
+// locations before opening day). Keyed by Mindbody siteId, value MM/DD/YYYY.
+export const siteMinStartDates = {
+	"5752647": "04/15/2026", // Irvine
+	"5756021": "09/12/2026", // Salt Lake City
+};
+
 export const removeTags = (str) => {
 	if (str === null || str === "") return false;
 	else str = str.toString();
