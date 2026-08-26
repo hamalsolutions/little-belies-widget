@@ -13,7 +13,7 @@ import SelectTimeAppointment from "../src/components/selectTimeAppointment";
 import SelectTimeAppointmentV2 from "../src/components/selectTimeAppointment-v2";
 import BookAppointment from "../src/components/boookAppointment";
 import DiscountBanner from "../src/components/DiscountBanner";
-import { blocks } from "../src/config/constans.js";
+import { blocks, siteMinStartDates } from "../src/config/constans.js";
 import { useForm } from "react-hook-form";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Controller } from "react-hook-form";
@@ -271,23 +271,15 @@ function App() {
 		return serviceId;
 	};
 
-	useEffect(() => { 
-		if (state.siteId === "5752647") { //Irvine
-			const today = moment().format("MM/DD/YYYY").toString();
-			const dayFriday = moment("04/15/2026").format("MM/DD/YYYY").toString();
+	useEffect(() => {
+		const minStartDate = siteMinStartDates[state.siteId];
+		if (minStartDate && moment(state.startDate, "MM/DD/YYYY").isBefore(moment(minStartDate, "MM/DD/YYYY"), "day")) {
 			setState((state) => ({
 				...state,
-				startDate: today > dayFriday ? today : dayFriday
+				startDate: minStartDate
 			}));
 		}
-		// if (state.siteId === "5739704") { //Charlotte
-		// 	const today = moment().format("MM/DD/YYYY").toString();
-		// 	const dayFriday = moment("08/30/2024").format("MM/DD/YYYY").toString();
-		// 	setState((state) => ({
-		// 		...state,
-		// 		startDate: today > dayFriday ? today : dayFriday
-		// 	}));
-		// }
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [state.siteId]);
 	// Loads the dropdown values and set the states for that display on first load
 	useEffect(() => {
