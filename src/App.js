@@ -19,19 +19,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Controller } from "react-hook-form";
 import { faInfo } from "@fortawesome/free-solid-svg-icons";
 import * as crypto from "crypto-js";
-
-// fetch that aborts after `timeoutMs` so a hung/slow backend can't freeze the
-// form on "Loading services" forever. Callers treat an abort like any failure
-// and retry.
-async function fetchWithTimeout(url, options, timeoutMs = 15000) {
-	const controller = new AbortController();
-	const timer = setTimeout(() => controller.abort(), timeoutMs);
-	try {
-		return await fetch(url, { ...options, signal: controller.signal });
-	} finally {
-		clearTimeout(timer);
-	}
-}
+import { fetchWithTimeout } from "./util/fetchWithTimeout";
 
 function App() {
 	const params = new URLSearchParams(window.location.search);
