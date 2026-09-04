@@ -20,6 +20,19 @@ import { Controller } from "react-hook-form";
 import { faInfo } from "@fortawesome/free-solid-svg-icons";
 import * as crypto from "crypto-js";
 
+// fetch that aborts after `timeoutMs` so a hung/slow backend can't freeze the
+// form on "Loading services" forever. Callers treat an abort like any failure
+// and retry.
+async function fetchWithTimeout(url, options, timeoutMs = 15000) {
+	const controller = new AbortController();
+	const timer = setTimeout(() => controller.abort(), timeoutMs);
+	try {
+		return await fetch(url, { ...options, signal: controller.signal });
+	} finally {
+		clearTimeout(timer);
+	}
+}
+
 function App() {
 	const params = new URLSearchParams(window.location.search);
 	// Resume-booking: ?resume=<token> carries the lead's identity so we can
@@ -283,6 +296,7 @@ function App() {
 	}, [state.siteId]);
 	// Loads the dropdown values and set the states for that display on first load
 	useEffect(() => {
+		let cancelled = false;
 		async function getServices() {
 			try {
 				const authPayload = {
@@ -301,7 +315,7 @@ function App() {
 					},
 					body: JSON.stringify(body),
 				};
-				const authResponse = await fetch(
+				const authResponse = await fetchWithTimeout(
 					`${process.env.REACT_APP_API_URL}/api/userToken/`,
 					authRequest
 				);
@@ -320,7 +334,7 @@ function App() {
 							locationid: state.locationId,
 						},
 					};
-					const ultrasoundResponse = await fetch(
+					const ultrasoundResponse = await fetchWithTimeout(
 						`${process.env.REACT_APP_API_URL}/api/sessionTypes/2`,
 						ultrasoundsRequest
 					);
@@ -362,12 +376,17 @@ function App() {
 									locationid: state.locationId,
 								},
 							};
-							const massageResponse = await fetch(
+							const massageResponse = await fetchWithTimeout(
 								`${process.env.REACT_APP_API_URL}/api/sessionTypes/3`,
 								massageRequest
 							);
+							if (!massageResponse.ok) throw new Error(`sessionTypes/3 ${massageResponse.status}`);
 							const massageData = await massageResponse.json();
-							filterMassageData = massageData.services.filter((i) => { return i.seeOnLine === true });
+							// Guard: a malformed/empty massage response must NOT throw and
+							// strand the whole form on "Loading services" — show no massages.
+							filterMassageData = Array.isArray(massageData && massageData.services)
+								? massageData.services.filter((i) => { return i.seeOnLine === true })
+								: [];
 						}
 						const ultrasounds = [];
 						const massages = [];
@@ -439,14 +458,26 @@ function App() {
 							},
 						];
 						setServices(displayableServices);
+						return true;   // success — stop the retry loop
 					}
 				}
 			} catch (error) {
-				console.error(JSON.stringify(error));
+				console.error("getServices error:", (error && error.message) || JSON.stringify(error));
 			}
+			return false;   // any failure (non-ok / timeout / malformed) -> retry
 		}
 		getSitesInfo();
-		getServices();
+		// Resilience: the backend (MindBody-backed) intermittently 500s / times
+		// out; without retry the form sat on "Loading services" forever (users
+		// stuck, per Clarity). Retry with capped exponential backoff until it
+		// loads or the component unmounts, so a transient blip self-heals.
+		(async () => {
+			for (let attempt = 1; !cancelled && attempt <= 30; attempt++) {
+				if (await getServices()) return;
+				const backoff = Math.min(1000 * 2 ** (attempt - 1), 30000);
+				await new Promise((r) => setTimeout(r, backoff));
+			}
+		})();
 		const arrayOfWeeks = [];
 		arrayOfWeeks.push({
 			value: "I don't know",
@@ -460,6 +491,9 @@ function App() {
 			arrayOfWeeks.push(element);
 		}
 		setWeeks(arrayOfWeeks);
+		return () => {
+			cancelled = true;
+		};
 	}, []);
 
 	const getFirstAvailability = (availabilities) => {
