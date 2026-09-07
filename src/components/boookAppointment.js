@@ -8,6 +8,7 @@ import { getIp } from "../services/external";
 import { updateLead } from "../services/leadTracking";
 import { trackFunnel } from "../services/analytics";
 import { translate } from "../i18n";
+import { fetchWithTimeout } from "../util/fetchWithTimeout";
 
 function BookAppointment({
 	state,
@@ -78,7 +79,7 @@ function BookAppointment({
 						},
 						body: JSON.stringify(payload),
 					};
-					const createClientResponse = await fetch(`${process.env.REACT_APP_API_URL}/api/clients`, createClientRequest);
+					const createClientResponse = await fetchWithTimeout(`${process.env.REACT_APP_API_URL}/api/clients`, createClientRequest);
 					const createClientData = await createClientResponse.json();
 					if (createClientResponse.ok) {
 						const createdClient = {
@@ -103,7 +104,9 @@ function BookAppointment({
 						}));
 						setState((state) => ({
 							...state,
-							appointmentRequestStatus: "IDLE",
+							// Surface the failure so the error alert shows instead of the
+							// button silently returning to idle ("nothing happens").
+							appointmentRequestStatus: "BOOK-APPOINTMENT-FAIL",
 						}));
 						createAppointment = false;
 					}
@@ -160,7 +163,7 @@ function BookAppointment({
 					},
 					body: JSON.stringify(payload),
 				};
-				const bookAppointmentResponse = await fetch(`${process.env.REACT_APP_API_URL}/api/appointments`, bookAppointmentRequest);
+				const bookAppointmentResponse = await fetchWithTimeout(`${process.env.REACT_APP_API_URL}/api/appointments`, bookAppointmentRequest);
 				const bookAppointmentData = await bookAppointmentResponse.json();
 				if (bookAppointmentResponse.ok) {
 					const mailBody = {
@@ -329,6 +332,10 @@ function BookAppointment({
 		} catch (error) {
 			setState((state) => ({
 				...state,
+				// Set appointmentRequestStatus (not just status) so the spinner stops
+				// and the error alert renders — a timeout/network error must never
+				// leave the button stuck on "Booking..." with no message.
+				appointmentRequestStatus: "BOOK-APPOINTMENT-FAIL",
 				status: "BOOK-APPOINTMENT-FAIL",
 				message: "Client request Error: " + JSON.stringify(error.message),
 			}));

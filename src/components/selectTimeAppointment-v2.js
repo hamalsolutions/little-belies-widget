@@ -232,8 +232,7 @@ function SelectTimeAppointmentV2({ setStepTwo, previousStep, state, setState, se
 		<div className="row ">
 			<div className="col">
 				<div className="row my-3">
-					<div className="col d-block d-md-flex justify-content-between">
-						<h1 className="h1"> </h1>
+					<div className="col d-flex justify-content-between align-items-center">
 						<button
 							className="btn btn-cta rounded-pill btn-sm px-3 m-2"
 							onClick={() => {
@@ -242,6 +241,13 @@ function SelectTimeAppointmentV2({ setStepTwo, previousStep, state, setState, se
 							}}
 						>
 							{translate("BACK", state.language)}
+						</button>
+						<button
+							className="btn btn-cta rounded-pill btn-sm px-3 m-2"
+							disabled={state.block.id === ""}
+							onClick={blockSelected}
+						>
+							{translate("NEXT", state.language)}
 						</button>
 					</div>
 				</div>
