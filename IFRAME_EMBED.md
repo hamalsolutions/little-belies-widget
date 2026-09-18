@@ -89,6 +89,37 @@ REACT_APP_FOLLOWING_URL = https://www.littlebelliesspa.com
 `scroll_top` y `google_track_booking`; el `resize` funciona igual gracias al
 `targetOrigin: "*"`.
 
+## Gotcha: colapso de márgenes (botón "Agendar cita" cortado)
+
+`body.scrollHeight` **no incluye** los márgenes verticales de los hijos que
+colapsan a través de `<body>` (el `mt-4` del encabezado de cada paso y el
+`mb-3` del bloque resumen escapaban por arriba y por abajo). En el paso 3
+(Resumen) la medición quedaba **~64px corta**, el padre ajustaba el iframe a
+esa altura y el botón **Agendar cita** quedaba cortado a la mitad.
+
+Fix (sep 2026):
+
+- `body { display: flow-root }` en `src/index.css` — contiene los márgenes de
+  los hijos, así `body.scrollHeight` mide el contenido real. No mueve el layout
+  y `<body>` sigue encogiendo en pasos cortos (a diferencia de `<html>`, que
+  hace piso en la altura del viewport).
+- `postHeight` además toma el borde inferior de `#root`
+  (`getBoundingClientRect().bottom + scrollY`) como segunda opinión, por si esa
+  regla CSS se pierde algún día.
+
+## Cómo probar localmente (harness + mock API)
+
+La API de QA no acepta orígenes `localhost` (CORS), así que el flujo completo
+se prueba con un mock local (sin credenciales):
+
+1. `node qa/mock-api.js` — mock de la API en `:3006` (token fake, servicios y
+   horarios enlatados).
+2. `.env.development.local` (gitignored) con
+   `REACT_APP_API_URL=http://localhost:3006`.
+3. `npm start` y abrir `http://localhost:<puerto>/embed-harness.html` — página
+   en `public/` que replica el embed de WordPress (iframe fallback 750px + el
+   mismo listener de `resize`, con un HUD que muestra la altura recibida).
+
 ## Cómo se verificó
 
 - Harness local replicando el embed (iframe fijo 750px, cross-origin): el iframe
@@ -96,3 +127,8 @@ REACT_APP_FOLLOWING_URL = https://www.littlebelliesspa.com
   sin tope), y el Next queda accesible con **un** scroll normal de página.
 - Widget **real** (dev server) embebido: emite `resize` en el render inicial y de
   nuevo tras un reflow; el padre ajusta el iframe (ya no se queda en 750px).
+- Fix del colapso de márgenes: flujo completo Info → Agenda → Resumen en el
+  harness (viewport 375px y desktop). Antes: Resumen posteaba 471px con
+  contenido real de 535px (botón cortado). Después: postea 535px, el botón se
+  ve completo, y el iframe sigue encogiendo al pasar de un paso alto a uno
+  corto (790px → 535px).

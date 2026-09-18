@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Embed harness (replica WP /location/)</title>
+<style>
+  /* Replica de style.css del tema WP */
+  body { margin: 0; font-family: sans-serif; background: #fff; }
+  .wrap { max-width: 1140px; margin: 0 auto; padding: 0 12px; }
+  .contenido-pagina-mapagraf { position: relative; margin-bottom: 30px; border: 0px; width: 100%; height: 300px; }
+  .contenido-pagina-appoint { margin-bottom: 2rem; }
+  .map-placeholder { background: #cfe8cf; height: 300px; display: flex; align-items: center; justify-content: center; color: #446; }
+  #hud { position: fixed; bottom: 0; right: 0; background: #222; color: #0f0; font: 12px monospace; padding: 4px 8px; z-index: 9999; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1 style="text-align:center;color:#C56F9C;">Little Bellies Pregnancy Spa <span>Davie</span></h1>
+  <div class="contenido-pagina-appoint">
+    <h3 style="text-align:center;color:#C56F9C;">¡RESERVE SU CITA AHORA!</h3>
+    <!-- Igual que single-location.php: fallback fijo 750px, el resize llega por postMessage -->
+    <iframe id="ifrm" class="contenido-pagina-mapagraf" style="height: 750px; z-index: 999; position: relative;"
+      src="/?id=490100&lang=es&city=davie&phone=%2B17867289368&address=5400%20S.%20University%20Drive%2C%20Suite%20700A%20Davie%2C%20Florida%2033328&latitude=26.06&longitude=-80.25"></iframe>
+  </div>
+  <div class="map-placeholder contenido-pagina-mapagraf">[ Google Map de la página WP debajo del widget ]</div>
+</div>
+<div id="hud">iframe: 750px</div>
+<script>
+  // Réplica exacta del handleMessage de single-location.php (solo resize/scroll_top)
+  window.addEventListener("message", function (event) {
+    var d = event.data || {};
+    if (d.task === "resize" && d.height > 0) {
+      document.getElementById("ifrm").style.height = Math.ceil(d.height) + "px";
+      document.getElementById("hud").textContent = "iframe: " + Math.ceil(d.height) + "px (recibido " + d.height + ")";
+    }
+    if (d.task === "scroll_top") { window.scrollTo(0, 0); }
+  });
+</script>
+</body>
+</html>

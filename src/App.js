@@ -159,9 +159,19 @@ function App() {
 		// documentElement.scrollHeight floors at the current iframe height and the
 		// iframe could never shrink back (e.g. the short confirmation step would
 		// keep a tall step's height). <body> tracks real content and shrinks.
+		// body is display:flow-root (index.css) so the steps' vertical margins are
+		// contained and counted here; when they collapsed through <body> the summary
+		// step measured ~64px short and the iframe cut off the Book button. The
+		// #root bounding-rect bottom is a second opinion in case that CSS is ever
+		// lost — it catches the collapsed top margins without flooring at the
+		// viewport height, so the iframe can still shrink.
 		const body = document.body;
 		if (!body) return;
-		const height = Math.max(body.scrollHeight, body.offsetHeight);
+		const root = document.getElementById("root");
+		const rootBottom = root
+			? root.getBoundingClientRect().bottom + window.pageYOffset
+			: 0;
+		const height = Math.ceil(Math.max(body.scrollHeight, body.offsetHeight, rootBottom));
 		if (!height) return;
 		if (Math.abs(height - lastPostedHeightRef.current) < 2) return;
 		lastPostedHeightRef.current = height;

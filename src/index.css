@@ -1,5 +1,10 @@
 body {
   margin: 0;
+  /* flow-root contains the children's vertical margins (mt-4/mb-3 on the step
+     containers). Without it they collapse through <body>, body.scrollHeight
+     underreports the real content height (~64px short on the summary step) and
+     the iframe auto-height (postHeight in App.js) cuts off the Book button. */
+  display: flow-root;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
     'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
     sans-serif;
