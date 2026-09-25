@@ -940,6 +940,24 @@ function App() {
 				clientFound: true,
 				lastSentStep: Number(lead.step) || 0,
 			}));
+
+			// Resume: land the client directly on the schedule step. Picking a time
+			// is the biggest funnel drop-off; returning them to step 1 makes them
+			// re-enter data they already gave. Only auto-advance when availability
+			// has what it needs — a matched service and weeks; otherwise stay on the
+			// prefilled form so they can complete it. This calls the same handler as
+			// the "Check availabilities" button (T&C already accepted at step >= 1).
+			if (matched && weeksVal != null && weeksVal !== "") {
+				setValue("temsCheckbox", true);
+				onFormSubmit({
+					firstName: nameParts[0] || "",
+					lastName: nameParts.slice(1).join(" ") || "",
+					email: lead.email || "",
+					phone: String(lead.mobilePhone || ""),
+					weeks: { value: String(weeksVal), label: String(weeksVal) },
+					service: matched,
+				});
+			}
 		})();
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [state.authorization, services, weeks]);
