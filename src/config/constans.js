@@ -150,6 +150,7 @@ export const blocks = [
 export const siteMinStartDates = {
 	"5752647": "04/15/2026", // Irvine
 	"5756021": "09/12/2026", // Salt Lake City
+	"5756930": "10/19/2026", // Birmingham
 };
 
 export const removeTags = (str) => {
